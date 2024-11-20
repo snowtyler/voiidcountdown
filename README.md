@@ -10,7 +10,7 @@ This datapack includes
 And a few more things!
 
 ## Installation
-Installing Voiid Countdown Timer is as easy as downloading the latest version and dropping it in the 'datapacks' folder of your world. When you come back to your world you will see a text indicating that it has been successfully installed!
+Installing Voiid Countdown Timer is as easy as downloading the [latest version](https://github.com/maxxvoiid/voiidcountdown/releases/latest) and dropping it in the 'datapacks' folder of your world. When you come back to your world you will see a text indicating that it has been successfully installed!
 
 ## How to use it?
 There is the configuration book, which allows you to do all the things included in this datapack in one book. To get it, it will be as easy as putting the command `/function voiidtimer:book` and you will have it in your hand!
