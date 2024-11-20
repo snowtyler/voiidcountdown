@@ -1,0 +1,39 @@
+name: Bug report
+description: Report Voiid Countdown Timer bugs here
+labels: [bug]
+body:
+  - type: textarea
+    id: description
+    attributes:
+      label: "Describe your bug here."
+      description: 'Tell us in as much detail as you can!'
+    validations:
+      required: true
+
+  - type: textarea
+    id: toproduce
+    attributes:
+      label: "Do you know how you reproduced the bug?"
+      description: 'You can include videos for much more detail!'
+    validations:
+      required: true
+
+  - type: textarea
+    id: vtcversion
+    attributes:
+      label: "In which version of Voiid Countdown Timer does the bug occur?"
+    validations:
+      required: true
+
+  - type: dropdown
+    id: mcversion
+    attributes:
+      label: In which version of Minecraft does it happen?
+      description: 'If your version of Minecraft is not listed here, it is because you are using a version incompatible with Voiid Countdown Timer.'
+      options:
+        - 1.21
+        - 1.21.1
+        - 1.21.2
+        - 1.21.3
+    validations:
+      required: true
