@@ -1,5 +1,5 @@
 # Voiid Countdown Timer
-> A client and server side datapack
+> A simple and quick timer datapack
 
 ## Features
 This datapack includes
