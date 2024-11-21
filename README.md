@@ -1,5 +1,9 @@
 # Voiid Countdown Timer
-> A simple and quick timer datapack
+[![Releases VCT](https://img.shields.io/github/v/release/Voiid-Studios/voiidcountdown?style=for-the-badge&logo=github&label=Release&color=e99600 "View the latest release")](https://github.com/Voiid-Studios/voiidcountdown/releases) [![Discord](https://img.shields.io/discord/1184575618541686794?style=for-the-badge&logo=discord&label=Discord%20server&color=5865F2 "Join our Discord Server")](https://discord.gg/vNJbmKQTxv) [![License](https://img.shields.io/badge/license-example?style=for-the-badge&label=Voiid%20Studios&color=ffffff "View the Voiid Studios public license")](https://github.com/Voiid-Studios/voiidstudios/blob/main/LICENSE.md) [![Issues](https://img.shields.io/github/issues/Voiid-Studios/voiidcountdown?style=for-the-badge&logo=github&label=Issues&color=d605e0 "View or open an issue")](https://github.com/Voiid-Studios/voiidcountdown/issues)
+
+Voiid Countdown Timer is a simple and lightweight customizable timer datapack, which includes several languages to use it.
+
+<img src="https://i.ibb.co/Bj5TTFV/vctbannerfull.png" alt="voiidlfull" width="1200"/>
 
 ## Features
 This datapack includes
