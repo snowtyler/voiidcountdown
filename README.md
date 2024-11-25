@@ -45,8 +45,8 @@ Use the **configuration book** to customize everything you need:
 
 # 🎮 Ready to try Voiid Countdown Timer?
 
-<a href="https://ko-fi.com/maxxvoiid"><img src="https://i.ibb.co/jgDPgQc/supportme-red402x.png" alt="supportkofi" width="500"/></a>
+<a href="https://ko-fi.com/maxxvoiid"><img src="https://i.ibb.co/jgDPgQc/supportme-red402x.png" alt="supportkofi" width="400"/></a>
 
-Support me by buying a coffee at Ko-Fi to create more projects like this one :)
+If you like my projects, consider buying a coffee from me through Ko-Fi, all the money raised there is reinvested in my projects :)
 
 https://ko-fi.com/maxxvoiid
