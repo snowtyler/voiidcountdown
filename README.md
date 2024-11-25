@@ -41,5 +41,6 @@ Use the **configuration book** to customize everything you need:
 - 👥 **SinglePlayer and Multiplayer Compatible**: Designed to run smoothly in both solo worlds and multiplayer servers!
 - 📦 **Compatible with several different versions**: Voiid Countdown Timer is designed to work on versions later than 1.15, up to the newest versions!
 - 🛠️ **Frequent bug fixes**: When we get a bug report, we investigate it and fix it as quickly as possible, making sure you have no problems!
+- 💻 **Open Source**: This datapack is open source, so you can explore, learn and customize it according to your needs, [you can go to the official repository here.](https://github.com/Voiid-Studios/voiidcountdown/)
 
 # 🎮 Ready to try Voiid Countdown Timer?
