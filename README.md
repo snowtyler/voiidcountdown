@@ -44,3 +44,9 @@ Use the **configuration book** to customize everything you need:
 - 💻 **Open Source**: This datapack is open source, so you can explore, learn and customize it according to your needs, [you can go to the official repository here.](https://github.com/Voiid-Studios/voiidcountdown/)
 
 # 🎮 Ready to try Voiid Countdown Timer?
+
+<a href="https://ko-fi.com/maxxvoiid"><img src="https://i.ibb.co/jgDPgQc/supportme-red402x.png" alt="supportkofi" width="600"/></a>
+
+Support me by buying a coffee at Ko-Fi to create more projects like this one :)
+
+https://ko-fi.com/maxxvoiid
