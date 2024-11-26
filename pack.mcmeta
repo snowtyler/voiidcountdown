@@ -1,6 +1,7 @@
- {
+{
+    "id": "voiidcountdowntimer",
     "pack": {
-        "pack_format": 48,
-    "description": "Customizable and lightweight timer datapack developed by MaxxVoiid"
+        "pack_format": 5,
+        "description": "Voiid Countdown Timer by Voiid Studios\n└ v1.1 ● GLOBAL (1.15.x - 1.21.x)"
     }
- }
+}
