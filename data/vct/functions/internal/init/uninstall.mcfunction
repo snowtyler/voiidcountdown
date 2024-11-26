@@ -8,6 +8,4 @@ execute if score LanguageTimer Timer matches 1 run tellraw @s ["----------------
 # System
 playsound minecraft:entity.player.levelup ambient @s ~ ~ ~ 0.2 2
 clear @a written_book{display:{Lore:['["",{"text":"vctc","italic":false}]']}}
-bossbar remove voiidtimer:bar
-scoreboard objectives remove Timer
-datapack disable "file/VoiidCountdownTimer-v1.1.zip"
+function vct:internal/api/uninstall
