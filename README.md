@@ -24,7 +24,7 @@ Installing **Voiid Countdown Timer** is super easy:
 
 ## 📖 How to use it?
 Use the **configuration book** to customize everything you need:
-1. Execute the command `/function voiidtimer:book` to receive the book. 📘
+1. Execute the command `/function vct:book` to receive the book. 📘
 2. When you open it, you will find sections such as:
    - ⏰ **Set time**: Define how long the timer will last.
    - 🎛️ **Timer controls**: Easily start, pause or restart the timer.
