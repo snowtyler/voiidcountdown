@@ -11,7 +11,9 @@
 
 [![Ko-fi Small](https://i.ibb.co/FKRcQdt/kofired-250px.png)](https://ko-fi.com/maxxvoiid)
 
-### A simple "Countdown Timer", why wouldn't it be in the title?
+---
+
+### As simple as the name implies.
 Voiid Countdown Timer is a simple and lightweight customizable countdown timer datapack.
 
 </div>
