@@ -4,7 +4,7 @@
 [![Release VCT](https://img.shields.io/github/v/release/Voiid-Studios/voiidcountdown?style=for-the-badge&logo=github&label=Release&color=e99600 "View the latest release")](https://github.com/Voiid-Studios/voiidcountdown/releases)
 [![Modrinth](https://img.shields.io/modrinth/dt/N6N9gUha?style=for-the-badge&logo=modrinth&label=Modrinth&color=%2300AF5C "View Modrinth page")](https://modrinth.com/datapack/voiid-countdown-timer)
 [![CurseForge](https://img.shields.io/curseforge/dt/1145327?style=for-the-badge&logo=curseforge&label=CurseForge&color=F16436 "View CurseForge page")](https://curseforge.com/minecraft/data-packs/vct-voiid-countdown-timer/)
-[![Planet Minecraft](https://img.shields.io/badge/Minecraft-planet?style=for-the-badge&label=Planet&color=669bbc)](https://curseforge.com/minecraft/data-packs/vct-voiid-countdown-timer/)
+[![Planet Minecraft](https://img.shields.io/badge/Minecraft-planet?style=for-the-badge&label=Planet&color=669bbc)](https://www.planetminecraft.com/data-pack/vct-voiid-countdown-timer/)
 
 [![License](https://img.shields.io/badge/license-example?style=for-the-badge&label=Voiid%20Studios&color=ffffff "View the Voiid Studios public license")](https://github.com/Voiid-Studios/voiidstudios/blob/main/LICENSE.md)
 [![Issues](https://img.shields.io/github/issues/Voiid-Studios/voiidcountdown?style=for-the-badge&logo=github&label=Issues&color=b744b8 "View or open an issue")](https://github.com/Voiid-Studios/voiidcountdown/issues)
