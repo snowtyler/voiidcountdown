@@ -1,9 +1,20 @@
+<div align="center">
+
 # Voiid Countdown Timer
-[![Release VCT](https://img.shields.io/github/v/release/Voiid-Studios/voiidcountdown?style=for-the-badge&logo=github&label=Release&color=e99600 "View the latest release")](https://github.com/Voiid-Studios/voiidcountdown/releases) [![Modrinth](https://img.shields.io/modrinth/dt/N6N9gUha?style=for-the-badge&logo=modrinth&label=Modrinth&color=%2300AF5C "View Modrinth page")](https://modrinth.com/datapack/voiid-countdown-timer) [![CurseForge](https://img.shields.io/curseforge/dt/1145327?style=for-the-badge&logo=curseforge&label=CurseForge&color=F16436 "View CurseForge page")](https://curseforge.com/minecraft/data-packs/vct-voiid-countdown-timer/)
+[![Release VCT](https://img.shields.io/github/v/release/Voiid-Studios/voiidcountdown?style=for-the-badge&logo=github&label=Release&color=e99600 "View the latest release")](https://github.com/Voiid-Studios/voiidcountdown/releases)
+[![Modrinth](https://img.shields.io/modrinth/dt/N6N9gUha?style=for-the-badge&logo=modrinth&label=Modrinth&color=%2300AF5C "View Modrinth page")](https://modrinth.com/datapack/voiid-countdown-timer)
+[![CurseForge](https://img.shields.io/curseforge/dt/1145327?style=for-the-badge&logo=curseforge&label=CurseForge&color=F16436 "View CurseForge page")](https://curseforge.com/minecraft/data-packs/vct-voiid-countdown-timer/)
+[![Planet Minecraft](https://img.shields.io/badge/Minecraft-planet?style=for-the-badge&label=Planet&color=669bbc)](https://curseforge.com/minecraft/data-packs/vct-voiid-countdown-timer/)
 
-[![License](https://img.shields.io/badge/license-example?style=for-the-badge&label=Voiid%20Studios&color=ffffff "View the Voiid Studios public license")](https://github.com/Voiid-Studios/voiidstudios/blob/main/LICENSE.md) [![Issues](https://img.shields.io/github/issues/Voiid-Studios/voiidcountdown?style=for-the-badge&logo=github&label=Issues&color=d605e0 "View or open an issue")](https://github.com/Voiid-Studios/voiidcountdown/issues)
+[![License](https://img.shields.io/badge/license-example?style=for-the-badge&label=Voiid%20Studios&color=ffffff "View the Voiid Studios public license")](https://github.com/Voiid-Studios/voiidstudios/blob/main/LICENSE.md)
+[![Issues](https://img.shields.io/github/issues/Voiid-Studios/voiidcountdown?style=for-the-badge&logo=github&label=Issues&color=b744b8 "View or open an issue")](https://github.com/Voiid-Studios/voiidcountdown/issues)
 
-Voiid Countdown Timer is a simple and lightweight customizable timer datapack, which includes several languages to use it.
+[![Ko-fi Small](https://i.ibb.co/FKRcQdt/kofired-250px.png)](https://ko-fi.com/maxxvoiid)
+
+### A simple "Countdown Timer", why wouldn't it be in the title?
+Voiid Countdown Timer is a simple and lightweight customizable countdown timer datapack.
+
+</div>
 
 <img src="https://i.ibb.co/Bj5TTFV/vctbannerfull.png" alt="voiidlfull" width="1200"/>
 
@@ -13,7 +24,8 @@ Voiid Countdown Timer includes:
 - ⚙️ **Quick and easy setup**: Set up the entire Countdown Timer in a few simple steps with an easy-to-use setup book.
 - 🌍 **Languages Available**: Compatible with **Spanish** and **English**.
 - ⏳ **Progressive Time Bar**: Clearly displays the progress of time with the time bar.
-- 🪶 **Ultra Lightweight**: It takes up very little space, plus it's optimized to run smoothly!
+- 🪶 **Lightweight**: It takes up very little space, plus it's optimized to run smoothly!
+- 🎈 **Custom Events**: Have commands executed when something happens, such as when the timer starts or the time runs out!
 - 🎁 **And More Surprises**: Includes additional functionalities that will enhance your experience.  
 
 ## 🚀 Installation
@@ -45,8 +57,8 @@ Use the **configuration book** to customize everything you need:
 
 # 🎮 Ready to try Voiid Countdown Timer?
 
-<a href="https://ko-fi.com/maxxvoiid"><img src="https://i.ibb.co/jgDPgQc/supportme-red402x.png" alt="supportkofi" width="400"/></a>
+[![Ko-fi Big](https://i.ibb.co/zHF6WmP/kofired-400px.png)](https://ko-fi.com/maxxvoiid)
 
-If you like my projects, consider buying a coffee from me through Ko-Fi, all the money raised there is reinvested in my projects :)
+If you like my projects, consider buying a coffee from me through Ko-fi, all the money raised there is reinvested in my projects :)
 
 https://ko-fi.com/maxxvoiid
