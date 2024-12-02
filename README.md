@@ -1,7 +1,9 @@
 <div align="center">
 
 # Voiid Countdown Timer
-[![Release VCT](https://img.shields.io/github/v/release/Voiid-Studios/voiidcountdown?style=for-the-badge&logo=github&label=Release&color=e99600 "View the latest release")](https://github.com/Voiid-Studios/voiidcountdown/releases)
+[![Release VCT](https://img.shields.io/github/v/release/Voiid-Studios/voiidcountdown?style=for-the-badge&logo=github&label=Release&color=fe50dc "View the latest release")](https://github.com/Voiid-Studios/voiidcountdown/releases)
+[![Last Release Date](https://img.shields.io/github/release-date/Voiid-Studios/voiidcountdown?display_date=published_at&style=for-the-badge&logo=github&label=Last%20Release%20On&color=ffa130 "View the latest release")](https://github.com/Voiid-Studios/voiidcountdown/releases)
+
 [![Modrinth](https://img.shields.io/modrinth/dt/N6N9gUha?style=for-the-badge&logo=modrinth&label=Modrinth&color=%2300AF5C "View Modrinth page")](https://modrinth.com/datapack/voiid-countdown-timer)
 [![CurseForge](https://img.shields.io/curseforge/dt/1145327?style=for-the-badge&logo=curseforge&label=CurseForge&color=F16436 "View CurseForge page")](https://curseforge.com/minecraft/data-packs/vct-voiid-countdown-timer/)
 [![Planet Minecraft](https://img.shields.io/badge/Minecraft-planet?style=for-the-badge&label=Planet&color=669bbc)](https://www.planetminecraft.com/data-pack/vct-voiid-countdown-timer/)
