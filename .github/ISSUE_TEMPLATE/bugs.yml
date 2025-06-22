@@ -18,16 +18,18 @@ body:
     validations:
       required: true
 
-  - type: textarea
+  - type: input
     id: vtcversion
     attributes:
-      label: "In which version of Voiid Countdown Timer does the bug occur?"
+      label: "Voiid Countdown Timer version"
+      placeholder: "e.g. 1.3"
     validations:
       required: true
 
-  - type: textarea
+  - type: input
     id: mcversion
     attributes:
-      label: "In which version of Minecraft does it happen?"
+      label: "Minecraft version"
+      placeholder: "e.g. 1.21.6"
     validations:
       required: true
