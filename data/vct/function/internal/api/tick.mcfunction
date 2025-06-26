@@ -67,5 +67,12 @@ execute if score Minute2 Timer matches 10.. run scoreboard players set Minute2 T
 execute if score Hour Timer matches 1.. run scoreboard players add Minute1 Timer 6
 execute if score Hour Timer matches 1.. run scoreboard players remove Hour Timer 1
 
+## Prevent numbers from being negative
+execute if score Hour Timer matches ..-1 run scoreboard players set Hour Timer 0
+execute if score Second2 Timer matches ..-1 run scoreboard players set Second2 Timer 0
+execute if score Second1 Timer matches ..-1 run scoreboard players set Second1 Timer 0
+execute if score Minute2 Timer matches ..-1 run scoreboard players set Minute2 Timer 0
+execute if score Minute1 Timer matches ..-1 run scoreboard players set Minute1 Timer 0
+
 ## Event ended if time is up
 execute if score Hour Timer matches 0 if score Minute1 Timer matches 0 if score Minute2 Timer matches 0 if score Second2 Timer matches 1 if score Second1 Timer matches 0 run schedule function vct:internal/api/ended 2t replace
