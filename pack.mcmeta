@@ -2,9 +2,7 @@
     "id": "voiidcountdowntimer",
     "pack": {
         "pack_format": 5,
-        "description": "Voiid Countdown Timer by Voiid Studios\n└ v1.3.1-b1 ● BETA (1.21.7-rc1)"
         "supported_formats": [5, 71],
-        "description": "Voiid Countdown Timer by Voiid Studios\n└ v1.3.1-b2 ● BETA (1.21.7-rc1)"
+        "description": "Voiid Countdown Timer by Voiid Studios\n└ v1.3.1-b2 ● BETA (1.21.7-rc2)"
     }
-}
 }
