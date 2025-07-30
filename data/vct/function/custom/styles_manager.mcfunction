@@ -12,3 +12,13 @@ execute if score Style Timer matches 3 run function vct:custom/styles/pink
 execute if score Style Timer matches 4 run function vct:custom/styles/purple
 execute if score Style Timer matches 5 run function vct:custom/styles/red
 execute if score Style Timer matches 6 run function vct:custom/styles/yellow
+
+
+## To add your custom style, follow this format:
+# execute if score Style Timer matches <number> run function vct:custom/styles/<your_style_name>
+# You can use any number you want, but make sure it doesn't conflict with the existing ones!
+## Example:
+# execute if score Style Timer matches 7 run function vct:custom/styles/orange
+
+## If you want to change the style in-game, you can use this commnand:
+# /scoreboard players set Style Timer <number>
