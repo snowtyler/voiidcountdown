@@ -2,5 +2,5 @@
 
 bossbar remove voiidtimer:bar
 scoreboard objectives remove Timer
-datapack disable "file/VoiidCountdownTimer.zip"
-datapack disable "file/VoiidCountdownTimer"
+datapack disable "file/voiidcountdown-datapack.zip"
+datapack disable "file/voiidcountdown-datapack"
