@@ -1,0 +1,42 @@
+Config:
+  # The plugin will send an update notification message when it finds an available update.
+  update_notification: true
+  # When the timer ends, how many ticks should wait to hide the boss bar (1 second = 20 ticks)
+  ticks_hide_after_ending: 60
+  # The default boss bar color is BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.
+  bossbar_default_color: WHITE
+  # The sound of the timer every second
+  timer_sound: UI_BUTTON_CLICK
+  # The text of the boss bar (%HH% hours, %MM% minutes, %SS% seconds)
+  timer_bossbar_text: "%HH%:%MM%:%SS%"
+  # Which text formatter to use (MINIMESSAGE, LEGACY or UNIVERSAL)
+  # Please note that UNIVERSAL requires the most resources, but supports all types of formats.
+
+  # (&x&f&f&5&5&f&fc and &#ff55ff LEGACY - <color:#ff55ff> MINIMESSAGE)
+  text_format: LEGACY
+  # How many ticks should the boss bar text refresh?
+  # It is usually used when you use animations to make them more fluid.
+  refresh_ticks: 10
+
+Messages:
+  commandReload: '&aConfig Reloaded.'
+  commandNoPermissions: '&cYou don''t have permissions to use this command.'
+  timerSetError: '&cUse: /vct set <HH:MM:SS>'
+  timerSetFormatIncorrect: '&cIncorrect format. Please use HH:MM:SS'
+  timerSetFormatInvalid: '&cThe format does not contain a valid number.'
+  timerSetFormatOutRange: '&cThe timer must be greater than 0 seconds.'
+  timerModifyError: '&cUse: /vct modify <modifier>'
+  timerModifyInvalid: '&cUse: /vct modify <modifier>'
+  timerModifyAddError: '&cUse: /vct modify add <HH:MM:SS>'
+  timerModifyAdd: '&a%HH%:%MM%:%SS% has been added to the timer.'
+  timerModifySetError: '&cUse: /vct modify set <HH:MM:SS>'
+  timerModifySet: '&aThe timer was set to %HH%:%MM%:%SS%.'
+  timerModifyTakeError: '&cUse: /vct modify take <HH:MM:SS>'
+  timerModifyTake: '&a%HH%:%MM%:%SS% has been removed from the timer.'
+  timerModifyBarcolorError: '&cUse: /vct modify barcolor <color>'
+  timerModifyBarcolor: '&aThe color of the timer boss bar has been changed to %COLOR%.'
+  timerStart: '&aTimer started of %HH%:%MM%:%SS%!'
+  timerPause: '&6Timer paused!'
+  timerResume: '&6Timer resumed!'
+  timerStop: '&6Timer stopped!'
+  timerDontExists: '&cThe timer does not exist.'

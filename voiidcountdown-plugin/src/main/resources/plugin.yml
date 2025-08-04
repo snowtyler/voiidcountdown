@@ -1,0 +1,11 @@
+main: vct.voiidstudios.VoiidCountdownTimer
+version: 1.4.0-a1
+name: VoiidCountdownTimer
+author: [Voiid Studios]
+api-version: 1.15
+
+commands:
+  voiidcountdowntimer:
+    description: commando normal
+    aliases:
+      - vct
