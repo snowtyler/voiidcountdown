@@ -6,6 +6,7 @@ Config:
   # The default boss bar color is BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.
   bossbar_default_color: WHITE
   # The sound of the timer every second
+  timer_sound_enabled: false
   timer_sound: UI_BUTTON_CLICK
   # The text of the boss bar (%HH% hours, %MM% minutes, %SS% seconds)
   timer_bossbar_text: "%HH%:%MM%:%SS%"
@@ -25,7 +26,6 @@ Messages:
   timerSetFormatIncorrect: '&cIncorrect format. Please use HH:MM:SS'
   timerSetFormatInvalid: '&cThe format does not contain a valid number.'
   timerSetFormatOutRange: '&cThe timer must be greater than 0 seconds.'
-  timerModifyError: '&cUse: /vct modify <modifier>'
   timerModifyInvalid: '&cUse: /vct modify <modifier>'
   timerModifyAddError: '&cUse: /vct modify add <HH:MM:SS>'
   timerModifyAdd: '&a%HH%:%MM%:%SS% has been added to the timer.'
@@ -33,8 +33,9 @@ Messages:
   timerModifySet: '&aThe timer was set to %HH%:%MM%:%SS%.'
   timerModifyTakeError: '&cUse: /vct modify take <HH:MM:SS>'
   timerModifyTake: '&a%HH%:%MM%:%SS% has been removed from the timer.'
-  timerModifyBarcolorError: '&cUse: /vct modify barcolor <color>'
-  timerModifyBarcolor: '&aThe color of the timer boss bar has been changed to %COLOR%.'
+  timerModifyBarcolorError: '&cUse: /vct modify barcolor <color>. &eYou can use these colors: BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.'
+  timerModifyBarcolorInvalid: '&cThe color "%COLOR%" of the timer boss bar is invalid. Use BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.'
+  timerModifyBarcolor: '&aThe color of the timer boss bar has been changed to "%COLOR%".'
   timerStart: '&aTimer started of %HH%:%MM%:%SS%!'
   timerPause: '&6Timer paused!'
   timerResume: '&6Timer resumed!'

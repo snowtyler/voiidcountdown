@@ -12,6 +12,7 @@ public class MainConfigManager {
     private boolean update_notification;
     private int ticks_hide_after_ending;
     private String bossbar_default_color;
+    private boolean timer_sound_enabled;
     private String timer_sound;
     private String timer_bossbar_text;
     private String text_format;
@@ -19,13 +20,10 @@ public class MainConfigManager {
 
     private String commandReload;
     private String commandNoPermissions;
-    private String debugEnabled;
-    private String debugDisabled;
     private String timerSetError;
     private String timerSetFormatIncorrect;
     private String timerSetFormatInvalid;
     private String timerSetFormatOutRange;
-    private String timerModifyError;
     private String timerModifyInvalid;
     private String timerModifyAddError;
     private String timerModifyAdd;
@@ -33,8 +31,9 @@ public class MainConfigManager {
     private String timerModifySet;
     private String timerModifyTakeError;
     private String timerModifyTake;
-    private String timerModifyBossbarError;
-    private String timerModifyBossbar;
+    private String timerModifyBarcolorError;
+    private String timerModifyBarcolorInvalid;
+    private String timerModifyBarcolor;
     private String timerStart;
     private String timerPause;
     private String timerResume;
@@ -55,6 +54,7 @@ public class MainConfigManager {
         update_notification = config.getBoolean("Config.update_notification");
         ticks_hide_after_ending = config.getInt("Config.ticks_hide_after_ending");
         bossbar_default_color = config.getString("Config.bossbar_default_color");
+        timer_sound_enabled = config.getBoolean("Config.timer_sound_enabled");
         timer_sound = config.getString("Config.timer_sound");
         timer_bossbar_text = config.getString("Config.timer_bossbar_text");
         text_format = config.getString("Config.text_format");
@@ -62,13 +62,10 @@ public class MainConfigManager {
 
         commandReload = config.getString("Messages.commandReload");
         commandNoPermissions = config.getString("Messages.commandNoPermissions");
-        debugEnabled = config.getString("Messages.debugEnabled");
-        debugDisabled = config.getString("Messages.debugDisabled");
         timerSetError = config.getString("Messages.timerSetError");
         timerSetFormatIncorrect = config.getString("Messages.timerSetFormatIncorrect");
         timerSetFormatInvalid = config.getString("Messages.timerSetFormatInvalid");
         timerSetFormatOutRange = config.getString("Messages.timerSetFormatOutRange");
-        timerModifyError = config.getString("Messages.timerModifyError");
         timerModifyInvalid = config.getString("Messages.timerModifyInvalid");
         timerModifyAddError = config.getString("Messages.timerModifyAddError");
         timerModifyAdd = config.getString("Messages.timerModifyAdd");
@@ -76,8 +73,9 @@ public class MainConfigManager {
         timerModifySet = config.getString("Messages.timerModifySet");
         timerModifyTakeError = config.getString("Messages.timerModifyTakeError");
         timerModifyTake = config.getString("Messages.timerModifyTake");
-        timerModifyBossbarError = config.getString("Messages.timerModifyBossbarError");
-        timerModifyBossbar = config.getString("Messages.timerModifyBossbar");
+        timerModifyBarcolorError = config.getString("Messages.timerModifyBarcolorError");
+        timerModifyBarcolorInvalid = config.getString("Messages.timerModifyBarcolorInvalid");
+        timerModifyBarcolor = config.getString("Messages.timerModifyBarcolor");
         timerStart = config.getString("Messages.timerStart");
         timerPause = config.getString("Messages.timerPause");
         timerResume = config.getString("Messages.timerResume");
@@ -106,6 +104,10 @@ public class MainConfigManager {
         return bossbar_default_color;
     }
 
+    public boolean isTimer_sound_enabled() {
+        return timer_sound_enabled;
+    }
+
     public String getTimer_sound() {
         return timer_sound;
     }
@@ -130,14 +132,6 @@ public class MainConfigManager {
         return commandNoPermissions;
     }
 
-    public String getDebugEnabled() {
-        return debugEnabled;
-    }
-
-    public String getDebugDisabled() {
-        return debugDisabled;
-    }
-
     public String getTimerSetError() {
         return timerSetError;
     }
@@ -154,20 +148,20 @@ public class MainConfigManager {
         return timerSetFormatOutRange;
     }
 
-    public String getTimerModifyError() {
-        return timerModifyError;
-    }
-
     public String getTimerModifyInvalid() {
         return timerModifyInvalid;
     }
 
-    public String getTimerModifyBossbar() {
-        return timerModifyBossbar;
+    public String getTimerModifyBarcolor() {
+        return timerModifyBarcolor;
     }
 
-    public String getTimerModifyBossbarError() {
-        return timerModifyBossbarError;
+    public String getTimerModifyBarcolorError() {
+        return timerModifyBarcolorError;
+    }
+
+    public String getTimerModifyBarcolorInvalid() {
+        return timerModifyBarcolorInvalid;
     }
 
     public String getTimerModifyTake() {

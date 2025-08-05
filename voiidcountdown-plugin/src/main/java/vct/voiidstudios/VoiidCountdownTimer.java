@@ -3,6 +3,7 @@ package vct.voiidstudios;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
+import vct.voiidstudios.api.Metrics;
 import vct.voiidstudios.api.PAPIExpansion;
 import vct.voiidstudios.commands.MainCommand;
 import vct.voiidstudios.listeners.PlayerListener;
@@ -22,6 +23,7 @@ public final class VoiidCountdownTimer extends JavaPlugin {
     private UpdateChecker updateChecker;
     private static MainConfigManager mainConfigManager;
     private static PhasesManager phasesManager;
+    private static Metrics bStatsMetrics;
 
     public void onEnable() {
         instance = this;
@@ -38,9 +40,13 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage("&5   \\/  &6|__  |    &8Running v"+version));
         Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage(""));
 
+        bStatsMetrics = new Metrics(this, 26790);
         phasesManager = new PhasesManager(this);
         updateChecker = new UpdateChecker(version);
-        updateMessage(updateChecker.check());
+
+        if (mainConfigManager.isUpdate_notification()) {
+            updateMessage(updateChecker.check());
+        }
     }
 
     public void onDisable() {

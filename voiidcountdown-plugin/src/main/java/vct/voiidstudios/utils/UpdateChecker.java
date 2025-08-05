@@ -9,7 +9,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 
 public class UpdateChecker implements Listener {
-    private static final int RESOURCE_ID = 0;
+    private static final int RESOURCE_ID = 127616;
     private String version;
     private String latestVersion;
 

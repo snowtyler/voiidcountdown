@@ -8,19 +8,16 @@ import org.bukkit.boss.BarColor;
 import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
-import org.bukkit.event.Event;
-import org.bukkit.plugin.Plugin;
 import org.bukkit.scheduler.BukkitTask;
 import vct.voiidstudios.VoiidCountdownTimer;
-import vct.voiidstudios.api.events.TimerChangeEvent;
 import vct.voiidstudios.managers.TimerManager;
 import vct.voiidstudios.utils.Formatter;
-import vct.voiidstudios.utils.MessageUtils;
 
 public class Timer implements Runnable {
     private int seconds;
     private final BossBar bossbar;
     private BukkitTask task;
+    private static boolean hasSound;
     private Sound soundName;
     private static String timertext;
     private int initialSeconds;
@@ -33,13 +30,18 @@ public class Timer implements Runnable {
         this.initialSeconds = seconds;
         refreshInterval = refreshinterval;
 
+        String colorName = VoiidCountdownTimer.getMainConfigManager().getBossbar_default_color();
+        BarColor color;
+
+        try {
+            color = BarColor.valueOf(colorName.toUpperCase());
+        } catch (IllegalArgumentException e) {
+            color = BarColor.WHITE;
+        }
+
         timertext = timeText;
         this.soundName = Sound.valueOf(timeSound);
-
-        Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage(timeText));
-        Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage(timeSound));
-
-        this.bossbar = Bukkit.createBossBar("", BarColor.WHITE, BarStyle.SOLID, new org.bukkit.boss.BarFlag[0]);
+        this.bossbar = Bukkit.createBossBar("", color, BarStyle.SOLID, new org.bukkit.boss.BarFlag[0]);
     }
 
     public int getInitialSeconds() {
@@ -69,6 +71,14 @@ public class Timer implements Runnable {
                         if (tickCounter >= 20) {
                             tickCounter = 0;
                             Timer.this.seconds += increment;
+
+                            for (Player player : Bukkit.getOnlinePlayers()) {
+                                Timer.this.bossbar.addPlayer(player);
+
+                                if (hasSound) {
+                                    player.playSound(player.getLocation(), Timer.this.soundName, 1.0F, 1.0F);
+                                }
+                            }
                         }
 
                         if (refreshCounter >= refreshInterval) {
@@ -94,10 +104,6 @@ public class Timer implements Runnable {
                             double progress = (double) Timer.this.seconds / (double) Timer.this.initialSeconds;
                             progress = Math.max(0.0, Math.min(1.0, progress));
                             Timer.this.bossbar.setProgress(progress);
-
-                            for (Player player : Bukkit.getOnlinePlayers()) {
-                                Timer.this.bossbar.addPlayer(player);
-                            }
                         }
 
                         if (Timer.this.seconds <= 0) {
@@ -118,6 +124,11 @@ public class Timer implements Runnable {
     public static void refreshTimerText() {
         timertext = VoiidCountdownTimer.getMainConfigManager().getTimer_bossbar_text();
         refreshInterval = VoiidCountdownTimer.getMainConfigManager().getRefresh_ticks();
+        hasSound = VoiidCountdownTimer.getMainConfigManager().isTimer_sound_enabled();
+    }
+
+    public void setBossBarColor(BarColor color) {
+        this.bossbar.setColor(color);
     }
 
     private String formatTimeHH(long time) {
@@ -194,9 +205,10 @@ public class Timer implements Runnable {
     }
 
     public void take(int takeSeconds) {
-        if (this.seconds - takeSeconds >= this.minValue)
+        if (this.seconds - takeSeconds >= this.minValue) {
             this.seconds -= takeSeconds;
             this.initialSeconds -= takeSeconds;
+        }
     }
 
     public void pause() {

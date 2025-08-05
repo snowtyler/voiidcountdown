@@ -11,10 +11,8 @@ import java.util.Locale;
 import java.util.Map;
 
 public class PhasesManager {
-    public static final String PHASE_MD_KEY = "phase-md";
     public static final String PHASE_MM_KEY = "phase-mm";
     public static final String PHASE_MM_G_KEY = "phase-mm-g";
-    public static final String NEG_PHASE_MD_KEY = "-phase-md";
     public static final String NEG_PHASE_MM_KEY = "-phase-mm";
     public static final String NEG_PHASE_MM_G_KEY = "-phase-mm-g";
 
@@ -62,17 +60,13 @@ public class PhasesManager {
     }
 
     private void updateFormattedPhaseValues() {
-        final String indexStr = Integer.toString(index);
         final String mmIndexStr = Integer.toString(mmIndex);
         final String phaseMmGStr = decimalFormat.format(miniGradientIndexBD);
-        final String negIndexStr = Integer.toString(maxIndex - index);
         final String negMmIndexStr = Integer.toString(maxMIndex - mmIndex);
         final String negPhaseMmGStr = decimalFormat.format(miniGradientIndexBD.multiply(minusOne));
 
-        formattedPhaseValues.put(PHASE_MD_KEY, indexStr);
         formattedPhaseValues.put(PHASE_MM_KEY, mmIndexStr);
         formattedPhaseValues.put(PHASE_MM_G_KEY, phaseMmGStr);
-        formattedPhaseValues.put(NEG_PHASE_MD_KEY, negIndexStr);
         formattedPhaseValues.put(NEG_PHASE_MM_KEY, negMmIndexStr);
         formattedPhaseValues.put(NEG_PHASE_MM_G_KEY, negPhaseMmGStr);
     }
@@ -81,9 +75,7 @@ public class PhasesManager {
         return value
                 .replace("#phase-mm-g#", formattedPhaseValues.getOrDefault(PHASE_MM_G_KEY, ""))
                 .replace("#-phase-mm-g#", formattedPhaseValues.getOrDefault(NEG_PHASE_MM_G_KEY, ""))
-                .replace("#phase-md#", formattedPhaseValues.getOrDefault(PHASE_MD_KEY, ""))
                 .replace("#phase-mm#", formattedPhaseValues.getOrDefault(PHASE_MM_KEY, ""))
-                .replace("#-phase-md#", formattedPhaseValues.getOrDefault(NEG_PHASE_MD_KEY, ""))
                 .replace("#-phase-mm#", formattedPhaseValues.getOrDefault(NEG_PHASE_MM_KEY, ""));
     }
 }

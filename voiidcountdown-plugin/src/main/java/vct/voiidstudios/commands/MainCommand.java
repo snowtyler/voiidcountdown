@@ -1,6 +1,7 @@
 package vct.voiidstudios.commands;
 
 import org.bukkit.Bukkit;
+import org.bukkit.boss.BarColor;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -105,9 +106,9 @@ public class MainCommand implements CommandExecutor, TabCompleter {
 
         sender.sendMessage(MessageUtils.getColoredMessage(
                 VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerStart()
-                        .replace("%HH%", Integer.toString(hours))
-                        .replace("%MM%", Integer.toString(minutes))
-                        .replace("%SS%", Integer.toString(seconds))
+                        .replace("%HH%", String.format("%02d", hours))
+                        .replace("%MM%", String.format("%02d", minutes))
+                        .replace("%SS%", String.format("%02d", seconds))
         ));
     }
 
@@ -161,7 +162,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(MessageUtils.getColoredMessage("&6> &eadd &7- Add time to the timer."));
             sender.sendMessage(MessageUtils.getColoredMessage("&6> &eset &7- Set time to the timer."));
             sender.sendMessage(MessageUtils.getColoredMessage("&6> &etake &7- Take time to the timer."));
-            //sender.sendMessage(MessageUtils.getColoredMessage("&6> &ebarcolor &7- Change the color of the bossbar."));
+            sender.sendMessage(MessageUtils.getColoredMessage("&6> &ebarcolor &7- Change the color of the bossbar."));
 
             return;
         }
@@ -212,9 +213,9 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 Bukkit.getPluginManager().callEvent(timerCreateEvent);
                 sender.sendMessage(MessageUtils.getColoredMessage(
                         VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifyAdd()
-                                .replace("%HH%", Integer.toString(addHours))
-                                .replace("%MM%", Integer.toString(addMinutes))
-                                .replace("%SS%", Integer.toString(addSeconds))
+                                .replace("%HH%", String.format("%02d", addHours))
+                                .replace("%MM%", String.format("%02d", addMinutes))
+                                .replace("%SS%", String.format("%02d", addSeconds))
                 ));
                 return;
             case "set":
@@ -254,9 +255,9 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 Bukkit.getPluginManager().callEvent(timerCreateEventSet);
                 sender.sendMessage(MessageUtils.getColoredMessage(
                         VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifySet()
-                                .replace("%HH%", Integer.toString(setHours))
-                                .replace("%MM%", Integer.toString(setMinutes))
-                                .replace("%SS%", Integer.toString(setSeconds))
+                                .replace("%HH%", String.format("%02d", setHours))
+                                .replace("%MM%", String.format("%02d", setMinutes))
+                                .replace("%SS%", String.format("%02d", setSeconds))
                 ));
                 return;
             case "take":
@@ -296,10 +297,38 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 Bukkit.getPluginManager().callEvent(timerCreateEventTake);
                 sender.sendMessage(MessageUtils.getColoredMessage(
                         VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifyTake()
-                                .replace("%HH%", Integer.toString(takeHours))
-                                .replace("%MM%", Integer.toString(takeMinutes))
-                                .replace("%SS%", Integer.toString(takeSeconds))
+                                .replace("%HH%", String.format("%02d", takeHours))
+                                .replace("%MM%", String.format("%02d", takeMinutes))
+                                .replace("%SS%", String.format("%02d", takeSeconds))
                 ));
+                return;
+            case "barcolor":
+                if (args.length < 3) {
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifyBarcolorError()));
+                    return;
+                }
+                String colorName = args[2].toUpperCase();
+
+                if (TimerManager.getInstance().getTimer() == null) {
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerDontExists()));
+                    return;
+                }
+
+                try {
+                    BarColor color = BarColor.valueOf(colorName);
+                    Timer timerColor = TimerManager.getInstance().getTimer();
+                    timerColor.setBossBarColor(color);
+
+                    sender.sendMessage(MessageUtils.getColoredMessage(
+                                    VoiidCountdownTimer.prefix+VoiidCountdownTimer.getMainConfigManager().getTimerModifyBarcolor())
+                            .replace("%COLOR%", colorName)
+                    );
+                } catch (IllegalArgumentException e) {
+                    sender.sendMessage(MessageUtils.getColoredMessage(
+                                    VoiidCountdownTimer.prefix+VoiidCountdownTimer.getMainConfigManager().getTimerModifyBarcolorInvalid())
+                            .replace("%COLOR%", colorName)
+                    );
+                }
                 return;
         }
         sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifyInvalid()));
@@ -337,7 +366,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
 
                 if(args[0].equalsIgnoreCase("modify")) {
                     subcommands.add("add");subcommands.add("set");
-                    subcommands.add("take");
+                    subcommands.add("take");subcommands.add("barcolor");
                 }
 
                 for(String c : subcommands) {
