@@ -10,6 +10,7 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import vct.voiidstudios.VoiidCountdownTimer;
+import vct.voiidstudios.api.events.TimerChange;
 import vct.voiidstudios.managers.TimerManager;
 import vct.voiidstudios.utils.Formatter;
 
@@ -79,6 +80,8 @@ public class Timer implements Runnable {
                                     player.playSound(player.getLocation(), Timer.this.soundName, 1.0F, 1.0F);
                                 }
                             }
+
+                            TimerChange timerChange = new TimerChange(Timer.this);
                         }
 
                         if (refreshCounter >= refreshInterval) {

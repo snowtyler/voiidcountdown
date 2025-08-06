@@ -4,7 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import vct.voiidstudios.VoiidCountdownTimer;
 import vct.voiidstudios.api.Timer;
-import vct.voiidstudios.api.events.TimerFinishEvent;
+import vct.voiidstudios.api.events.TimerFinish;
 import vct.voiidstudios.utils.MessageUtils;
 
 public class TimerManager {
@@ -35,7 +35,7 @@ public class TimerManager {
 
     public void finishTimer() {
         if (this.timer != null) {
-            TimerFinishEvent event = new TimerFinishEvent(this.timer);
+            TimerFinish event = new TimerFinish(this.timer);
             Bukkit.getPluginManager().callEvent(event);
         }
     }

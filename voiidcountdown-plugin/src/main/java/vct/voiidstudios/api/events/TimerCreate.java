@@ -4,12 +4,12 @@ import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
 import vct.voiidstudios.api.Timer;
 
-public class TimerChangeEvent extends Event {
+public class TimerCreate extends Event {
     private static final HandlerList handlers = new HandlerList();
 
     private final Timer timer;
 
-    public TimerChangeEvent(Timer timer) {
+    public TimerCreate(Timer timer) {
         this.timer = timer;
     }
 

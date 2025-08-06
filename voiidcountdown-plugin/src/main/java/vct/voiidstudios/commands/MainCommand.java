@@ -9,9 +9,9 @@ import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import vct.voiidstudios.VoiidCountdownTimer;
 import vct.voiidstudios.api.Timer;
-import vct.voiidstudios.api.events.TimerCreateEvent;
-import vct.voiidstudios.api.events.TimerPauseEvent;
-import vct.voiidstudios.api.events.TimerResumeEvent;
+import vct.voiidstudios.api.events.TimerCreate;
+import vct.voiidstudios.api.events.TimerPause;
+import vct.voiidstudios.api.events.TimerResume;
 import vct.voiidstudios.managers.TimerManager;
 import vct.voiidstudios.utils.MessageUtils;
 
@@ -101,8 +101,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
 
         TimerManager.getInstance().setTimer(timer);
 
-        TimerCreateEvent timerCreateEvent = new TimerCreateEvent(timer);
-        Bukkit.getPluginManager().callEvent(timerCreateEvent);
+        TimerCreate timerCreate = new TimerCreate(timer);
+        Bukkit.getPluginManager().callEvent(timerCreate);
 
         sender.sendMessage(MessageUtils.getColoredMessage(
                 VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerStart()
@@ -120,8 +120,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         }
         timer.pause();
         sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerPause()));
-        TimerPauseEvent timerPauseEvent = new TimerPauseEvent(timer);
-        Bukkit.getPluginManager().callEvent(timerPauseEvent);
+        TimerPause timerPause = new TimerPause(timer);
+        Bukkit.getPluginManager().callEvent(timerPause);
     }
 
     public void resume(CommandSender sender){
@@ -132,8 +132,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         }
         timer.resume();
         sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerResume()));
-        TimerResumeEvent timerResumeEvent = new TimerResumeEvent(timer);
-        Bukkit.getPluginManager().callEvent(timerResumeEvent);
+        TimerResume timerResume = new TimerResume(timer);
+        Bukkit.getPluginManager().callEvent(timerResume);
     }
 
     public void stop(CommandSender sender){
@@ -145,17 +145,17 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         String[] timeParts;
         int addHours, addMinutes, addSeconds, totalSecondsToAdd;
         Timer timer;
-        TimerCreateEvent timerCreateEvent;
+        TimerCreate timerCreate;
         String timeToSet;
         String[] timePartsSet;
         int setHours, setMinutes, setSeconds, totalSecondsToSet;
         Timer timerSet;
-        TimerCreateEvent timerCreateEventSet;
+        TimerCreate timerCreateSet;
         String timeToTake;
         String[] timePartsTake;
         int takeHours, takeMinutes, takeSeconds, totalSecondsToTake;
         Timer timerTake;
-        TimerCreateEvent timerCreateEventTake;
+        TimerCreate timerCreateTake;
 
         if (args.length < 2) {
             sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix +"&7Modifiers for the timer"));
@@ -209,8 +209,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 }
                 timer = TimerManager.getInstance().getTimer();
                 timer.add(totalSecondsToAdd);
-                timerCreateEvent = new TimerCreateEvent(timer);
-                Bukkit.getPluginManager().callEvent(timerCreateEvent);
+                timerCreate = new TimerCreate(timer);
+                Bukkit.getPluginManager().callEvent(timerCreate);
                 sender.sendMessage(MessageUtils.getColoredMessage(
                         VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifyAdd()
                                 .replace("%HH%", String.format("%02d", addHours))
@@ -251,8 +251,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 }
                 timerSet = TimerManager.getInstance().getTimer();
                 timerSet.set(totalSecondsToSet);
-                timerCreateEventSet = new TimerCreateEvent(timerSet);
-                Bukkit.getPluginManager().callEvent(timerCreateEventSet);
+                timerCreateSet = new TimerCreate(timerSet);
+                Bukkit.getPluginManager().callEvent(timerCreateSet);
                 sender.sendMessage(MessageUtils.getColoredMessage(
                         VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifySet()
                                 .replace("%HH%", String.format("%02d", setHours))
@@ -293,8 +293,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 }
                 timerTake = TimerManager.getInstance().getTimer();
                 timerTake.take(totalSecondsToTake);
-                timerCreateEventTake = new TimerCreateEvent(timerTake);
-                Bukkit.getPluginManager().callEvent(timerCreateEventTake);
+                timerCreateTake = new TimerCreate(timerTake);
+                Bukkit.getPluginManager().callEvent(timerCreateTake);
                 sender.sendMessage(MessageUtils.getColoredMessage(
                         VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifyTake()
                                 .replace("%HH%", String.format("%02d", takeHours))

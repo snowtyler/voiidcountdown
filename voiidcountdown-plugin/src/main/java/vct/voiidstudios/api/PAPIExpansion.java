@@ -18,7 +18,9 @@ public class PAPIExpansion extends PlaceholderExpansion {
     // %vct_timer_mm% - Get the minutes (00) of the timer
     // %vct_timer_ss% - Get the seconds (00) of the timer
 
-    // %vct_timer_active% - Return 'true' or 'false' if the timer is active.
+    // %vct_timer_active% - Return 'true' or 'false' if the timer is active (THERE IS A TIMER).
+    // %vct_timer_running% - Return 'true' or 'false' if the timer is running (NOT PAUSED).
+    // %vct_timer_paused% - Return 'true' or 'false' if the timer is paused.
 
     @Override
     public @NotNull String getIdentifier() {
@@ -45,6 +47,10 @@ public class PAPIExpansion extends PlaceholderExpansion {
             return getTimerValueSS();
         } else if (params.equalsIgnoreCase("timer_active")) {
             return isTimerActive();
+        } else if (params.equalsIgnoreCase("timer_running")) {
+            return isTimerRunning();
+        } else if (params.equalsIgnoreCase("timer_paused")) {
+            return isTimerPaused();
         }
 
         return null;
@@ -72,7 +78,16 @@ public class PAPIExpansion extends PlaceholderExpansion {
     }
 
     private String isTimerActive() {
+        return String.valueOf(TimerManager.getInstance().getTimer() != null);
+    }
+
+    private String isTimerRunning() {
         Timer timer = TimerManager.getInstance().getTimer();
-        return String.valueOf(timer == null || timer.isActive());
+        return String.valueOf(timer != null && timer.isActive());
+    }
+
+    private String isTimerPaused() {
+        Timer timer = TimerManager.getInstance().getTimer();
+        return String.valueOf(timer != null && !timer.isActive());
     }
 }
