@@ -7,6 +7,7 @@ import vct.voiidstudios.api.Metrics;
 import vct.voiidstudios.api.PAPIExpansion;
 import vct.voiidstudios.commands.MainCommand;
 import vct.voiidstudios.listeners.PlayerListener;
+import vct.voiidstudios.managers.DependencyManager;
 import vct.voiidstudios.managers.MainConfigManager;
 import vct.voiidstudios.api.UpdateCheckerResult;
 import vct.voiidstudios.managers.PhasesManager;
@@ -18,12 +19,14 @@ import java.util.Objects;
 public final class VoiidCountdownTimer extends JavaPlugin {
     public static String prefix = "&5[&dVCT&5] ";
     public String version = getDescription().getVersion();
+    public static String serverName = Bukkit.getServer().getName();
 
     private static VoiidCountdownTimer instance;
     private UpdateChecker updateChecker;
     private static MainConfigManager mainConfigManager;
     private static PhasesManager phasesManager;
     private static Metrics bStatsMetrics;
+    private static DependencyManager dependencyManager;
 
     public void onEnable() {
         instance = this;
@@ -37,9 +40,10 @@ public final class VoiidCountdownTimer extends JavaPlugin {
 
         Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage("&6        __ ___"));
         Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage("&5  \\  / &6|    |    &dVoiid &eCountdown Timer"));
-        Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage("&5   \\/  &6|__  |    &8Running v"+version));
+        Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage("&5   \\/  &6|__  |    &8Running v" + version + " on " + serverName));
         Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage(""));
 
+        dependencyManager = new DependencyManager(this);
         bStatsMetrics = new Metrics(this, 26790);
         phasesManager = new PhasesManager(this);
         updateChecker = new UpdateChecker(version);
@@ -51,7 +55,7 @@ public final class VoiidCountdownTimer extends JavaPlugin {
 
     public void onDisable() {
         Bukkit.getConsoleSender().sendMessage(
-                ChatColor.translateAlternateColorCodes('&', prefix+"&rHas been disabled! Goodbye ;)")
+                MessageUtils.getColoredMessage(prefix+"&rHas been disabled! Goodbye ;)")
         );
     }
 
@@ -89,5 +93,9 @@ public final class VoiidCountdownTimer extends JavaPlugin {
 
     public static PhasesManager getPhasesManager() {
         return phasesManager;
+    }
+
+    public static DependencyManager getDependencyManager() {
+        return dependencyManager;
     }
 }

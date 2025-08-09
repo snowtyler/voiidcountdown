@@ -1,7 +1,5 @@
 package vct.voiidstudios.api;
 
-import net.kyori.adventure.text.Component;
-import net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
 import org.bukkit.boss.BarColor;
@@ -57,6 +55,70 @@ public class Timer implements Runnable {
         return timertext.replace("%HH%", formatTimeHH(this.seconds)).replace("%MM%", formatTimeMM(this.seconds)).replace("%SS%", formatTimeSS(this.seconds));
     }
 
+    private void updateBossBarTitle(String phasesText) {
+        Formatter formatter = VoiidCountdownTimer.getMainConfigManager().getFormatter();
+        Object formatted = formatter.format(
+                VoiidCountdownTimer.getInstance(),
+                Bukkit.getConsoleSender(),
+                phasesText
+        );
+
+        // Intento seguro con reflection para Component (si está presente en runtime)
+        try {
+            Class<?> componentClass = null;
+            try {
+                componentClass = Class.forName("net.kyori.adventure.text.Component");
+            } catch (ClassNotFoundException ignored) {
+                componentClass = null;
+            }
+
+            // Si formatter devolvió un Component y la clase existe, intentamos setTitle(Component)
+            if (componentClass != null && componentClass.isInstance(formatted)) {
+                try {
+                    // Intentar llamar setTitle(Component)
+                    this.bossbar.getClass().getMethod("setTitle", componentClass).invoke(this.bossbar, formatted);
+                    return;
+                } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {
+                    // Puede que la implementación de BossBar no tenga setTitle(Component) — procedemos a serializar a legacy
+                }
+
+                // Intentar serializar Component -> String usando LegacyComponentSerializer si está disponible
+                try {
+                    Class<?> legacyCls = Class.forName("net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer");
+
+                    Object serializer;
+                    try {
+                        // Preferir legacySection() cuando exista
+                        serializer = legacyCls.getMethod("legacySection").invoke(null);
+                    } catch (NoSuchMethodException nsme) {
+                        // Si no existe legacySection(), construir con builder() y character('&')
+                        Class<?> builderPublicClass = Class.forName("net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer$Builder");
+                        Object builder = legacyCls.getMethod("builder").invoke(null);
+                        builderPublicClass.getMethod("character", char.class).invoke(builder, '&');
+                        try { builderPublicClass.getMethod("hexColors").invoke(builder); } catch (NoSuchMethodException ignored) {}
+                        serializer = builderPublicClass.getMethod("build").invoke(builder);
+                    }
+
+                    // serialize(component) -> String
+                    String legacyTitle = (String) legacyCls.getMethod("serialize", componentClass).invoke(serializer, formatted);
+                    this.bossbar.setTitle(legacyTitle);
+                    return;
+                } catch (Throwable t) {
+                    // Si falla la serialización, continuamos al fallback
+                }
+            }
+        } catch (Throwable t) {
+            // No hacemos nada, seguiremos a fallback
+        }
+
+        // Si el formatter devolvió String, usarlo (convertir & -> §). Si no, usar phasesText como último recurso.
+        if (formatted instanceof String) {
+            this.bossbar.setTitle(((String) formatted).replace('&', '§'));
+        } else {
+            this.bossbar.setTitle(phasesText.replace('&', '§'));
+        }
+    }
+
     private void startTask(int seconds) {
         final int increment = -1;
         this.task = Bukkit.getScheduler().runTaskTimer(
@@ -94,15 +156,7 @@ public class Timer implements Runnable {
 
                             String phasesText = VoiidCountdownTimer.getPhasesManager().formatPhases(rawText);
 
-                            Formatter formatter = VoiidCountdownTimer.getMainConfigManager().getFormatter();
-                            Component formatted = formatter.format(
-                                    VoiidCountdownTimer.getInstance(),
-                                    Bukkit.getConsoleSender(),
-                                    phasesText
-                            );
-
-                            String legacyTitle = LegacyComponentSerializer.legacySection().serialize(formatted);
-                            Timer.this.bossbar.setTitle(legacyTitle);
+                            updateBossBarTitle(phasesText);
 
                             double progress = (double) Timer.this.seconds / (double) Timer.this.initialSeconds;
                             progress = Math.max(0.0, Math.min(1.0, progress));
