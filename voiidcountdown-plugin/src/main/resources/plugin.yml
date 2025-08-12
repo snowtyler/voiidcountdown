@@ -1,8 +1,8 @@
-main: vct.voiidstudios.VoiidCountdownTimer
-version: 1.4.0-rc2
+main: voiidstudios.vct.VoiidCountdownTimer
+version: 1.4.0
 name: VoiidCountdownTimer
 authors: [Voiid Studios]
-api-version: 1.15
+api-version: 1.13
 softdepend: [PlaceholderAPI]
 
 commands:

@@ -1,11 +1,11 @@
-package vct.voiidstudios.api;
+package voiidstudios.vct.api;
 
 import me.clip.placeholderapi.expansion.PlaceholderExpansion;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import vct.voiidstudios.managers.TimerManager;
+import voiidstudios.vct.managers.TimerManager;
 
 public class PAPIExpansion extends PlaceholderExpansion {
     private final JavaPlugin plugin;
@@ -14,6 +14,7 @@ public class PAPIExpansion extends PlaceholderExpansion {
         this.plugin = plugin;
     }
 
+    // %vct_timer_hhmmss% - Get the hours, minutes and seconds (00:00:00) of the timer
     // %vct_timer_hh% - Get the hours (00) of the timer
     // %vct_timer_mm% - Get the minutes (00) of the timer
     // %vct_timer_ss% - Get the seconds (00) of the timer
@@ -39,7 +40,9 @@ public class PAPIExpansion extends PlaceholderExpansion {
 
     @Override
     public @Nullable String onRequest(OfflinePlayer player, @NotNull String params) {
-        if (params.equalsIgnoreCase("timer_hh")) {
+        if (params.equalsIgnoreCase("timer_hhmmss")) {
+            return getTimerValueHHMMSS();
+        } else if (params.equalsIgnoreCase("timer_hh")) {
             return getTimerValueHH();
         } else if (params.equalsIgnoreCase("timer_mm")) {
             return getTimerValueMM();
@@ -53,6 +56,13 @@ public class PAPIExpansion extends PlaceholderExpansion {
             return isTimerPaused();
         }
 
+        return null;
+    }
+
+    private String getTimerValueHHMMSS() {
+        Timer timer = TimerManager.getInstance().getTimer();
+        if (timer != null)
+            return timer.getTimeLeft();
         return null;
     }
 

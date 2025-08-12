@@ -1,9 +1,9 @@
-package vct.voiidstudios.managers;
+package voiidstudios.vct.managers;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.configuration.file.YamlConfiguration;
-import vct.voiidstudios.VoiidCountdownTimer;
+import voiidstudios.vct.VoiidCountdownTimer;
 
 import java.io.File;
 import java.io.IOException;

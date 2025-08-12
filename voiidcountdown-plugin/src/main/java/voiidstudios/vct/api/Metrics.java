@@ -1,4 +1,4 @@
-package vct.voiidstudios.api;
+package voiidstudios.vct.api;
 
 import java.io.BufferedReader;
 import java.io.ByteArrayOutputStream;

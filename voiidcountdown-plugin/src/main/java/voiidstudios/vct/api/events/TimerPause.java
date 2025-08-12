@@ -1,8 +1,8 @@
-package vct.voiidstudios.api.events;
+package voiidstudios.vct.api.events;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import vct.voiidstudios.api.Timer;
+import voiidstudios.vct.api.Timer;
 
 public class TimerPause extends Event {
     private static final HandlerList handlers = new HandlerList();
@@ -15,6 +15,10 @@ public class TimerPause extends Event {
 
     public Timer getTimer() {
         return this.timer;
+    }
+
+    public String getTimeLeft() {
+        return this.timer.getTimeLeft();
     }
 
     public HandlerList getHandlers() {

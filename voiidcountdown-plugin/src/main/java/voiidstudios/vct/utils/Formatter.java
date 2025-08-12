@@ -1,14 +1,15 @@
-package vct.voiidstudios.utils;
+package voiidstudios.vct.utils;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
-import vct.voiidstudios.VoiidCountdownTimer;
+import voiidstudios.vct.VoiidCountdownTimer;
 
 public enum Formatter {
     MINIMESSAGE(
             (plugin, player, text) -> {
-                if (plugin.getDependencyManager().isPaper()) {
+                ServerVersion serverVersion = VoiidCountdownTimer.serverVersion;
+                if (plugin.getDependencyManager().isPaper() && serverVersion.serverVersionGreaterEqualThan(serverVersion, ServerVersion.v1_19_R3)) {
                     try {
                         Class<?> miniMessageClass = Class.forName("net.kyori.adventure.text.minimessage.MiniMessage");
                         Object miniMessage = miniMessageClass.getMethod("miniMessage").invoke(null);
@@ -67,7 +68,13 @@ public enum Formatter {
     ),
     UNIVERSAL(
             (plugin, player, text) -> {
-                if (!hasLegacySerializer() || !hasMiniMessage()) {
+                ServerVersion serverVersion = VoiidCountdownTimer.serverVersion;
+
+                boolean miniCompatible = plugin.getDependencyManager().isPaper()
+                        && serverVersion.serverVersionGreaterEqualThan(serverVersion, ServerVersion.v1_19_R3)
+                        && hasMiniMessage();
+
+                if (!hasLegacySerializer() || !miniCompatible) {
                     return text.replace("&", "§");
                 }
 

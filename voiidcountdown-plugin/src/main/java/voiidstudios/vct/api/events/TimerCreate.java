@@ -1,20 +1,24 @@
-package vct.voiidstudios.api.events;
+package voiidstudios.vct.api.events;
 
 import org.bukkit.event.Event;
 import org.bukkit.event.HandlerList;
-import vct.voiidstudios.api.Timer;
+import voiidstudios.vct.api.Timer;
 
-public class TimerFinish extends Event {
+public class TimerCreate extends Event {
     private static final HandlerList handlers = new HandlerList();
 
     private final Timer timer;
 
-    public TimerFinish(Timer timer) {
+    public TimerCreate(Timer timer) {
         this.timer = timer;
     }
 
     public Timer getTimer() {
         return this.timer;
+    }
+
+    public String getInitialTime() {
+        return this.timer.getInitialTime();
     }
 
     public HandlerList getHandlers() {

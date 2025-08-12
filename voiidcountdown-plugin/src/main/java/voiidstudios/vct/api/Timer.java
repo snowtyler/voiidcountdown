@@ -1,4 +1,4 @@
-package vct.voiidstudios.api;
+package voiidstudios.vct.api;
 
 import org.bukkit.Bukkit;
 import org.bukkit.Sound;
@@ -7,10 +7,10 @@ import org.bukkit.boss.BarStyle;
 import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
-import vct.voiidstudios.VoiidCountdownTimer;
-import vct.voiidstudios.api.events.TimerChange;
-import vct.voiidstudios.managers.TimerManager;
-import vct.voiidstudios.utils.Formatter;
+import voiidstudios.vct.VoiidCountdownTimer;
+import voiidstudios.vct.api.events.TimerChange;
+import voiidstudios.vct.managers.TimerManager;
+import voiidstudios.vct.utils.Formatter;
 
 public class Timer implements Runnable {
     private int seconds;
@@ -177,7 +177,6 @@ public class Timer implements Runnable {
         );
     }
 
-
     public static void refreshTimerText() {
         timertext = VoiidCountdownTimer.getMainConfigManager().getTimer_bossbar_text();
         refreshInterval = VoiidCountdownTimer.getMainConfigManager().getRefresh_ticks();
@@ -186,6 +185,13 @@ public class Timer implements Runnable {
 
     public void setBossBarColor(BarColor color) {
         this.bossbar.setColor(color);
+    }
+
+    private String formatTime(long time) {
+        long hours = time / 3600L;
+        long minutes = time % 3600L / 60L;
+        long seconds = time % 60L;
+        return String.format("%02d:%02d:%02d", new Object[] {hours, minutes, seconds});
     }
 
     private String formatTimeHH(long time) {
@@ -203,6 +209,14 @@ public class Timer implements Runnable {
         return String.format("%02d", new Object[] {seconds});
     }
 
+    public String getInitialTime() {
+        return formatTime(this.initialSeconds);
+    }
+
+    public String getTimeLeft() {
+        return formatTime(this.seconds);
+    }
+
     public String getTimeLeftHH() {
         return formatTimeHH(this.seconds);
     }
@@ -217,14 +231,6 @@ public class Timer implements Runnable {
 
     public boolean isActive() {
         return task != null;
-    }
-
-    public void setMaxValue(int maxValue) {
-        this.maxValue = maxValue;
-    }
-
-    public void setMinValue(int minValue) {
-        this.minValue = minValue;
     }
 
     public void start() {

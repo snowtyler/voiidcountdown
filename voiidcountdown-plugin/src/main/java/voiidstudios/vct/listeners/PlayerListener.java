@@ -1,12 +1,12 @@
-package vct.voiidstudios.listeners;
+package voiidstudios.vct.listeners;
 
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.PlayerJoinEvent;
-import vct.voiidstudios.VoiidCountdownTimer;
-import vct.voiidstudios.utils.MessageUtils;
+import voiidstudios.vct.VoiidCountdownTimer;
+import voiidstudios.vct.utils.MessageUtils;
 
 public class PlayerListener implements Listener {
     private final VoiidCountdownTimer plugin;

@@ -1,7 +1,7 @@
-package vct.voiidstudios.managers;
+package voiidstudios.vct.managers;
 
 import org.bukkit.Bukkit;
-import vct.voiidstudios.VoiidCountdownTimer;
+import voiidstudios.vct.VoiidCountdownTimer;
 
 public class DependencyManager {
     private boolean placeholderAPI;

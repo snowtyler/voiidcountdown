@@ -1,4 +1,4 @@
-package vct.voiidstudios.utils;
+package voiidstudios.vct.utils;
 
 import org.bukkit.ChatColor;
 

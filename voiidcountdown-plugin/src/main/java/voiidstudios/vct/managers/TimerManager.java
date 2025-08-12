@@ -1,11 +1,11 @@
-package vct.voiidstudios.managers;
+package voiidstudios.vct.managers;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
-import vct.voiidstudios.VoiidCountdownTimer;
-import vct.voiidstudios.api.Timer;
-import vct.voiidstudios.api.events.TimerFinish;
-import vct.voiidstudios.utils.MessageUtils;
+import voiidstudios.vct.VoiidCountdownTimer;
+import voiidstudios.vct.api.Timer;
+import voiidstudios.vct.api.events.TimerFinish;
+import voiidstudios.vct.utils.MessageUtils;
 
 public class TimerManager {
     private static TimerManager instance;

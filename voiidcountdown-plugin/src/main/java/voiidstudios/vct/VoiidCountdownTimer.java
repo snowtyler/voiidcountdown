@@ -1,36 +1,41 @@
-package vct.voiidstudios;
+package voiidstudios.vct;
 
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.plugin.java.JavaPlugin;
-import vct.voiidstudios.api.Metrics;
-import vct.voiidstudios.api.PAPIExpansion;
-import vct.voiidstudios.commands.MainCommand;
-import vct.voiidstudios.listeners.PlayerListener;
-import vct.voiidstudios.managers.DependencyManager;
-import vct.voiidstudios.managers.MainConfigManager;
-import vct.voiidstudios.api.UpdateCheckerResult;
-import vct.voiidstudios.managers.PhasesManager;
-import vct.voiidstudios.utils.MessageUtils;
-import vct.voiidstudios.utils.UpdateChecker;
+import voiidstudios.vct.api.Metrics;
+import voiidstudios.vct.api.PAPIExpansion;
+import voiidstudios.vct.commands.MainCommand;
+import voiidstudios.vct.listeners.PlayerListener;
+import voiidstudios.vct.managers.DependencyManager;
+import voiidstudios.vct.managers.MainConfigManager;
+import voiidstudios.vct.api.UpdateCheckerResult;
+import voiidstudios.vct.managers.DynamicsManager;
+import voiidstudios.vct.utils.MessageUtils;
+import voiidstudios.vct.utils.ServerVersion;
+import voiidstudios.vct.utils.UpdateChecker;
 
 import java.util.Objects;
 
 public final class VoiidCountdownTimer extends JavaPlugin {
     public static String prefix = "&5[&dVCT&5] ";
     public String version = getDescription().getVersion();
-    public static String serverName = Bukkit.getServer().getName();
 
+    private final String serverName = Bukkit.getServer().getName();
+    private final String bukkitVersion = Bukkit.getBukkitVersion();
+    private final String cleanVersion = bukkitVersion.split("-")[0];
+
+    public static ServerVersion serverVersion;
     private static VoiidCountdownTimer instance;
     private UpdateChecker updateChecker;
     private static MainConfigManager mainConfigManager;
-    private static PhasesManager phasesManager;
+    private static DynamicsManager dynamicsManager;
     private static Metrics bStatsMetrics;
     private static DependencyManager dependencyManager;
 
     public void onEnable() {
         instance = this;
         mainConfigManager = new MainConfigManager(this);
+        setVersion();
         registerCommands();
         registerEvents();
 
@@ -40,12 +45,12 @@ public final class VoiidCountdownTimer extends JavaPlugin {
 
         Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage("&6        __ ___"));
         Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage("&5  \\  / &6|    |    &dVoiid &eCountdown Timer"));
-        Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage("&5   \\/  &6|__  |    &8Running v" + version + " on " + serverName));
+        Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage("&5   \\/  &6|__  |    &8Running v" + version + " on " + serverName + " (" + cleanVersion + ")"));
         Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage(""));
 
         dependencyManager = new DependencyManager(this);
         bStatsMetrics = new Metrics(this, 26790);
-        phasesManager = new PhasesManager(this);
+        dynamicsManager = new DynamicsManager(this);
         updateChecker = new UpdateChecker(version);
 
         if (mainConfigManager.isUpdate_notification()) {
@@ -57,6 +62,41 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(
                 MessageUtils.getColoredMessage(prefix+"&rHas been disabled! Goodbye ;)")
         );
+    }
+
+    public void setVersion(){
+        String packageName = Bukkit.getServer().getClass().getPackage().getName();
+        switch(bukkitVersion){
+            case "1.20.5":
+            case "1.20.6":
+                serverVersion = ServerVersion.v1_20_R4;
+                break;
+            case "1.21":
+            case "1.21.1":
+                serverVersion = ServerVersion.v1_21_R1;
+                break;
+            case "1.21.2":
+            case "1.21.3":
+                serverVersion = ServerVersion.v1_21_R2;
+                break;
+            case "1.21.4":
+                serverVersion = ServerVersion.v1_21_R3;
+                break;
+            case "1.21.5":
+                serverVersion = ServerVersion.v1_21_R4;
+                break;
+            case "1.21.6":
+            case "1.21.7":
+            case "1.21.8":
+                serverVersion = ServerVersion.v1_21_R5;
+                break;
+            default:
+                try{
+                    serverVersion = ServerVersion.valueOf(packageName.replace("org.bukkit.craftbukkit.", ""));
+                }catch(Exception e){
+                    serverVersion = ServerVersion.v1_21_R5;
+                }
+        }
     }
 
     public void registerCommands() {
@@ -91,8 +131,8 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         return mainConfigManager;
     }
 
-    public static PhasesManager getPhasesManager() {
-        return phasesManager;
+    public static DynamicsManager getPhasesManager() {
+        return dynamicsManager;
     }
 
     public static DependencyManager getDependencyManager() {

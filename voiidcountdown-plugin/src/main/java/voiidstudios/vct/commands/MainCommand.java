@@ -1,4 +1,4 @@
-package vct.voiidstudios.commands;
+package voiidstudios.vct.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
@@ -7,13 +7,13 @@ import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
-import vct.voiidstudios.VoiidCountdownTimer;
-import vct.voiidstudios.api.Timer;
-import vct.voiidstudios.api.events.TimerCreate;
-import vct.voiidstudios.api.events.TimerPause;
-import vct.voiidstudios.api.events.TimerResume;
-import vct.voiidstudios.managers.TimerManager;
-import vct.voiidstudios.utils.MessageUtils;
+import voiidstudios.vct.VoiidCountdownTimer;
+import voiidstudios.vct.api.Timer;
+import voiidstudios.vct.api.events.TimerCreate;
+import voiidstudios.vct.api.events.TimerPause;
+import voiidstudios.vct.api.events.TimerResume;
+import voiidstudios.vct.managers.TimerManager;
+import voiidstudios.vct.utils.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -367,10 +367,33 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 if(args[0].equalsIgnoreCase("modify")) {
                     subcommands.add("add");subcommands.add("set");
                     subcommands.add("take");subcommands.add("barcolor");
+                }else if(args[0].equalsIgnoreCase("set")){
+                    subcommands.add("<HH:MM:SS>");
                 }
 
                 for(String c : subcommands) {
                     if(args[1].isEmpty() || c.startsWith(args[1].toLowerCase())) {
+                        subcompletions.add(c);
+                    }
+                }
+                return subcompletions;
+            } else if (args.length == 3){
+                List<String> subcompletions = new ArrayList<String>();
+                List<String> subcommands = new ArrayList<String>();
+
+                if(args[0].equalsIgnoreCase("modify")) {
+                    if(args[1].equalsIgnoreCase("barcolor")){
+                        subcommands.add("BLUE");subcommands.add("GREEN");
+                        subcommands.add("PINK");subcommands.add("PURPLE");
+                        subcommands.add("RED");subcommands.add("WHITE");
+                        subcommands.add("YELLOW");
+                    }else if(args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("set") || args[1].equalsIgnoreCase("take")){
+                        subcommands.add("<HH:MM:SS>");
+                    }
+                }
+
+                for(String c : subcommands) {
+                    if(args[2].isEmpty() || c.startsWith(args[1].toLowerCase())) {
                         subcompletions.add(c);
                     }
                 }

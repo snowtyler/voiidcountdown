@@ -1,4 +1,4 @@
-package vct.voiidstudios.api;
+package voiidstudios.vct.api;
 
 public class UpdateCheckerResult {
     private String latestVersion;

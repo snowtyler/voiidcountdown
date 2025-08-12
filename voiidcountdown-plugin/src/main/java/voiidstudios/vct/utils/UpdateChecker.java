@@ -1,7 +1,7 @@
-package vct.voiidstudios.utils;
+package voiidstudios.vct.utils;
 
 import org.bukkit.event.Listener;
-import vct.voiidstudios.api.UpdateCheckerResult;
+import voiidstudios.vct.api.UpdateCheckerResult;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;

@@ -1,12 +1,12 @@
-package vct.voiidstudios.listeners;
+package voiidstudios.vct.listeners;
 
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import vct.voiidstudios.api.Timer;
-import vct.voiidstudios.api.events.TimerCreate;
-import vct.voiidstudios.api.events.TimerFinish;
-import vct.voiidstudios.api.events.TimerPause;
-import vct.voiidstudios.api.events.TimerResume;
+import voiidstudios.vct.api.Timer;
+import voiidstudios.vct.api.events.TimerCreate;
+import voiidstudios.vct.api.events.TimerFinish;
+import voiidstudios.vct.api.events.TimerPause;
+import voiidstudios.vct.api.events.TimerResume;
 
 public class EventListener implements Listener {
     @EventHandler

@@ -1,8 +1,8 @@
-package vct.voiidstudios.managers;
+package voiidstudios.vct.managers;
 
 import org.bukkit.configuration.file.FileConfiguration;
-import vct.voiidstudios.VoiidCountdownTimer;
-import vct.voiidstudios.utils.Formatter;
+import voiidstudios.vct.VoiidCountdownTimer;
+import voiidstudios.vct.utils.Formatter;
 
 public class MainConfigManager {
     private CustomConfig configFile;

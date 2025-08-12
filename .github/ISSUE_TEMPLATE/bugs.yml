@@ -31,7 +31,8 @@ body:
     attributes:
       label: What type of Voiid Countdown Timer build does it happen in?
       options:
-        - Datapack
+        - Datapack (V1)
+        - Plugin (V2)
     validations:
       required: true
 
