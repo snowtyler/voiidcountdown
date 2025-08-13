@@ -259,8 +259,11 @@ public class Timer implements Runnable {
     }
 
     public void stop() {
-        if (this.task != null)
+        if (this.task != null){
+            Bukkit.getPluginManager().callEvent(new VCTEvent(Timer.this, VCTEvent.VCTEventType.STOP, null));
             this.task.cancel();
+        }
+
         if (this.bossbar != null)
             this.bossbar.removeAll();
     }

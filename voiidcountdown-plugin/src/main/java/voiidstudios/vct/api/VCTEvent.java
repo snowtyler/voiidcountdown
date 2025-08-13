@@ -15,7 +15,8 @@ public class VCTEvent extends Event {
         FINISH,
         PAUSE,
         RESUME,
-        MODIFY
+        MODIFY,
+        STOP
     }
 
     private final Timer timer;
