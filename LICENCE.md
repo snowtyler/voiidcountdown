@@ -1,21 +1,39 @@
-# Voiid Studios Public License
-This License describes how all content uploaded by Voiid Studios, such as code, datapacks, etc., may and may not be used. This License is subject to change by MaxxVoiid and Voiid Studios IN ANY WAY at any time. This License was created on November 20, 2024, last modified on November 20, 2024.
+# Voiid Studios Public License (VSPL)
+Effective Date: November 20, 2024
 
-## PERMITTED USES
-- You can use any datapack publicly uploaded by Voiid Studios for any personal purpose you need. You can use it in a single player world and modify it as much as you want as long as you do not distribute modified versions of the datapacks.
-- You can use Voiid Studios datapacks on any Minecraft server, public or private. If you use any Voiid Studios datapack, please credit or indicate somewhere on your server that the datapack is in use.
-  - In addition, you are authorized to use Voiid Studios datapacks in any MODIFIED form on any Minecraft server, public or private, as long as you do not distribute any modified version of such datapacks and you give proper credit.
-- You are allowed to use Voiid Studios datapacks in their UNMODIFIED form as part of a publicly distributed modpack. If you do so, you MUST credit Voiid Studios and include a link to the datapack in question. The datapack must be used in its complete form, plus any compatibility add-ons for it to work as it should.
+Last Modified: August 12, 2025
 
-## PROHIBITED USES
-- It is forbidden to re-upload, publish or redistribute any Voiid Studios datapack with any cut to make it independent.
-- It is forbidden to re-upload, republish or redistribute any modified version of any Voiid Studios datapack without authorization.
-- It is forbidden to use any modified or unmodified version of any Voiid Studios datapack as part of any publicly distributed modpack or datapack-pack without permission. This includes cases where the datapack must be downloaded separately by removing parts.
-- It is forbidden to use parts of the code of any Voiid Studios datapack as part of any other datapack, datapack-pack, modpack or mod without express permission. You are free to read the code and use it as a resource for learning, but copying parts of it into another project is not allowed. There is only one exception:
-  - Making compatibility addons between Voiid Studios datapacks and other datapacks is allowed.
+This License governs the use of all Assets created and publicly released by Voiid Studios. By using any Asset covered by this License, You agree to comply with its terms. Voiid Studios may modify this License at any time and without prior notice. Continued use of the Assets after any modification constitutes acceptance of the updated License.
 
-## EXEMPTIONS
-- Voiid Studios reserves the right to prohibit certain individuals and groups from profiting off of these projects. However, no individual or group will be prohibited from using these projects for personal purposes, or any purpose that does not involve profit, as long as the other guidelines of this License have been followed.
+## 1. DEFINITIONS
+For the purposes of this License:
+- "Voiid Studios" means MaxxVoiid and any team members, collaborators, or entities officially acting under the Voiid Studios name.
+- "You" (or "Your") refers to the individual, group, or legal entity exercising permissions granted by this License.
+- "Assets" refers to all creative works produced by Voiid Studios, including but not limited to datapacks, plugins, mods, scripts, textures, sounds, and other digital content.
+- "Modified Form" means any change, alteration, adaptation, or derivative work based on the original Asset, including partial extraction into other projects.
+- "Unmodified Form" means the Asset in its complete, original, and unaltered state as released by Voiid Studios.
+- "Public Distribution" means making the Asset available to any third party, including but not limited to uploading, republishing, or sharing it via any platform, server, or distribution method.
 
-## OFFICIAL PERMISSION
-It should be assumed that since Voiid Studios owns all copyrights to all parts of its datapacks, any part of this License may be individually voidable. Voiid Studios reserves the right to create and distribute modified versions of these datapacks at any time and for any reason, whether personal or commissioned. 
+## 2. PERMITTED USES
+- You may use any Asset in personal projects for private use. Modification is allowed for personal purposes, provided that modified versions are not distributed.
+- You may use any Asset (modified or unmodified) on any Minecraft server, whether public or private. If any Asset is used, You must credit Voiid Studios in a visible and reasonable manner.
+- You may include Unmodified Assets in a publicly distributed modpack, provided that:
+  - You credit Voiid Studios.
+  - You include a direct link to the original Asset.
+  - The Asset remains in its complete form, with optional compatibility add-ons permitted.
+
+## 3. PROHIBITED USES
+- You may not re-upload, republish, or redistribute any Asset in a cut-down or independent form that removes its intended integration.
+- You may not re-upload, republish, or redistribute any Modified Form of an Asset without express permission from Voiid Studios.
+- You may not use any version (modified or unmodified) of an Asset in a publicly distributed modpack or datapack-pack without permission, if that use involves removing or altering parts for separate download.
+- You may not copy parts of an Asset’s code into another project without express permission. Reading and learning from the code is allowed, but direct code reuse is prohibited.
+  - Exception: Compatibility add-ons between Voiid Studios Assets and other content are permitted.
+
+## 4. EXEMPTIONS
+- Voiid Studios reserves the right to prohibit specific individuals or groups from profiting from these Assets.
+- No individual or group will be prohibited from personal or non-profit use, provided the terms of this License are respected.
+
+## 5. OFFICIAL PERMISSION
+Since Voiid Studios owns all copyrights to its Assets, any part of this License may be individually voided by explicit written permission from Voiid Studios.
+
+Voiid Studios reserves the right to create, modify, and distribute derivative versions of its own Assets for any reason, whether for personal use or commissioned work.
