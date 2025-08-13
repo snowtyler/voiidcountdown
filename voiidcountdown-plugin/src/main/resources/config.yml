@@ -3,13 +3,8 @@ Config:
   update_notification: true
   # When the timer ends, how many ticks should wait to hide the boss bar (1 second = 20 ticks)
   ticks_hide_after_ending: 60
-  # The default boss bar color is BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.
-  bossbar_default_color: WHITE
-  # The sound of the timer every second
+  # The sound of the timers every second
   timer_sound_enabled: false
-  timer_sound: UI_BUTTON_CLICK
-  # The text of the boss bar (%HH% hours, %MM% minutes, %SS% seconds)
-  timer_bossbar_text: "%HH%:%MM%:%SS%"
   # Which text formatter to use (MINIMESSAGE, LEGACY or UNIVERSAL)
   # Please note that UNIVERSAL requires the most resources, but supports all types of formats.
 
@@ -41,3 +36,16 @@ Messages:
   timerResume: '&6Timer resumed!'
   timerStop: '&6Timer stopped!'
   timerDontExists: '&cThe timer does not exist.'
+
+Timers:
+  default:
+    text: "%HH%:%MM%:%SS%" # The text of the boss bar (%HH% hours, %MM% minutes, %SS% seconds)
+    sound: UI_BUTTON_CLICK # The sound of the timer every second
+    bossbar_color: WHITE # The boss bar color is BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.
+    enabled: true # Defines whether this timer is available for selection.
+
+  green_timer:
+    text: "&aI'm a green timer of (%HH%:%MM%:%SS%) :D"
+    sound: UI_BUTTON_CLICK
+    bossbar_color: GREEN
+    enabled: true

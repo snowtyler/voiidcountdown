@@ -1,0 +1,12 @@
+Timers:
+  timer_2:
+    text: "<blue>I'm the Timer 2 :D (%HH%:%MM%:%SS%)</blue>" # The text of the boss bar (%HH% hours, %MM% minutes, %SS% seconds)
+    sound: UI_BUTTON_CLICK # The sound of the timer every second
+    bossbar_color: BLUE # The boss bar color is BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.
+    enabled: true # Defines whether this timer is available for selection.
+
+  timer_3:
+    text: "<rainbow>I'm the Timer 3 :D &l(%HH%:%MM%:%SS%)</rainbow>" # The text of the boss bar (%HH% hours, %MM% minutes, %SS% seconds)
+    sound: UI_BUTTON_CLICK # The sound of the timer every second
+    bossbar_color: YELLOW # The boss bar color is BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.
+    enabled: true # Defines whether this timer is available for selection.

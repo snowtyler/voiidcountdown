@@ -1,4 +1,4 @@
-package voiidstudios.vct.managers;
+package voiidstudios.vct.configs.model;
 
 import org.bukkit.configuration.InvalidConfigurationException;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -16,7 +16,7 @@ public class CustomConfig {
     private final String folderName;
     private final boolean newFile;
 
-    public CustomConfig(String fileName, String folderName, VoiidCountdownTimer plugin, Boolean newFile){
+    public CustomConfig(String fileName, VoiidCountdownTimer plugin, String folderName, Boolean newFile){
         this.fileName = fileName;
         this.folderName = folderName;
         this.plugin = plugin;

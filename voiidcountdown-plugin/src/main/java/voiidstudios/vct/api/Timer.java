@@ -8,39 +8,43 @@ import org.bukkit.boss.BossBar;
 import org.bukkit.entity.Player;
 import org.bukkit.scheduler.BukkitTask;
 import voiidstudios.vct.VoiidCountdownTimer;
-import voiidstudios.vct.api.events.TimerChange;
 import voiidstudios.vct.managers.TimerManager;
 import voiidstudios.vct.utils.Formatter;
+import voiidstudios.vct.configs.model.TimerConfig;
 
 public class Timer implements Runnable {
     private int seconds;
     private final BossBar bossbar;
     private BukkitTask task;
-    private static boolean hasSound;
+    private boolean hasSound;
     private Sound soundName;
-    private static String timertext;
+    private String timerText;
     private int initialSeconds;
-    private static int refreshInterval;
-    private int maxValue = 359999;
-    private int minValue = 0;
+    private int refreshInterval;
+    private final int maxValue = 359999;
+    private final int minValue = 0;
+    private final String timerId;
 
-    public Timer(int seconds, String timeText, String timeSound, int refreshinterval) {
+    public Timer(int seconds, String timeText, String timeSound, BarColor barcolor, String timerId) {
         this.seconds = seconds;
         this.initialSeconds = seconds;
-        refreshInterval = refreshinterval;
+        this.timerId = timerId;
 
-        String colorName = VoiidCountdownTimer.getMainConfigManager().getBossbar_default_color();
-        BarColor color;
+        this.refreshInterval = VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getRefresh_ticks();
+        this.hasSound = VoiidCountdownTimer.getConfigsManager().getMainConfigManager().isTimer_sound_enabled();
 
+        this.timerText = timeText;
         try {
-            color = BarColor.valueOf(colorName.toUpperCase());
+            if (timeSound != null) {
+                this.soundName = Sound.valueOf(timeSound);
+            } else {
+                this.soundName = null;
+            }
         } catch (IllegalArgumentException e) {
-            color = BarColor.WHITE;
+            this.soundName = null;
         }
 
-        timertext = timeText;
-        this.soundName = Sound.valueOf(timeSound);
-        this.bossbar = Bukkit.createBossBar("", color, BarStyle.SOLID, new org.bukkit.boss.BarFlag[0]);
+        this.bossbar = Bukkit.createBossBar("", barcolor, BarStyle.SOLID, new org.bukkit.boss.BarFlag[0]);
     }
 
     public int getInitialSeconds() {
@@ -48,22 +52,24 @@ public class Timer implements Runnable {
     }
 
     public String getTimertext() {
-        return timertext;
+        return this.timerText;
     }
 
     public String getTimertextFormated() {
-        return timertext.replace("%HH%", formatTimeHH(this.seconds)).replace("%MM%", formatTimeMM(this.seconds)).replace("%SS%", formatTimeSS(this.seconds));
+        return this.timerText
+                .replace("%HH%", formatTimeHH(this.seconds))
+                .replace("%MM%", formatTimeMM(this.seconds))
+                .replace("%SS%", formatTimeSS(this.seconds));
     }
 
     private void updateBossBarTitle(String phasesText) {
-        Formatter formatter = VoiidCountdownTimer.getMainConfigManager().getFormatter();
+        Formatter formatter = VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getFormatter();
         Object formatted = formatter.format(
                 VoiidCountdownTimer.getInstance(),
                 Bukkit.getConsoleSender(),
                 phasesText
         );
 
-        // Intento seguro con reflection para Component (si está presente en runtime)
         try {
             Class<?> componentClass = null;
             try {
@@ -72,26 +78,19 @@ public class Timer implements Runnable {
                 componentClass = null;
             }
 
-            // Si formatter devolvió un Component y la clase existe, intentamos setTitle(Component)
             if (componentClass != null && componentClass.isInstance(formatted)) {
                 try {
-                    // Intentar llamar setTitle(Component)
                     this.bossbar.getClass().getMethod("setTitle", componentClass).invoke(this.bossbar, formatted);
                     return;
-                } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {
-                    // Puede que la implementación de BossBar no tenga setTitle(Component) — procedemos a serializar a legacy
-                }
+                } catch (NoSuchMethodException | IllegalAccessException | IllegalArgumentException e) {}
 
-                // Intentar serializar Component -> String usando LegacyComponentSerializer si está disponible
                 try {
                     Class<?> legacyCls = Class.forName("net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer");
 
                     Object serializer;
                     try {
-                        // Preferir legacySection() cuando exista
                         serializer = legacyCls.getMethod("legacySection").invoke(null);
                     } catch (NoSuchMethodException nsme) {
-                        // Si no existe legacySection(), construir con builder() y character('&')
                         Class<?> builderPublicClass = Class.forName("net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer$Builder");
                         Object builder = legacyCls.getMethod("builder").invoke(null);
                         builderPublicClass.getMethod("character", char.class).invoke(builder, '&');
@@ -99,19 +98,13 @@ public class Timer implements Runnable {
                         serializer = builderPublicClass.getMethod("build").invoke(builder);
                     }
 
-                    // serialize(component) -> String
                     String legacyTitle = (String) legacyCls.getMethod("serialize", componentClass).invoke(serializer, formatted);
                     this.bossbar.setTitle(legacyTitle);
                     return;
-                } catch (Throwable t) {
-                    // Si falla la serialización, continuamos al fallback
-                }
+                } catch (Throwable t) {}
             }
-        } catch (Throwable t) {
-            // No hacemos nada, seguiremos a fallback
-        }
+        } catch (Throwable t) {}
 
-        // Si el formatter devolvió String, usarlo (convertir & -> §). Si no, usar phasesText como último recurso.
         if (formatted instanceof String) {
             this.bossbar.setTitle(((String) formatted).replace('&', '§'));
         } else {
@@ -138,18 +131,18 @@ public class Timer implements Runnable {
                             for (Player player : Bukkit.getOnlinePlayers()) {
                                 Timer.this.bossbar.addPlayer(player);
 
-                                if (hasSound) {
+                                if (Timer.this.hasSound && Timer.this.soundName != null) {
                                     player.playSound(player.getLocation(), Timer.this.soundName, 1.0F, 1.0F);
                                 }
                             }
 
-                            TimerChange timerChange = new TimerChange(Timer.this);
+                            Bukkit.getPluginManager().callEvent(new VCTEvent(Timer.this, VCTEvent.VCTEventType.CHANGE, null));
                         }
 
-                        if (refreshCounter >= refreshInterval) {
+                        if (refreshCounter >= Timer.this.refreshInterval) {
                             refreshCounter = 0;
 
-                            String rawText = timertext
+                            String rawText = Timer.this.timerText
                                     .replace("%HH%", Timer.this.formatTimeHH(Timer.this.seconds))
                                     .replace("%MM%", Timer.this.formatTimeMM(Timer.this.seconds))
                                     .replace("%SS%", Timer.this.formatTimeSS(Timer.this.seconds));
@@ -169,7 +162,7 @@ public class Timer implements Runnable {
                             Bukkit.getScheduler().runTaskLater(VoiidCountdownTimer.getInstance(), () -> {
                                 if (Timer.this.bossbar != null)
                                     Timer.this.bossbar.removeAll();
-                            }, VoiidCountdownTimer.getMainConfigManager().getTicks_hide_after_ending());
+                            }, VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTicks_hide_after_ending());
                         }
                     }
                 },
@@ -178,9 +171,33 @@ public class Timer implements Runnable {
     }
 
     public static void refreshTimerText() {
-        timertext = VoiidCountdownTimer.getMainConfigManager().getTimer_bossbar_text();
-        refreshInterval = VoiidCountdownTimer.getMainConfigManager().getRefresh_ticks();
-        hasSound = VoiidCountdownTimer.getMainConfigManager().isTimer_sound_enabled();
+        Timer current = TimerManager.getInstance().getTimer();
+        if (current == null) return;
+
+        current.refreshInterval = VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getRefresh_ticks();
+        current.hasSound = VoiidCountdownTimer.getConfigsManager().getMainConfigManager().isTimer_sound_enabled();
+
+        if (current.timerId != null) {
+            try {
+                TimerConfig cfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(current.timerId);
+                if (cfg != null && cfg.isEnabled()) {
+                    current.timerText = cfg.getText();
+                    try { current.soundName = Sound.valueOf(cfg.getSound()); } catch (Exception ignored) { /* keep existing */ }
+                    try { current.bossbar.setColor(cfg.getColor()); } catch (Exception ignored) {}
+                    return;
+                }
+            } catch (Throwable t) {}
+        }
+
+        current.timerText = "%HH%:%MM%:%SS%";
+        try {
+            current.soundName = Sound.UI_BUTTON_CLICK;
+        } catch (Exception ignored) {}
+
+        try {
+            BarColor color = BarColor.WHITE;
+            current.bossbar.setColor(color);
+        } catch (Exception ignored) {}
     }
 
     public void setBossBarColor(BarColor color) {
@@ -191,22 +208,26 @@ public class Timer implements Runnable {
         long hours = time / 3600L;
         long minutes = time % 3600L / 60L;
         long seconds = time % 60L;
-        return String.format("%02d:%02d:%02d", new Object[] {hours, minutes, seconds});
+        return String.format("%02d:%02d:%02d", hours, minutes, seconds);
     }
 
     private String formatTimeHH(long time) {
         long hours = time / 3600L;
-        return String.format("%02d", new Object[] {hours});
+        return String.format("%02d", hours);
     }
 
     private String formatTimeMM(long time) {
         long minutes = time % 3600L / 60L;
-        return String.format("%02d", new Object[] {minutes});
+        return String.format("%02d", minutes);
     }
 
     private String formatTimeSS(long time) {
         long seconds = time % 60L;
-        return String.format("%02d", new Object[] {seconds});
+        return String.format("%02d", seconds);
+    }
+
+    public String getTimerId() {
+        return timerId;
     }
 
     public String getInitialTime() {
@@ -291,7 +312,6 @@ public class Timer implements Runnable {
         for (Player player : Bukkit.getOnlinePlayers())
             this.bossbar.addPlayer(player);
         if (this.seconds == 0) {
-            Bukkit.getConsoleSender().sendMessage("timer over!");
             if (this.task != null)
                 Bukkit.getScheduler().cancelTask(this.task.getTaskId());
             this.bossbar.removeAll();

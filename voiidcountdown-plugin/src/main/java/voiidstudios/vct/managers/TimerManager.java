@@ -4,7 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.api.Timer;
-import voiidstudios.vct.api.events.TimerFinish;
+import voiidstudios.vct.api.VCTEvent;
 import voiidstudios.vct.utils.MessageUtils;
 
 public class TimerManager {
@@ -35,8 +35,7 @@ public class TimerManager {
 
     public void finishTimer() {
         if (this.timer != null) {
-            TimerFinish event = new TimerFinish(this.timer);
-            Bukkit.getPluginManager().callEvent(event);
+            Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.FINISH, null));
         }
     }
 
@@ -44,9 +43,9 @@ public class TimerManager {
         if (this.timer != null) {
             this.timer.stop();
             this.timer = null;
-            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix+VoiidCountdownTimer.getMainConfigManager().getTimerStop()));
+            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix+VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerStop()));
         } else {
-            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix+VoiidCountdownTimer.getMainConfigManager().getTimerDontExists()));
+            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix+VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerDontExists()));
         }
     }
 }

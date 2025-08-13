@@ -5,9 +5,9 @@ import org.bukkit.plugin.java.JavaPlugin;
 import voiidstudios.vct.api.Metrics;
 import voiidstudios.vct.api.PAPIExpansion;
 import voiidstudios.vct.commands.MainCommand;
+import voiidstudios.vct.configs.ConfigsManager;
 import voiidstudios.vct.listeners.PlayerListener;
 import voiidstudios.vct.managers.DependencyManager;
-import voiidstudios.vct.managers.MainConfigManager;
 import voiidstudios.vct.api.UpdateCheckerResult;
 import voiidstudios.vct.managers.DynamicsManager;
 import voiidstudios.vct.utils.MessageUtils;
@@ -27,14 +27,15 @@ public final class VoiidCountdownTimer extends JavaPlugin {
     public static ServerVersion serverVersion;
     private static VoiidCountdownTimer instance;
     private UpdateChecker updateChecker;
-    private static MainConfigManager mainConfigManager;
+    private static ConfigsManager configsManager;
     private static DynamicsManager dynamicsManager;
     private static Metrics bStatsMetrics;
     private static DependencyManager dependencyManager;
 
     public void onEnable() {
         instance = this;
-        mainConfigManager = new MainConfigManager(this);
+        configsManager = new ConfigsManager(this);
+        configsManager.configure();
         setVersion();
         registerCommands();
         registerEvents();
@@ -53,7 +54,7 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         dynamicsManager = new DynamicsManager(this);
         updateChecker = new UpdateChecker(version);
 
-        if (mainConfigManager.isUpdate_notification()) {
+        if (configsManager.getMainConfigManager().isUpdate_notification()) {
             updateMessage(updateChecker.check());
         }
     }
@@ -127,8 +128,8 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         }
     }
 
-    public static MainConfigManager getMainConfigManager() {
-        return mainConfigManager;
+    public static ConfigsManager getConfigsManager() {
+        return configsManager;
     }
 
     public static DynamicsManager getPhasesManager() {

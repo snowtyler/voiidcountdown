@@ -9,14 +9,14 @@ import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.api.Timer;
-import voiidstudios.vct.api.events.TimerCreate;
-import voiidstudios.vct.api.events.TimerPause;
-import voiidstudios.vct.api.events.TimerResume;
+import voiidstudios.vct.api.VCTEvent;
+import voiidstudios.vct.configs.model.TimerConfig;
 import voiidstudios.vct.managers.TimerManager;
 import voiidstudios.vct.utils.MessageUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 public class MainCommand implements CommandExecutor, TabCompleter {
     @Override
@@ -44,27 +44,27 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 help(sender);
             }
         }else{
-            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getCommandNoPermissions()));
+            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getCommandNoPermissions()));
         }
 
         return true;
     }
 
     public void reload(CommandSender sender){
-        VoiidCountdownTimer.getMainConfigManager().reloadConfig();
-        sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getCommandReload()));
+        VoiidCountdownTimer.getConfigsManager().reload();
+        sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getCommandReload()));
         Timer.refreshTimerText();
     }
 
     public void set(CommandSender sender, String[] args){
-        if (args.length == 1) {
-            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetError()));
+        if (args.length < 2) {
+            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetError()));
             return;
         }
 
         String[] timeParts = args[1].split(":");
         if (timeParts.length != 3) {
-            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetFormatIncorrect()));
+            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetFormatIncorrect()));
             return;
         }
 
@@ -74,38 +74,69 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             minutes = Integer.parseInt(timeParts[1]);
             seconds = Integer.parseInt(timeParts[2]);
         } catch (NumberFormatException e) {
-            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetFormatInvalid()));
+            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetFormatInvalid()));
             return;
         }
 
         if (hours < 0 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59) {
-            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetFormatIncorrect()));
+            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetFormatIncorrect()));
             return;
         }
 
         int totalSeconds = hours * 3600 + minutes * 60 + seconds;
         if (totalSeconds == 0) {
-            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetFormatOutRange()));
+            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetFormatOutRange()));
             return;
+        }
+
+        String usedTimerId = null;
+        String text;
+        String sound;
+        BarColor color;
+
+        if (args.length >= 3) {
+            String wantedId = args[2];
+            TimerConfig cfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(wantedId);
+            if (cfg != null && cfg.isEnabled()) {
+                usedTimerId = wantedId;
+                text = cfg.getText();
+                sound = cfg.getSound();
+                color = cfg.getColor();
+            } else {
+                sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerDontExists()));
+                return;
+            }
+        } else {
+            TimerConfig defaultCfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig("default");
+            if (defaultCfg != null && defaultCfg.isEnabled()) {
+                usedTimerId = "default";
+                text = defaultCfg.getText();
+                sound = defaultCfg.getSound();
+                color = defaultCfg.getColor();
+            } else {
+                usedTimerId = null;
+                text = "%HH%:%MM%:%SS%";
+                sound = "UI_BUTTON_CLICK";
+                color = BarColor.WHITE;
+            }
         }
 
         TimerManager.getInstance().removeTimer();
 
         Timer timer = new Timer(
                 totalSeconds,
-                VoiidCountdownTimer.getMainConfigManager().getTimer_bossbar_text(),
-                VoiidCountdownTimer.getMainConfigManager().getTimer_sound(),
-                VoiidCountdownTimer.getMainConfigManager().getRefresh_ticks()
+                text,
+                sound,
+                color,
+                usedTimerId
         );
         timer.start();
-
         TimerManager.getInstance().setTimer(timer);
 
-        TimerCreate timerCreate = new TimerCreate(timer);
-        Bukkit.getPluginManager().callEvent(timerCreate);
+        Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.CREATE, sender));
 
         sender.sendMessage(MessageUtils.getColoredMessage(
-                VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerStart()
+                VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerStart()
                         .replace("%HH%", String.format("%02d", hours))
                         .replace("%MM%", String.format("%02d", minutes))
                         .replace("%SS%", String.format("%02d", seconds))
@@ -115,25 +146,25 @@ public class MainCommand implements CommandExecutor, TabCompleter {
     public void pause(CommandSender sender){
         Timer timer = TimerManager.getInstance().getTimer();
         if (timer == null) {
-            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerDontExists()));
+            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerDontExists()));
             return;
         }
         timer.pause();
-        sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerPause()));
-        TimerPause timerPause = new TimerPause(timer);
-        Bukkit.getPluginManager().callEvent(timerPause);
+        sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerPause()));
+
+        Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.PAUSE, sender));
     }
 
     public void resume(CommandSender sender){
         Timer timer = TimerManager.getInstance().getTimer();
         if (timer == null) {
-            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerDontExists()));
+            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerDontExists()));
             return;
         }
         timer.resume();
-        sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerResume()));
-        TimerResume timerResume = new TimerResume(timer);
-        Bukkit.getPluginManager().callEvent(timerResume);
+        sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerResume()));
+
+        Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.RESUME, sender));
     }
 
     public void stop(CommandSender sender){
@@ -145,17 +176,14 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         String[] timeParts;
         int addHours, addMinutes, addSeconds, totalSecondsToAdd;
         Timer timer;
-        TimerCreate timerCreate;
         String timeToSet;
         String[] timePartsSet;
         int setHours, setMinutes, setSeconds, totalSecondsToSet;
         Timer timerSet;
-        TimerCreate timerCreateSet;
         String timeToTake;
         String[] timePartsTake;
         int takeHours, takeMinutes, takeSeconds, totalSecondsToTake;
         Timer timerTake;
-        TimerCreate timerCreateTake;
 
         if (args.length < 2) {
             sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix +"&7Modifiers for the timer"));
@@ -171,7 +199,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         switch (modifier) {
             case "add":
                 if (args.length < 3) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifyAddError()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerModifyAddError()));
                     return;
                 }
 
@@ -179,7 +207,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 timeParts = timeToAdd.split(":");
 
                 if (timeParts.length != 3) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetFormatIncorrect()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetFormatIncorrect()));
                     return;
                 }
                 addHours = 0;
@@ -190,29 +218,28 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     addMinutes = Integer.parseInt(timeParts[1]);
                     addSeconds = Integer.parseInt(timeParts[2]);
                 } catch (NumberFormatException e) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetFormatInvalid()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetFormatInvalid()));
                     return;
                 }
                 if (addHours < 0 || addMinutes < 0 || addMinutes > 59 || addSeconds < 0 || addSeconds > 59) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetFormatIncorrect()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetFormatIncorrect()));
                     return;
                 }
                 totalSecondsToAdd = addHours * 3600 + addMinutes * 60 + addSeconds;
                 if (totalSecondsToAdd == 0) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetFormatOutRange()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetFormatOutRange()));
                     return;
                 }
 
                 if (TimerManager.getInstance().getTimer() == null) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerDontExists()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerDontExists()));
                     return;
                 }
                 timer = TimerManager.getInstance().getTimer();
                 timer.add(totalSecondsToAdd);
-                timerCreate = new TimerCreate(timer);
-                Bukkit.getPluginManager().callEvent(timerCreate);
+                Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.MODIFY, sender));
                 sender.sendMessage(MessageUtils.getColoredMessage(
-                        VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifyAdd()
+                        VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerModifyAdd()
                                 .replace("%HH%", String.format("%02d", addHours))
                                 .replace("%MM%", String.format("%02d", addMinutes))
                                 .replace("%SS%", String.format("%02d", addSeconds))
@@ -220,13 +247,13 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 return;
             case "set":
                 if (args.length < 3) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifySetError()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerModifySetError()));
                     return;
                 }
                 timeToSet = args[2];
                 timePartsSet = timeToSet.split(":");
                 if (timePartsSet.length != 3) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetFormatIncorrect()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetFormatIncorrect()));
                     return;
                 }
                 setHours = 0;
@@ -237,24 +264,23 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     setMinutes = Integer.parseInt(timePartsSet[1]);
                     setSeconds = Integer.parseInt(timePartsSet[2]);
                 } catch (NumberFormatException e) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetFormatInvalid()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetFormatInvalid()));
                     return;
                 }
                 if (setHours < 0 || setMinutes < 0 || setMinutes > 59 || setSeconds < 0 || setSeconds > 59) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetFormatIncorrect()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetFormatIncorrect()));
                     return;
                 }
                 totalSecondsToSet = setHours * 3600 + setMinutes * 60 + setSeconds;
                 if (TimerManager.getInstance().getTimer() == null) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerDontExists()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerDontExists()));
                     return;
                 }
                 timerSet = TimerManager.getInstance().getTimer();
                 timerSet.set(totalSecondsToSet);
-                timerCreateSet = new TimerCreate(timerSet);
-                Bukkit.getPluginManager().callEvent(timerCreateSet);
+                Bukkit.getPluginManager().callEvent(new VCTEvent(timerSet, VCTEvent.VCTEventType.MODIFY, sender));
                 sender.sendMessage(MessageUtils.getColoredMessage(
-                        VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifySet()
+                        VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerModifySet()
                                 .replace("%HH%", String.format("%02d", setHours))
                                 .replace("%MM%", String.format("%02d", setMinutes))
                                 .replace("%SS%", String.format("%02d", setSeconds))
@@ -262,13 +288,13 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 return;
             case "take":
                 if (args.length < 3) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifyTakeError()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerModifyTakeError()));
                     return;
                 }
                 timeToTake = args[2];
                 timePartsTake = timeToTake.split(":");
                 if (timePartsTake.length != 3) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetFormatIncorrect()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetFormatIncorrect()));
                     return;
                 }
                 takeHours = 0;
@@ -279,24 +305,23 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     takeMinutes = Integer.parseInt(timePartsTake[1]);
                     takeSeconds = Integer.parseInt(timePartsTake[2]);
                 } catch (NumberFormatException e) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetFormatInvalid()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetFormatInvalid()));
                     return;
                 }
                 if (takeHours < 0 || takeMinutes < 0 || takeMinutes > 59 || takeSeconds < 0 || takeSeconds > 59) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerSetFormatIncorrect()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerSetFormatIncorrect()));
                     return;
                 }
                 totalSecondsToTake = takeHours * 3600 + takeMinutes * 60 + takeSeconds;
                 if (TimerManager.getInstance().getTimer() == null) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerDontExists()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerDontExists()));
                     return;
                 }
                 timerTake = TimerManager.getInstance().getTimer();
                 timerTake.take(totalSecondsToTake);
-                timerCreateTake = new TimerCreate(timerTake);
-                Bukkit.getPluginManager().callEvent(timerCreateTake);
+                Bukkit.getPluginManager().callEvent(new VCTEvent(timerTake, VCTEvent.VCTEventType.MODIFY, sender));
                 sender.sendMessage(MessageUtils.getColoredMessage(
-                        VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifyTake()
+                        VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerModifyTake()
                                 .replace("%HH%", String.format("%02d", takeHours))
                                 .replace("%MM%", String.format("%02d", takeMinutes))
                                 .replace("%SS%", String.format("%02d", takeSeconds))
@@ -304,13 +329,13 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 return;
             case "barcolor":
                 if (args.length < 3) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifyBarcolorError()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerModifyBarcolorError()));
                     return;
                 }
                 String colorName = args[2].toUpperCase();
 
                 if (TimerManager.getInstance().getTimer() == null) {
-                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerDontExists()));
+                    sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerDontExists()));
                     return;
                 }
 
@@ -320,18 +345,18 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     timerColor.setBossBarColor(color);
 
                     sender.sendMessage(MessageUtils.getColoredMessage(
-                                    VoiidCountdownTimer.prefix+VoiidCountdownTimer.getMainConfigManager().getTimerModifyBarcolor())
+                                    VoiidCountdownTimer.prefix+VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerModifyBarcolor())
                             .replace("%COLOR%", colorName)
                     );
                 } catch (IllegalArgumentException e) {
                     sender.sendMessage(MessageUtils.getColoredMessage(
-                                    VoiidCountdownTimer.prefix+VoiidCountdownTimer.getMainConfigManager().getTimerModifyBarcolorInvalid())
+                                    VoiidCountdownTimer.prefix+VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerModifyBarcolorInvalid())
                             .replace("%COLOR%", colorName)
                     );
                 }
                 return;
         }
-        sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getMainConfigManager().getTimerModifyInvalid()));
+        sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix + VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerModifyInvalid()));
     }
 
     public void help(CommandSender sender){
@@ -390,6 +415,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     }else if(args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("set") || args[1].equalsIgnoreCase("take")){
                         subcommands.add("<HH:MM:SS>");
                     }
+                } else if(args[0].equalsIgnoreCase("set")){
+                    return getTimersCompletions(args, 2, true);
                 }
 
                 for(String c : subcommands) {
@@ -403,4 +430,28 @@ public class MainCommand implements CommandExecutor, TabCompleter {
 
         return null;
     }
+
+    public List<String> getTimersCompletions(String[] args, int argTimerPos, boolean onlyEnabled) {
+        List<String> completions = new ArrayList<>();
+
+        String argTimer = args[argTimerPos].toLowerCase();
+
+        Map<String, TimerConfig> timers = VoiidCountdownTimer.getConfigsManager().getAllTimerConfigs();
+        if (timers != null) {
+            for (Map.Entry<String, TimerConfig> entry : timers.entrySet()) {
+                String id = entry.getKey();
+                TimerConfig cfg = entry.getValue();
+
+                if (cfg == null) continue;
+                if (onlyEnabled && !cfg.isEnabled()) continue;
+
+                if (argTimer.isEmpty() || id.toLowerCase().startsWith(argTimer)) {
+                    completions.add(id);
+                }
+            }
+        }
+
+        return completions.isEmpty() ? null : completions;
+    }
+
 }

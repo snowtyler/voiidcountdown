@@ -1,7 +1,8 @@
-package voiidstudios.vct.managers;
+package voiidstudios.vct.configs;
 
 import org.bukkit.configuration.file.FileConfiguration;
 import voiidstudios.vct.VoiidCountdownTimer;
+import voiidstudios.vct.configs.model.CustomConfig;
 import voiidstudios.vct.utils.Formatter;
 
 public class MainConfigManager {
@@ -11,10 +12,7 @@ public class MainConfigManager {
 
     private boolean update_notification;
     private int ticks_hide_after_ending;
-    private String bossbar_default_color;
     private boolean timer_sound_enabled;
-    private String timer_sound;
-    private String timer_bossbar_text;
     private String text_format;
     private int refresh_ticks;
 
@@ -40,10 +38,9 @@ public class MainConfigManager {
     private String timerStop;
     private String timerDontExists;
 
-
     public MainConfigManager(VoiidCountdownTimer plugin){
         this.plugin = plugin;
-        configFile = new CustomConfig("config.yml", null, plugin, false);
+        configFile = new CustomConfig("config.yml", plugin, null, false);
         configFile.registerConfig();
         loadConfig();
     }
@@ -53,10 +50,7 @@ public class MainConfigManager {
 
         update_notification = config.getBoolean("Config.update_notification");
         ticks_hide_after_ending = config.getInt("Config.ticks_hide_after_ending");
-        bossbar_default_color = config.getString("Config.bossbar_default_color");
         timer_sound_enabled = config.getBoolean("Config.timer_sound_enabled");
-        timer_sound = config.getString("Config.timer_sound");
-        timer_bossbar_text = config.getString("Config.timer_bossbar_text");
         text_format = config.getString("Config.text_format");
         refresh_ticks = config.getInt("Config.refresh_ticks");
 
@@ -88,8 +82,16 @@ public class MainConfigManager {
         loadConfig();
     }
 
-    public String getTimer_bossbar_text() {
-        return timer_bossbar_text;
+    public FileConfiguration getConfig(){
+        return configFile.getConfig();
+    }
+
+    public CustomConfig getConfigFile(){
+        return this.configFile;
+    }
+
+    public void saveConfig(){
+        configFile.saveConfig();
     }
 
     public boolean isUpdate_notification() {
@@ -100,16 +102,8 @@ public class MainConfigManager {
         return ticks_hide_after_ending;
     }
 
-    public String getBossbar_default_color() {
-        return bossbar_default_color;
-    }
-
     public boolean isTimer_sound_enabled() {
         return timer_sound_enabled;
-    }
-
-    public String getTimer_sound() {
-        return timer_sound;
     }
 
     public Formatter getFormatter() {
