@@ -9,7 +9,7 @@ Voiid Countdown Timer is a simple customizable countdown timer datapack & plugin
 [![Modrinth](https://img.shields.io/modrinth/dt/N6N9gUha?style=flat&logo=modrinth&label=Modrinth&color=%2300AF5C "View Modrinth page")](https://modrinth.com/datapack/voiid-countdown-timer)
 [![CurseForge](https://img.shields.io/curseforge/dt/1145327?style=flat&logo=curseforge&label=CurseForge&color=F16436 "View CurseForge page")](https://curseforge.com/minecraft/data-packs/vct-voiid-countdown-timer/)
 
-[![Discord Server](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white "Join to the Voiid Studios Discord server")](https://github.com/Voiid-Studios/voiidstudios/blob/main/LICENSE.md)
+[![Discord Server](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white "Join to the Voiid Studios Discord server")](https://discord.gg/qkfxbDgdJZ)
 [![License](https://img.shields.io/badge/license-example?style=for-the-badge&label=Voiid%20Studios&color=ffffff "View the Voiid Studios public license")](https://github.com/Voiid-Studios/voiidstudios/blob/main/LICENSE.md)
 [![Ko-fi](https://img.shields.io/badge/Kofi-ff6433?logo=kofi&logoColor=fff&style=for-the-badge "Support us on Ko-fi!")](https://api.maxxvoiid.space/kofi)
 
