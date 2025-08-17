@@ -13,6 +13,10 @@ Voiid Countdown Timer is a simple customizable countdown timer datapack & plugin
 [![License](https://img.shields.io/badge/license-example?style=for-the-badge&label=Voiid%20Studios&color=ffffff "View the Voiid Studios public license")](https://github.com/Voiid-Studios/voiidstudios/blob/main/LICENSE.md)
 [![Ko-fi](https://img.shields.io/badge/Kofi-ff6433?logo=kofi&logoColor=fff&style=for-the-badge "Support us on Ko-fi!")](https://api.maxxvoiid.space/kofi)
 
+![timer1](https://github.com/user-attachments/assets/d0181bbf-06ba-4d74-824e-8849eb49701f)
+
+![timer2](https://github.com/user-attachments/assets/2287f6c8-72bb-48c1-a36f-be2625913a3d)
+
 </div>
 
 ## ❓ What is VCT?
