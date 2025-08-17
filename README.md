@@ -1,68 +1,76 @@
 <div align="center">
 
-# Voiid Countdown Timer
-[![Release VCT](https://img.shields.io/github/v/release/Voiid-Studios/voiidcountdown?style=for-the-badge&logo=github&label=Release&color=fe50dc "View the latest release")](https://github.com/Voiid-Studios/voiidcountdown/releases)
-[![Last Release Date](https://img.shields.io/github/release-date/Voiid-Studios/voiidcountdown?display_date=published_at&style=for-the-badge&logo=github&label=Last%20Release%20On&color=ffa130 "View the latest release")](https://github.com/Voiid-Studios/voiidcountdown/releases)
-
-[![Modrinth](https://img.shields.io/modrinth/dt/N6N9gUha?style=for-the-badge&logo=modrinth&label=Modrinth&color=%2300AF5C "View Modrinth page")](https://modrinth.com/datapack/voiid-countdown-timer)
-[![CurseForge](https://img.shields.io/curseforge/dt/1145327?style=for-the-badge&logo=curseforge&label=CurseForge&color=F16436 "View CurseForge page")](https://curseforge.com/minecraft/data-packs/vct-voiid-countdown-timer/)
-[![Planet Minecraft](https://img.shields.io/badge/Minecraft-planet?style=for-the-badge&label=Planet&color=669bbc "View Planet Minecraft page")](https://www.planetminecraft.com/data-pack/vct-voiid-countdown-timer/)
-
-[![License](https://img.shields.io/badge/license-example?style=for-the-badge&label=Voiid%20Studios&color=ffffff "View the Voiid Studios public license")](https://github.com/Voiid-Studios/voiidstudios/blob/main/LICENSE.md)
-[![Issues](https://img.shields.io/github/issues/Voiid-Studios/voiidcountdown?style=for-the-badge&logo=github&label=Issues&color=b744b8 "View or open an issue")](https://github.com/Voiid-Studios/voiidcountdown/issues)
-
-[![Ko-fi Small](https://i.ibb.co/FKRcQdt/kofired-250px.png)](https://ko-fi.com/maxxvoiid)
-
----
+<img src="https://github.com/user-attachments/assets/31ffc42e-ac93-4b74-8855-ed896ae12e5d" alt="VCTStamp2" height="120"/>
 
 ### As simple as the name implies.
-Voiid Countdown Timer is a simple and lightweight customizable countdown timer datapack.
+Voiid Countdown Timer is a simple customizable countdown timer datapack & plugin.
+
+[![Release VCT](https://img.shields.io/github/v/release/Voiid-Studios/voiidcountdown?style=flat&logo=github&label=Release&color=fe50dc "View the latest release")](https://github.com/Voiid-Studios/voiidcountdown/releases)
+[![Modrinth](https://img.shields.io/modrinth/dt/N6N9gUha?style=flat&logo=modrinth&label=Modrinth&color=%2300AF5C "View Modrinth page")](https://modrinth.com/datapack/voiid-countdown-timer)
+[![CurseForge](https://img.shields.io/curseforge/dt/1145327?style=flat&logo=curseforge&label=CurseForge&color=F16436 "View CurseForge page")](https://curseforge.com/minecraft/data-packs/vct-voiid-countdown-timer/)
+
+[![Discord Server](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white "Join to the Voiid Studios Discord server")](https://github.com/Voiid-Studios/voiidstudios/blob/main/LICENSE.md)
+[![License](https://img.shields.io/badge/license-example?style=for-the-badge&label=Voiid%20Studios&color=ffffff "View the Voiid Studios public license")](https://github.com/Voiid-Studios/voiidstudios/blob/main/LICENSE.md)
+[![Ko-fi](https://img.shields.io/badge/Kofi-ff6433?logo=kofi&logoColor=fff&style=for-the-badge "Support us on Ko-fi!")](https://api.maxxvoiid.space/kofi)
 
 </div>
 
-<img src="https://i.ibb.co/Bj5TTFV/vctbannerfull.png" alt="voiidlfull" width="1200"/>
+## ❓ What is VCT?
+Voiid Countdown Timer (VCT) is a fully customizable timer for Minecraft.
+
+It works in two different versions:
+- 📦 **Datapack** → The Lite version of VCT, ideal for single-player worlds or realms.
+- 🔌 **Plugin** → The full version of VCT, perfect for multiplayer servers with Spigot/Paper.
+  
+With both versions, you can:
+- 🎨 Create visual timers with a progress bar.
+- 🖌️ Customize color styles.
+- 🛠️ Run custom events when the timer starts or ends.
 
 ## ✨ Features
 Voiid Countdown Timer includes:
-- 🎨 **Custom Colors Styles**: Customize the style of the time bar to suit your taste with over 5 different color styles.
-- ⚙️ **Quick and easy setup**: Set up the entire Countdown Timer in a few simple steps with an easy-to-use setup book.
-- 🌍 **Languages Available**: Compatible with **Spanish** and **English**.
-- ⏳ **Progressive Time Bar**: Clearly displays the progress of time with the time bar.
-- 🪶 **Lightweight**: It takes up very little space, plus it's optimized to run smoothly!
-- 🎈 **Custom Events**: Have commands executed when something happens, such as when the timer starts or the time runs out!
-- 🎁 **And More Surprises**: Includes additional functionalities that will enhance your experience.  
+- 🎨 Custom Colors Styles
+- ⚙️ Quick and easy setup
+- ⏳ Progressive Time Bar
+- 🎈 Custom Events
+- 👥 SinglePlayer and Multiplayer Compatible
+- 💻 Open Source and constantly updated
+
+## 📋 Requirements
+### 📦 Datapack
+- Version: `1.15+`
+  
+### 🔌 Plugin
+- Version: `1.13+`
+- Server: Spigot, Paper, or Purpur (not CraftBukkit)
 
 ## 🚀 Installation
-Installing **Voiid Countdown Timer** is super easy:
-1. Download the [latest version here](https://github.com/Voiid-Studios/voiidcountdown/releases/latest)
-2. Place the downloaded zip file in the “datapacks” folder of your world.
-3. Go back to your world and you will see a message confirming that it was successfully installed! 🎉
+### 📦 Datapack
+1. Download the [latest version here](https://modrinth.com/datapack/voiid-countdown-timer/versions?c=release&l=datapack)
+2. Place the downloaded `.zip` file in the `datapacks` folder of your world.
+3. Enter the world and you will receive a message confirming the installation! 🎉
 
-## 📖 How to use it?
-Use the **configuration book** to customize everything you need:
-1. Execute the command `/function vct:book` to receive the book. 📘
-2. When you open it, you will find sections such as:
-   - ⏰ **Set time**: Define how long the timer will last.
-   - 🎛️ **Timer controls**: Easily start, pause or restart the timer.
-   - 🌈 **Customize style of colors**: Change the style of the timer with a couple of clicks.
-   - 🗣️ **Change language**: Switch between English and Spanish as you prefer.
-   - ❌ **Uninstall**: A red button to remove the datapack if necessary.
-   - 💖 **Acknowledgements**: A special note to you for using this datapack.
+### 🔌 Plugin
+1. Download the [latest version here](https://modrinth.com/datapack/voiid-countdown-timer/versions?c=release&l=spigot)
+2. Place the downloaded `.jar` file in the `plugins` folder of your server.
+3. Restart the server and the plugin will be ready. ⚡
 
-<img src="https://i.ibb.co/CWJm2Xz/Screenshot-1.png" alt="Section to change the time" width="195"/><img src="https://i.ibb.co/Nstjg0J/Screenshot-2.png" alt="Section to control and change colors" width="200"/><img src="https://i.ibb.co/nghBfwX/Screenshot-3.png" alt="Change language and uninstall section" width="200"/><img src="https://i.ibb.co/yybBb9s/image.png" alt="Acknowledgments section" width="200"/>
+## 📖 How to use it
+### 📦 Datapack
+- Execute the command `/function vct:book` to receive the configuration book.
+- From the book you will be able to:
+  - ⏰ Set time
+  - 🎛️ Timer controls
+  - 🌈 Customize style of colors
+  - 🗣️ Change language
+  - ❌ Uninstall
+ 
+### 🔌 Plugin
+- Configuration using commands and configuration files (`config.yml`)
+- To see all available commands, use `/vct help`.
+- In `config.yml`, you can customize various timer options; all of them are detailed in the [official documentation.](https://voiidstudios.gitbook.io/vct/)
 
-> All of this is designed to be fast, efficient and hassle-free!
+## [📚 Documentation](https://voiidstudios.gitbook.io/vct/)
 
-## 🌟 Why choose this datapack?
-- 👥 **SinglePlayer and Multiplayer Compatible**: Designed to run smoothly in both solo worlds and multiplayer servers!
-- 📦 **Compatible with several different versions**: Voiid Countdown Timer is designed to work on versions later than 1.15, up to the newest versions!
-- 🛠️ **Frequent bug fixes**: When we get a bug report, we investigate it and fix it as quickly as possible, making sure you have no problems!
-- 💻 **Open Source**: This datapack is open source, so you can explore, learn and customize it according to your needs, [you can go to the official repository here.](https://github.com/Voiid-Studios/voiidcountdown/)
-
-# 🎮 Ready to try Voiid Countdown Timer?
-
-[![Ko-fi Big](https://i.ibb.co/zHF6WmP/kofired-400px.png)](https://ko-fi.com/maxxvoiid)
-
-If you like my projects, consider buying a coffee from me through Ko-fi, all the money raised there is reinvested in my projects :)
-
-https://ko-fi.com/maxxvoiid
+<a href="https://api.maxxvoiid.space/kofi" target="_blank" rel="noopener noreferrer"><img src="https://github.com/user-attachments/assets/19d69e0d-1e31-450f-aa13-835cc22c93de" height="120px"></img></a>
+<a href="https://maxxvoiid.space" target="_blank" rel="noopener noreferrer"><img src="https://github.com/user-attachments/assets/2eae0501-c5cb-498d-a564-56aefdfef286" height="120px"></img></a>
