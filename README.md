@@ -77,6 +77,6 @@ Voiid Countdown Timer includes:
 
 ## [📚 Documentation](https://voiidstudios.gitbook.io/vct/)
 
-<a href="https://api.maxxvoiid.space/kofi" target="_blank" rel="noopener noreferrer"><img src="https://github.com/user-attachments/assets/19d69e0d-1e31-450f-aa13-835cc22c93de" height="120px"></img></a>
+<img src="https://github.com/user-attachments/assets/19d69e0d-1e31-450f-aa13-835cc22c93de" height="120px"/>
 <a href="https://maxxvoiid.space" target="_blank" rel="noopener noreferrer"><img src="https://github.com/user-attachments/assets/32d8ca57-5185-46e2-b8f6-d60354408a38" height="120px"></img></a>
-<img src="https://github.com/user-attachments/assets/ec59134e-064f-4f7c-9a36-ff38815e2a9b" height="153px"/>
+<a href="https://api.maxxvoiid.space/kofi" target="_blank" rel="noopener noreferrer"><img src="https://github.com/user-attachments/assets/ec59134e-064f-4f7c-9a36-ff38815e2a9b" height="153px"></img></a>
