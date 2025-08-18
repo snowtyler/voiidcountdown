@@ -8,6 +8,7 @@ Voiid Countdown Timer is a simple customizable countdown timer datapack & plugin
 [![Release VCT](https://img.shields.io/github/v/release/Voiid-Studios/voiidcountdown?style=flat&logo=github&label=Release&color=fe50dc "View the latest release")](https://github.com/Voiid-Studios/voiidcountdown/releases)
 [![Modrinth](https://img.shields.io/modrinth/dt/N6N9gUha?style=flat&logo=modrinth&label=Modrinth&color=%2300AF5C "View Modrinth page")](https://modrinth.com/datapack/voiid-countdown-timer)
 [![CurseForge](https://img.shields.io/curseforge/dt/1145327?style=flat&logo=curseforge&label=CurseForge&color=F16436 "View CurseForge page")](https://curseforge.com/minecraft/data-packs/vct-voiid-countdown-timer/)
+[![SpigotMC](https://img.shields.io/spiget/downloads/127616?style=flat&logo=spigotmc&logoColor=ffd000&label=SpigotMC&color=ffd000 "View SpigotMC page")](https://www.spigotmc.org/resources/voiid-countdown-timer.127616/)
 
 [![Discord Server](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white "Join to the Voiid Studios Discord server")](https://discord.gg/qkfxbDgdJZ)
 [![License](https://img.shields.io/badge/license-example?style=for-the-badge&label=Voiid%20Studios&color=ffffff "View the Voiid Studios public license")](https://github.com/Voiid-Studios/voiidstudios/blob/main/LICENSE.md)
@@ -78,3 +79,4 @@ Voiid Countdown Timer includes:
 
 <a href="https://api.maxxvoiid.space/kofi" target="_blank" rel="noopener noreferrer"><img src="https://github.com/user-attachments/assets/19d69e0d-1e31-450f-aa13-835cc22c93de" height="120px"></img></a>
 <a href="https://maxxvoiid.space" target="_blank" rel="noopener noreferrer"><img src="https://github.com/user-attachments/assets/32d8ca57-5185-46e2-b8f6-d60354408a38" height="120px"></img></a>
+<img src="https://github.com/user-attachments/assets/ec59134e-064f-4f7c-9a36-ff38815e2a9b" height="153px"/>
