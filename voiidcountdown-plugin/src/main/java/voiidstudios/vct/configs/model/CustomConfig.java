@@ -13,6 +13,7 @@ public class CustomConfig {
     private final String fileName;
     private FileConfiguration fileConfiguration = null;
     private File file = null;
+    private String route;
     private final String folderName;
     private final boolean newFile;
 
@@ -33,6 +34,8 @@ public class CustomConfig {
         }else{
             file = new File(plugin.getDataFolder(), fileName);
         }
+
+        route = file.getPath();
 
         if(!file.exists()){
             if(newFile){
@@ -91,5 +94,9 @@ public class CustomConfig {
             fileConfiguration.setDefaults(defConfig);
         }
         return true;
+    }
+
+    public String getRoute() {
+        return route;
     }
 }

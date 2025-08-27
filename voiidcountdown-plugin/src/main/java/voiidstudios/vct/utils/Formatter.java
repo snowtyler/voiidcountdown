@@ -4,6 +4,7 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.NotNull;
 import voiidstudios.vct.VoiidCountdownTimer;
+import voiidstudios.vct.managers.MessagesManager;
 
 public enum Formatter {
     MINIMESSAGE(
@@ -29,7 +30,7 @@ public enum Formatter {
                         } catch (NoSuchMethodException | ClassNotFoundException ignored) {}
                     } catch (Exception e) {
                         Bukkit.getConsoleSender().sendMessage(
-                                MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix+"&cMiniMessage unavailable: " + e.getClass().getName() + ": " + e.getMessage())
+                                MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix+"&cMiniMessage unavailable: " + e.getClass().getName() + ": " + e.getMessage())
                         );
                     }
                 }
@@ -59,7 +60,7 @@ public enum Formatter {
                     return legacyCls.getMethod("deserialize", String.class).invoke(serializer, text);
                 } catch (Exception e) {
                     Bukkit.getConsoleSender().sendMessage(
-                            MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix+"&cLegacy unavailable: " + e.getClass().getName() + ": " + e.getMessage())
+                            MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix+"&cLegacy unavailable: " + e.getClass().getName() + ": " + e.getMessage())
                     );
                     return text.replace("&", "§");
                 }
@@ -134,7 +135,7 @@ public enum Formatter {
 
                 } catch (Exception e) {
                     Bukkit.getConsoleSender().sendMessage(
-                            MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix+"&cUniversal unavailable: " + e.getClass().getName() + ": " + e.getMessage())
+                            MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix+"&cUniversal unavailable: " + e.getClass().getName() + ": " + e.getMessage())
                     );
                 }
 

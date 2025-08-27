@@ -1,5 +1,10 @@
 package voiidstudios.vct.configs;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+
 import org.bukkit.configuration.file.FileConfiguration;
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.configs.model.CustomConfig;
@@ -9,77 +14,32 @@ public class MainConfigManager {
     private CustomConfig configFile;
     private VoiidCountdownTimer plugin;
 
-
     private boolean update_notification;
     private int ticks_hide_after_ending;
-    private boolean timer_sound_enabled;
     private String text_format;
     private int refresh_ticks;
-
-    private String commandReload;
-    private String commandNoPermissions;
-    private String timerSetError;
-    private String timerSetFormatIncorrect;
-    private String timerSetFormatInvalid;
-    private String timerSetFormatOutRange;
-    private String timerModifyInvalid;
-    private String timerModifyAddError;
-    private String timerModifyAdd;
-    private String timerModifySetError;
-    private String timerModifySet;
-    private String timerModifyTakeError;
-    private String timerModifyTake;
-    private String timerModifyBarcolorError;
-    private String timerModifyBarcolorInvalid;
-    private String timerModifyBarcolor;
-    private String timerStart;
-    private String timerPause;
-    private String timerResume;
-    private String timerStop;
-    private String timerDontExists;
+    private boolean save_state_timers;
 
     public MainConfigManager(VoiidCountdownTimer plugin){
         this.plugin = plugin;
         configFile = new CustomConfig("config.yml", plugin, null, false);
         configFile.registerConfig();
-        loadConfig();
+        checkConfigsUpdate();
     }
 
-    public void loadConfig(){
+    public void configure(){
         FileConfiguration config = configFile.getConfig();
 
         update_notification = config.getBoolean("Config.update_notification");
         ticks_hide_after_ending = config.getInt("Config.ticks_hide_after_ending");
-        timer_sound_enabled = config.getBoolean("Config.timer_sound_enabled");
         text_format = config.getString("Config.text_format");
         refresh_ticks = config.getInt("Config.refresh_ticks");
-
-        commandReload = config.getString("Messages.commandReload");
-        commandNoPermissions = config.getString("Messages.commandNoPermissions");
-        timerSetError = config.getString("Messages.timerSetError");
-        timerSetFormatIncorrect = config.getString("Messages.timerSetFormatIncorrect");
-        timerSetFormatInvalid = config.getString("Messages.timerSetFormatInvalid");
-        timerSetFormatOutRange = config.getString("Messages.timerSetFormatOutRange");
-        timerModifyInvalid = config.getString("Messages.timerModifyInvalid");
-        timerModifyAddError = config.getString("Messages.timerModifyAddError");
-        timerModifyAdd = config.getString("Messages.timerModifyAdd");
-        timerModifySetError = config.getString("Messages.timerModifySetError");
-        timerModifySet = config.getString("Messages.timerModifySet");
-        timerModifyTakeError = config.getString("Messages.timerModifyTakeError");
-        timerModifyTake = config.getString("Messages.timerModifyTake");
-        timerModifyBarcolorError = config.getString("Messages.timerModifyBarcolorError");
-        timerModifyBarcolorInvalid = config.getString("Messages.timerModifyBarcolorInvalid");
-        timerModifyBarcolor = config.getString("Messages.timerModifyBarcolor");
-        timerStart = config.getString("Messages.timerStart");
-        timerPause = config.getString("Messages.timerPause");
-        timerResume = config.getString("Messages.timerResume");
-        timerStop = config.getString("Messages.timerStop");
-        timerDontExists = config.getString("Messages.timerDontExists");
+        save_state_timers = config.getBoolean("Config.save_state_timers");
     }
 
     public void reloadConfig(){
         configFile.reloadConfig();
-        loadConfig();
+        configure();
     }
 
     public FileConfiguration getConfig(){
@@ -94,16 +54,135 @@ public class MainConfigManager {
         configFile.saveConfig();
     }
 
+    public void checkConfigsUpdate(){
+        Path pathConfig = Paths.get(configFile.getRoute());
+        try {
+            String text = new String(Files.readAllBytes(pathConfig));
+
+            if(!text.contains("update_notification:")){
+                getConfig().set("Config.update_notification", true);
+                saveConfig();
+            }
+            if(!text.contains("ticks_hide_after_ending:")){
+                getConfig().set("Config.ticks_hide_after_ending", 60);
+                saveConfig();
+            }
+            if(!text.contains("text_format:")){
+                getConfig().set("Config.text_format", "LEGACY");
+                saveConfig();
+            }
+            if(!text.contains("refresh_ticks:")){
+                getConfig().set("Config.refresh_ticks", 10);
+                saveConfig();
+            }
+            if(!text.contains("save_state_timers:")){
+                getConfig().set("Config.save_state_timers", true);
+                saveConfig();
+            }
+
+            if(!text.contains("timerSetError:")){
+                getConfig().set("Messages.timerSetError", "&cUse: /vct set <HH:MM:SS>");
+                getConfig().set("Messages.timerSetFormatIncorrect", "&cIncorrect format. Please use HH:MM:SS");
+                getConfig().set("Messages.timerSetFormatInvalid", "&cThe format does not contain a valid number.");
+                getConfig().set("Messages.timerSetFormatOutRange", "&cThe timer must be greater than 0 seconds.");
+                saveConfig();
+            }
+            if(!text.contains("timerModifyInvalid:")){
+                getConfig().set("Messages.timerModifyInvalid", "&cUse: /vct modify <modifier>");
+                saveConfig();
+            }
+            if(!text.contains("timerModifyAddError:")){
+                getConfig().set("Messages.timerModifyAddError", "&cUse: /vct modify add <HH:MM:SS>");
+                getConfig().set("Messages.timerModifyAdd", "&a%HH%:%MM%:%SS% has been added to the timer.");
+                saveConfig();
+            }
+            if(!text.contains("timerModifySetError:")){
+                getConfig().set("Messages.timerModifySetError", "&cUse: /vct modify set <HH:MM:SS>");
+                getConfig().set("Messages.timerModifySet", "&aThe timer was set to %HH%:%MM%:%SS%.");
+                saveConfig();
+            }
+            if(!text.contains("timerModifyTakeError:")){
+                getConfig().set("Messages.timerModifyTakeError", "&cUse: /vct modify take <HH:MM:SS>");
+                getConfig().set("Messages.timerModifyTake", "&a%HH%:%MM%:%SS% has been removed from the timer.");
+                saveConfig();
+            }
+            if(!text.contains("timerModifyBarcolorError:")){
+                getConfig().set("Messages.timerModifyBarcolorError", "&cUse: /vct modify barcolor <color>. &eYou can use these colors: BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.");
+                getConfig().set("Messages.timerModifyBarcolorInvalid", "&cThe color \"%COLOR%\" of the timer boss bar is invalid. Use BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.");
+                getConfig().set("Messages.timerModifyBarcolor", "&aThe color of the timer %TIMER% has been changed to \"%COLOR%\".");
+                saveConfig();
+            }
+            if(!text.contains("timerModifySoundError:")){
+                getConfig().set("Messages.timerModifySoundError", "&cUse: /vct modify sound <\"sound in quotes\">");
+                getConfig().set("Messages.timerModifySoundRequireQuotes", "&cThe sound needs to be enclosed in quotation marks (\") in order to change it.");
+                getConfig().set("Messages.timerModifySound", "&aThe sound of the timer %TIMER% has been changed to \"%SOUND%\" &e(%TYPE%)&a.");
+                saveConfig();
+            }
+            if(!text.contains("timerModifySoundenableError:")){
+                getConfig().set("Messages.timerModifySoundenableError", "&cUse: /vct modify soundenable <true|false>");
+                getConfig().set("Messages.timerModifySoundenableInvalid", "&cThe boolean is invalid. Use TRUE or FALSE.");
+                getConfig().set("Messages.timerModifySoundenable", "&aThe sound enable of the timer %TIMER% has been changed to %SOUNDENABLE%.");
+                saveConfig();
+            }
+            if(!text.contains("timerModifySoundvolumeError:")){
+                getConfig().set("Messages.timerModifySoundvolumeError", "&cUse: /vct modify sound_volume <0.1 - 2.0>");
+                getConfig().set("Messages.timerModifySoundvolumeInvalid", "&cThe number is invalid. Please use a number between &e0.1 &cand &e2.0.");
+                getConfig().set("Messages.timerModifySoundvolumeOutRange", "&cThe volume must be between &e0.1 &cand &e2.0&c.");
+                getConfig().set("Messages.timerModifySoundvolume", "&aThe sound_volume of the timer %TIMER% has been changed to &e%VOLUME%&a.");
+                saveConfig();
+            }
+            if(!text.contains("timerModifySoundpitchError:")){
+                getConfig().set("Messages.timerModifySoundpitchError", "&cUse: /vct modify sound_pitch <0.1 - 2.0>");
+                getConfig().set("Messages.timerModifySoundpitchInvalid", "&cThe number is invalid. Please use a number between &e0.1 &cand &e2.0.");
+                getConfig().set("Messages.timerModifySoundpitchOutRange", "&cThe pitch must be between &e0.1 &cand &e2.0&c.");
+                getConfig().set("Messages.timerModifySoundpitch", "&aThe sound_pitch of the timer %TIMER% has been changed to &e%PITCH%&a.");
+                saveConfig();
+            }
+            if(!text.contains("timerModifyTextError:")){
+                getConfig().set("Messages.timerModifyTextError", "&cUse: /vct modify text <\"text in quotes\">");
+                getConfig().set("Messages.timerModifyTextRequireQuotes", "&cThe text needs to be enclosed in quotation marks (\") in order to change it.");
+                getConfig().set("Messages.timerModifyText", "&aThe text of the timer %TIMER% has been changed to \"&r%TEXT%&a\".");
+                saveConfig();
+            }
+            if(!text.contains("timerStart:")){
+                getConfig().set("Messages.timerStart", "&aTimer started of %HH%:%MM%:%SS%!");
+                saveConfig();
+            }
+            if(!text.contains("timerPause:")){
+                getConfig().set("Messages.timerPause", "&6Timer paused!");
+                saveConfig();
+            }
+            if(!text.contains("timerResume:")){
+                getConfig().set("Messages.timerResume", "&6Timer resumed!");
+                saveConfig();
+            }
+            if(!text.contains("timerStop:")){
+                getConfig().set("Messages.timerStop", "&6Timer stopped!");
+                saveConfig();
+            }
+            if(!text.contains("timerDontExists:")){
+                getConfig().set("Messages.timerDontExists", "&cThe timer does not exist.");
+                saveConfig();
+            }
+            if(!text.contains("timerConfigNotFound:")){
+                getConfig().set("Messages.timerConfigNotFound", "&cThe timer configuration could not be found.");
+                saveConfig();
+            }
+        } catch(IOException e) {
+            e.printStackTrace();
+        }
+    }
+
     public boolean isUpdate_notification() {
         return update_notification;
     }
 
-    public int getTicks_hide_after_ending() {
-        return ticks_hide_after_ending;
+    public boolean isSave_state_timers() {
+        return save_state_timers;
     }
 
-    public boolean isTimer_sound_enabled() {
-        return timer_sound_enabled;
+    public int getTicks_hide_after_ending() {
+        return ticks_hide_after_ending;
     }
 
     public Formatter getFormatter() {
@@ -116,89 +195,5 @@ public class MainConfigManager {
 
     public int getRefresh_ticks() {
         return refresh_ticks;
-    }
-
-    public String getCommandReload() {
-        return commandReload;
-    }
-
-    public String getCommandNoPermissions() {
-        return commandNoPermissions;
-    }
-
-    public String getTimerSetError() {
-        return timerSetError;
-    }
-
-    public String getTimerSetFormatIncorrect() {
-        return timerSetFormatIncorrect;
-    }
-
-    public String getTimerSetFormatInvalid() {
-        return timerSetFormatInvalid;
-    }
-
-    public String getTimerSetFormatOutRange() {
-        return timerSetFormatOutRange;
-    }
-
-    public String getTimerModifyInvalid() {
-        return timerModifyInvalid;
-    }
-
-    public String getTimerModifyBarcolor() {
-        return timerModifyBarcolor;
-    }
-
-    public String getTimerModifyBarcolorError() {
-        return timerModifyBarcolorError;
-    }
-
-    public String getTimerModifyBarcolorInvalid() {
-        return timerModifyBarcolorInvalid;
-    }
-
-    public String getTimerModifyTake() {
-        return timerModifyTake;
-    }
-
-    public String getTimerModifyTakeError() {
-        return timerModifyTakeError;
-    }
-
-    public String getTimerModifySet() {
-        return timerModifySet;
-    }
-
-    public String getTimerModifySetError() {
-        return timerModifySetError;
-    }
-
-    public String getTimerModifyAdd() {
-        return timerModifyAdd;
-    }
-
-    public String getTimerModifyAddError() {
-        return timerModifyAddError;
-    }
-
-    public String getTimerStart() {
-        return timerStart;
-    }
-
-    public String getTimerPause() {
-        return timerPause;
-    }
-
-    public String getTimerStop() {
-        return timerStop;
-    }
-
-    public String getTimerResume() {
-        return timerResume;
-    }
-
-    public String getTimerDontExists() {
-        return timerDontExists;
     }
 }

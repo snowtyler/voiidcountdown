@@ -24,7 +24,7 @@ public class ConfigsManager {
     }
 
     public void configure(){
-        mainConfigManager.loadConfig();
+        mainConfigManager.configure();
         timerFolderConfigManager.configure();
         configureTimers();
     }
@@ -51,8 +51,11 @@ public class ConfigsManager {
                 for (String key : config.getConfigurationSection("Timers").getKeys(false)) {
                     String base = "Timers." + key + ".";
                     boolean enabled = config.getBoolean(base + "enabled", true);
+                    boolean soundEnabled = config.getBoolean(base + "sound_enabled", false);
                     String text = config.getString(base + "text", "%HH%:%MM%:%SS%");
                     String sound = config.getString(base + "sound", "UI_BUTTON_CLICK");
+                    float soundVolume = (float) config.getDouble(base + "sound_volume", 1.0);
+                    float soundPitch = (float) config.getDouble(base + "sound_pitch", 1.0);
                     String colorStr = config.getString(base + "bossbar_color", "WHITE");
 
                     BarColor color;
@@ -62,13 +65,34 @@ public class ConfigsManager {
                         color = BarColor.WHITE;
                     }
 
-                    TimerConfig tc = new TimerConfig(key, text, sound, color, enabled);
+                    TimerConfig tc = new TimerConfig(key, text, sound, color, enabled, soundEnabled, soundVolume, soundPitch);
 
                     timersConfigs.put(key, tc);
                 }
             }
         }
     }
+
+    public void saveTimerConfig(TimerConfig tc) {
+        for (CustomConfig configFile : getTimersConfigs()) {
+            FileConfiguration config = configFile.getConfig();
+
+            String base = "Timers." + tc.getId() + ".";
+            if (config.contains(base)) {
+                config.set(base + "enabled", tc.isEnabled());
+                config.set(base + "sound_enabled", tc.isSoundEnabled());
+                config.set(base + "text", tc.getText());
+                config.set(base + "sound", tc.getSound());
+                config.set(base + "sound_volume", tc.getSoundVolume());
+                config.set(base + "sound_pitch", tc.getSoundPitch());
+                config.set(base + "bossbar_color", tc.getColor().toString());
+
+                configFile.saveConfig();
+                break;
+            }
+        }
+    }
+
 
     public TimerConfig getTimerConfig(String id) {
         return timersConfigs.get(id);

@@ -5,6 +5,9 @@ import org.bukkit.OfflinePlayer;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
+
+import voiidstudios.vct.VoiidCountdownTimer;
+import voiidstudios.vct.configs.model.TimerConfig;
 import voiidstudios.vct.managers.TimerManager;
 
 public class PAPIExpansion extends PlaceholderExpansion {
@@ -14,14 +17,14 @@ public class PAPIExpansion extends PlaceholderExpansion {
         this.plugin = plugin;
     }
 
-    // %vct_timer_hhmmss% - Get the hours, minutes and seconds (00:00:00) of the timer
-    // %vct_timer_hh% - Get the hours (00) of the timer
-    // %vct_timer_mm% - Get the minutes (00) of the timer
-    // %vct_timer_ss% - Get the seconds (00) of the timer
+    // %vct_timer_hhmmss:<timer_id>% - Get the hours, minutes and seconds (00:00:00) of the timer
+    // %vct_timer_hh:<timer_id>% - Get the hours (00) of the timer
+    // %vct_timer_mm:<timer_id>% - Get the minutes (00) of the timer
+    // %vct_timer_ss:<timer_id>% - Get the seconds (00) of the timer
 
-    // %vct_timer_active% - Return 'true' or 'false' if the timer is active (THERE IS A TIMER).
-    // %vct_timer_running% - Return 'true' or 'false' if the timer is running (NOT PAUSED).
-    // %vct_timer_paused% - Return 'true' or 'false' if the timer is paused.
+    // %vct_timer_active:<timer_id>% - Return 'true' or 'false' if the timer is active (THERE IS A TIMER).
+    // %vct_timer_running:<timer_id>% - Return 'true' or 'false' if the timer is running (NOT PAUSED).
+    // %vct_timer_paused:<timer_id>% - Return 'true' or 'false' if the timer is paused.
 
     @Override
     public @NotNull String getIdentifier() {
@@ -40,64 +43,110 @@ public class PAPIExpansion extends PlaceholderExpansion {
 
     @Override
     public @Nullable String onRequest(OfflinePlayer player, @NotNull String params) {
-        if (params.equalsIgnoreCase("timer_hhmmss")) {
-            return getTimerValueHHMMSS();
-        } else if (params.equalsIgnoreCase("timer_hh")) {
-            return getTimerValueHH();
-        } else if (params.equalsIgnoreCase("timer_mm")) {
-            return getTimerValueMM();
-        } else if (params.equalsIgnoreCase("timer_ss")) {
-            return getTimerValueSS();
-        } else if (params.equalsIgnoreCase("timer_active")) {
-            return isTimerActive();
-        } else if (params.equalsIgnoreCase("timer_running")) {
-            return isTimerRunning();
-        } else if (params.equalsIgnoreCase("timer_paused")) {
-            return isTimerPaused();
+        String id = null;
+        String base = params;
+        int idx = params.indexOf(':'); 
+        if (idx > 0) {
+            base = params.substring(0, idx); // timer_ss
+            id = params.substring(idx + 1); // timer_3
+            if (id.isEmpty()) id = null;
         }
 
+        switch (base.toLowerCase()) {
+            case "timer_hhmmss":
+                return getTimerValueHHMMSS(id);
+            case "timer_hh":
+                return getTimerValueHH(id);
+            case "timer_mm":
+                return getTimerValueMM(id);
+            case "timer_ss":
+                return getTimerValueSS(id);
+            case "timer_active":
+                return isTimerActive(id);
+            case "timer_running":
+                return isTimerRunning(id);
+            case "timer_paused":
+                return isTimerPaused(id);
+            default:
+                return null;
+        }
+    }
+
+    private Timer getActiveTimerIfMatches(String id) {
+        Timer current = TimerManager.getInstance().getTimer();
+        if (id == null) return current;
+        if (current != null && current.getTimerId() != null && current.getTimerId().equalsIgnoreCase(id)) {
+            return current;
+        }
         return null;
     }
 
-    private String getTimerValueHHMMSS() {
-        Timer timer = TimerManager.getInstance().getTimer();
-        if (timer != null)
-            return timer.getTimeLeft();
-        return null;
+    private TimerConfig getConfigIfExists(String id) {
+        if (id == null) return null;
+        return VoiidCountdownTimer.getConfigsManager().getTimerConfig(id);
     }
 
-    private String getTimerValueHH() {
-        Timer timer = TimerManager.getInstance().getTimer();
-        if (timer != null)
-            return timer.getTimeLeftHH();
-        return null;
+    private String getTimerValueHHMMSS(String id) {
+        Timer t = getActiveTimerIfMatches(id);
+        if (t != null) return t.getTimeLeft();
+
+        TimerConfig cfg = getConfigIfExists(id);
+        return cfg != null ? "00:00:00" : null;
     }
 
-    private String getTimerValueMM() {
-        Timer timer = TimerManager.getInstance().getTimer();
-        if (timer != null)
-            return timer.getTimeLeftMM();
-        return null;
+    private String getTimerValueHH(String id) {
+        Timer t = getActiveTimerIfMatches(id);
+        if (t != null) return t.getTimeLeftHH();
+
+        TimerConfig cfg = getConfigIfExists(id);
+        return cfg != null ? "00" : null;
     }
 
-    private String getTimerValueSS() {
-        Timer timer = TimerManager.getInstance().getTimer();
-        if (timer != null)
-            return timer.getTimeLeftSS();
-        return null;
+    private String getTimerValueMM(String id) {
+        Timer t = getActiveTimerIfMatches(id);
+        if (t != null) return t.getTimeLeftMM();
+
+        TimerConfig cfg = getConfigIfExists(id);
+        return cfg != null ? "00" : null;
     }
 
-    private String isTimerActive() {
-        return String.valueOf(TimerManager.getInstance().getTimer() != null);
+    private String getTimerValueSS(String id) {
+        Timer t = getActiveTimerIfMatches(id);
+        if (t != null) return t.getTimeLeftSS();
+
+        TimerConfig cfg = getConfigIfExists(id);
+        return cfg != null ? "00" : null;
     }
 
-    private String isTimerRunning() {
-        Timer timer = TimerManager.getInstance().getTimer();
-        return String.valueOf(timer != null && timer.isActive());
+    private String isTimerActive(String id) {
+        if (id == null) {
+            return String.valueOf(TimerManager.getInstance().getTimer() != null);
+        }
+
+        Timer t = getActiveTimerIfMatches(id);
+        if (t != null) return "true";
+
+        TimerConfig cfg = getConfigIfExists(id);
+        return cfg != null ? "false" : null;
     }
 
-    private String isTimerPaused() {
-        Timer timer = TimerManager.getInstance().getTimer();
-        return String.valueOf(timer != null && !timer.isActive());
+    private String isTimerRunning(String id) {
+        Timer t = getActiveTimerIfMatches(id);
+        if (t != null) {
+            return String.valueOf(t.isActive());
+        }
+
+        TimerConfig cfg = getConfigIfExists(id);
+        return cfg != null ? "false" : null;
+    }
+
+    private String isTimerPaused(String id) {
+        Timer t = getActiveTimerIfMatches(id);
+        if (t != null) {
+            return String.valueOf(!t.isActive());
+        }
+
+        TimerConfig cfg = getConfigIfExists(id);
+        return cfg != null ? "false" : null;
     }
 }

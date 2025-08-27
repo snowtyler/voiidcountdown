@@ -1,8 +1,0 @@
-<component name="ArtifactManager">
-  <artifact type="jar" name="VoiidCountdownTimer:jar">
-    <output-path>$USER_HOME$/Desktop/LocalhostPaper/plugins</output-path>
-    <root id="archive" name="VoiidCountdownTimer.jar">
-      <element id="module-output" name="VoiidCountdownTimer" />
-    </root>
-  </artifact>
-</component>

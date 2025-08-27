@@ -17,7 +17,9 @@ public class Timer implements Runnable {
     private final BossBar bossbar;
     private BukkitTask task;
     private boolean hasSound;
-    private Sound soundName;
+    private String soundFinalName;
+    public float soundVolume;
+    public float soundPitch;
     private String timerText;
     private int initialSeconds;
     private int refreshInterval;
@@ -25,30 +27,28 @@ public class Timer implements Runnable {
     private final int minValue = 0;
     private final String timerId;
 
-    public Timer(int seconds, String timeText, String timeSound, BarColor barcolor, String timerId) {
+    public Timer(int seconds, String timeText, String timeSound, BarColor barcolor, String timerId, boolean hasSoundd, float soundVolumee, float soundPitchh) {
         this.seconds = seconds;
         this.initialSeconds = seconds;
         this.timerId = timerId;
 
         this.refreshInterval = VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getRefresh_ticks();
-        this.hasSound = VoiidCountdownTimer.getConfigsManager().getMainConfigManager().isTimer_sound_enabled();
+        this.hasSound = hasSoundd;
 
         this.timerText = timeText;
-        try {
-            if (timeSound != null) {
-                this.soundName = Sound.valueOf(timeSound);
-            } else {
-                this.soundName = null;
-            }
-        } catch (IllegalArgumentException e) {
-            this.soundName = null;
-        }
+        this.soundFinalName = timeSound;
+        this.soundVolume = soundVolumee;
+        this.soundPitch = soundPitchh;
 
         this.bossbar = Bukkit.createBossBar("", barcolor, BarStyle.SOLID, new org.bukkit.boss.BarFlag[0]);
     }
 
     public int getInitialSeconds() {
         return this.initialSeconds;
+    }
+
+    public int getRemainingSeconds() {
+        return this.seconds;
     }
 
     public String getTimertext() {
@@ -60,6 +60,31 @@ public class Timer implements Runnable {
                 .replace("%HH%", formatTimeHH(this.seconds))
                 .replace("%MM%", formatTimeMM(this.seconds))
                 .replace("%SS%", formatTimeSS(this.seconds));
+    }
+
+    public static void playSound(Player player, String actionLine) {
+        // playsound: sound;volume;pitch
+        String[] sep = actionLine.split(";");
+        String soundName = sep[0];
+        float volume = Float.parseFloat(sep[1]);
+        float pitch = Float.parseFloat(sep[2]);
+
+        boolean success = false;
+
+        try {
+            Sound sound = Sound.valueOf(soundName.toUpperCase());
+            player.playSound(player.getLocation(), sound, volume, pitch);
+            success = true;
+        } catch (IllegalArgumentException ignored) {
+            try {
+                player.playSound(player.getLocation(), soundName, volume, pitch);
+                success = true;
+            } catch (Exception e) { /* ignore */ }
+        }
+
+        if (!success) {
+            Bukkit.getLogger().warning("[TuPlugin] No se pudo reproducir el sonido: " + soundName);
+        }
     }
 
     private void updateBossBarTitle(String phasesText) {
@@ -131,8 +156,8 @@ public class Timer implements Runnable {
                             for (Player player : Bukkit.getOnlinePlayers()) {
                                 Timer.this.bossbar.addPlayer(player);
 
-                                if (Timer.this.hasSound && Timer.this.soundName != null) {
-                                    player.playSound(player.getLocation(), Timer.this.soundName, 1.0F, 1.0F);
+                                if (Timer.this.hasSound && Timer.this.soundFinalName != null) {
+                                    playSound(player, soundFinalName + ";" + soundVolume + ";" + soundPitch);
                                 }
                             }
 
@@ -175,14 +200,16 @@ public class Timer implements Runnable {
         if (current == null) return;
 
         current.refreshInterval = VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getRefresh_ticks();
-        current.hasSound = VoiidCountdownTimer.getConfigsManager().getMainConfigManager().isTimer_sound_enabled();
 
         if (current.timerId != null) {
             try {
                 TimerConfig cfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(current.timerId);
                 if (cfg != null && cfg.isEnabled()) {
                     current.timerText = cfg.getText();
-                    try { current.soundName = Sound.valueOf(cfg.getSound()); } catch (Exception ignored) { /* keep existing */ }
+                    current.hasSound = cfg.isSoundEnabled();
+                    current.soundVolume = cfg.getSoundVolume();
+                    current.soundPitch = cfg.getSoundPitch();
+                    try { current.soundFinalName = cfg.getSound(); } catch (Exception ignored) { /* keep existing */ }
                     try { current.bossbar.setColor(cfg.getColor()); } catch (Exception ignored) {}
                     return;
                 }
@@ -190,9 +217,10 @@ public class Timer implements Runnable {
         }
 
         current.timerText = "%HH%:%MM%:%SS%";
-        try {
-            current.soundName = Sound.UI_BUTTON_CLICK;
-        } catch (Exception ignored) {}
+        current.soundFinalName = "UI_BUTTON_CLICK";
+        current.hasSound = false;
+        current.soundVolume = 1.0f;
+        current.soundPitch = 1.0f;
 
         try {
             BarColor color = BarColor.WHITE;
@@ -202,6 +230,10 @@ public class Timer implements Runnable {
 
     public void setBossBarColor(BarColor color) {
         this.bossbar.setColor(color);
+    }
+
+    public void setSeconds(int seconds) {
+        this.seconds = seconds;
     }
 
     private String formatTime(long time) {
@@ -252,6 +284,10 @@ public class Timer implements Runnable {
 
     public boolean isActive() {
         return task != null;
+    }
+
+    public boolean isPaused() {
+        return this.task == null && this.seconds > 0;
     }
 
     public void start() {

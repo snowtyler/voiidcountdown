@@ -5,7 +5,6 @@ import org.bukkit.command.CommandSender;
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.api.Timer;
 import voiidstudios.vct.api.VCTEvent;
-import voiidstudios.vct.utils.MessageUtils;
 
 public class TimerManager {
     private static TimerManager instance;
@@ -40,12 +39,14 @@ public class TimerManager {
     }
 
     public void deleteTimer(CommandSender sender) {
+        MessagesManager msgManager = VoiidCountdownTimer.getMessagesManager();
+
         if (this.timer != null) {
             this.timer.stop();
             this.timer = null;
-            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix+VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerStop()));
+            msgManager.sendConfigMessage(sender, "Messages.timerStop", true, null);
         } else {
-            sender.sendMessage(MessageUtils.getColoredMessage(VoiidCountdownTimer.prefix+VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTimerDontExists()));
+            msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
         }
     }
 }

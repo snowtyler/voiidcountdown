@@ -10,11 +10,10 @@ import voiidstudios.vct.listeners.PlayerListener;
 import voiidstudios.vct.managers.DependencyManager;
 import voiidstudios.vct.api.UpdateCheckerResult;
 import voiidstudios.vct.managers.DynamicsManager;
-import voiidstudios.vct.utils.MessageUtils;
+import voiidstudios.vct.managers.MessagesManager;
+import voiidstudios.vct.managers.TimerStateManager;
 import voiidstudios.vct.utils.ServerVersion;
 import voiidstudios.vct.utils.UpdateChecker;
-
-import java.util.Objects;
 
 public final class VoiidCountdownTimer extends JavaPlugin {
     public static String prefix = "&5[&dVCT&5] ";
@@ -29,12 +28,15 @@ public final class VoiidCountdownTimer extends JavaPlugin {
     private UpdateChecker updateChecker;
     private static ConfigsManager configsManager;
     private static DynamicsManager dynamicsManager;
+    private static MessagesManager messagesManager;
+    private static TimerStateManager timerStateManager;
     private static Metrics bStatsMetrics;
     private static DependencyManager dependencyManager;
 
     public void onEnable() {
         instance = this;
         configsManager = new ConfigsManager(this);
+        messagesManager = new MessagesManager(this);
         configsManager.configure();
         setVersion();
         registerCommands();
@@ -44,10 +46,12 @@ public final class VoiidCountdownTimer extends JavaPlugin {
             new PAPIExpansion(this).register();
         }
 
-        Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage("&6        __ ___"));
-        Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage("&5  \\  / &6|    |    &dVoiid &eCountdown Timer"));
-        Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage("&5   \\/  &6|__  |    &8Running v" + version + " on " + serverName + " (" + cleanVersion + ")"));
-        Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage(""));
+        MessagesManager.setPrefix(prefix);
+
+        Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage("&6        __ ___"));
+        Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage("&5  \\  / &6|    |    &dVoiid &eCountdown Timer"));
+        Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage("&5   \\/  &6|__  |    &8Running v" + version + " on " + serverName + " (" + cleanVersion + ")"));
+        Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage(""));
 
         dependencyManager = new DependencyManager(this);
         bStatsMetrics = new Metrics(this, 26790);
@@ -57,11 +61,18 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         if (configsManager.getMainConfigManager().isUpdate_notification()) {
             updateMessage(updateChecker.check());
         }
+
+        timerStateManager = new TimerStateManager(this);
+        timerStateManager.loadState();
     }
 
     public void onDisable() {
+        if (timerStateManager != null && configsManager.getMainConfigManager().isSave_state_timers()) {
+            timerStateManager.saveState();
+        }
+
         Bukkit.getConsoleSender().sendMessage(
-                MessageUtils.getColoredMessage(prefix+"&rHas been disabled! Goodbye ;)")
+                MessagesManager.getColoredMessage(prefix+"&aHas been disabled! Goodbye ;)")
         );
     }
 
@@ -101,7 +112,7 @@ public final class VoiidCountdownTimer extends JavaPlugin {
     }
 
     public void registerCommands() {
-        Objects.requireNonNull(this.getCommand("voiidcountdowntimer")).setExecutor(new MainCommand());
+        this.getCommand("voiidcountdowntimer").setExecutor(new MainCommand());
     }
 
     public void registerEvents() {
@@ -120,11 +131,11 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         if(!result.isError()){
             String latestVersion = result.getLatestVersion();
             if(latestVersion != null){
-                Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage("&aAn update for Voiid Countdown Timer &e("+latestVersion+") &ais available."));
-                Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage("&aYou can download it at: &fhttps://modrinth.com/datapack/voiid-countdown-timer"));
+                Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage("&aAn update for Voiid Countdown Timer &e("+latestVersion+") &ais available."));
+                Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage("&aYou can download it at: &fhttps://modrinth.com/datapack/voiid-countdown-timer"));
             }
         }else{
-            Bukkit.getConsoleSender().sendMessage(MessageUtils.getColoredMessage(prefix+"&cAn error occurred while checking for updates."));
+            Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage(prefix+"&cAn error occurred while checking for updates."));
         }
     }
 
@@ -138,5 +149,13 @@ public final class VoiidCountdownTimer extends JavaPlugin {
 
     public static DependencyManager getDependencyManager() {
         return dependencyManager;
+    }
+
+    public static MessagesManager getMessagesManager() {
+		return messagesManager;
+	}
+
+    public static TimerStateManager getTimerStateManager() {
+        return timerStateManager;
     }
 }
