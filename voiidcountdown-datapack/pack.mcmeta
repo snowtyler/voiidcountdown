@@ -2,9 +2,9 @@
     "id": "voiidcountdowntimer",
     "pack": {
         "pack_format": 5,
-        "supported_formats": [5, 83],
+        "supported_formats": [5, 85],
         "min_format": 5,
-        "max_format": 83,
-        "description": "Voiid Countdown Timer by Voiid Studios\n└ v1.4 ● BETA (25w32a)"
+        "max_format": 85,
+        "description": "Voiid Countdown Timer by Voiid Studios\n└ v1.4.0-b3 ● BETA (25w35a)"
     }
 }
