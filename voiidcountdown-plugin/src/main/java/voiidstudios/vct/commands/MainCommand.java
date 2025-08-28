@@ -9,6 +9,7 @@ import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.api.Timer;
+import voiidstudios.vct.api.VCTAPI;
 import voiidstudios.vct.api.VCTEvent;
 import voiidstudios.vct.configs.model.TimerConfig;
 import voiidstudios.vct.managers.MessagesManager;
@@ -64,98 +65,19 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        String[] timeParts = args[1].split(":");
-        if (timeParts.length != 3) {
+        String timeHHMMSS = args[1];
+        String timerId = (args.length >= 3) ? args[2] : null;
+
+        Timer timer = VCTAPI.createTimer(timeHHMMSS, timerId, sender);
+        if (timer == null) {
             msgManager.sendConfigMessage(sender, "Messages.timerSetFormatIncorrect", true, null);
             return;
         }
-
-        int hours, minutes, seconds;
-        try {
-            hours = Integer.parseInt(timeParts[0]);
-            minutes = Integer.parseInt(timeParts[1]);
-            seconds = Integer.parseInt(timeParts[2]);
-        } catch (NumberFormatException e) {
-            msgManager.sendConfigMessage(sender, "Messages.timerSetFormatInvalid", true, null);
-            return;
-        }
-
-        if (hours < 0 || minutes < 0 || minutes > 59 || seconds < 0 || seconds > 59) {
-            msgManager.sendConfigMessage(sender, "Messages.timerSetFormatIncorrect", true, null);
-            return;
-        }
-
-        int totalSeconds = hours * 3600 + minutes * 60 + seconds;
-        if (totalSeconds == 0) {
-            msgManager.sendConfigMessage(sender, "Messages.timerSetFormatOutRange", true, null);
-            return;
-        }
-
-        String usedTimerId = null;
-        String text;
-        String sound;
-        float soundVolume;
-        float soundPitch;
-        BarColor color;
-        boolean hasSound;
-
-        if (args.length >= 3) {
-            String wantedId = args[2];
-            TimerConfig cfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(wantedId);
-            if (cfg != null && cfg.isEnabled()) {
-                usedTimerId = wantedId;
-                text = cfg.getText();
-                sound = cfg.getSound();
-                soundVolume = cfg.getSoundVolume();
-                soundPitch = cfg.getSoundPitch();
-                color = cfg.getColor();
-                hasSound = cfg.isSoundEnabled();
-            } else {
-                msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
-                return;
-            }
-        } else {
-            TimerConfig defaultCfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig("default");
-            if (defaultCfg != null && defaultCfg.isEnabled()) {
-                usedTimerId = "default";
-                text = defaultCfg.getText();
-                sound = defaultCfg.getSound();
-                soundVolume = defaultCfg.getSoundVolume();
-                soundPitch = defaultCfg.getSoundPitch();
-                color = defaultCfg.getColor();
-                hasSound = defaultCfg.isSoundEnabled();
-            } else {
-                usedTimerId = null;
-                text = "%HH%:%MM%:%SS%";
-                sound = "UI_BUTTON_CLICK";
-                soundVolume = 1.0f;
-                soundPitch = 1.0f;
-                color = BarColor.WHITE;
-                hasSound = false;
-            }
-        }
-
-        TimerManager.getInstance().removeTimer();
-
-        Timer timer = new Timer(
-                totalSeconds,
-                text,
-                sound,
-                color,
-                usedTimerId,
-                hasSound,
-                soundVolume,
-                soundPitch
-        );
-        timer.start();
-        TimerManager.getInstance().setTimer(timer);
-
-        Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.CREATE, sender));
 
         Map<String, String> repl = new HashMap<>();
-        repl.put("%HH%", String.format("%02d", hours));
-        repl.put("%MM%", String.format("%02d", minutes));
-        repl.put("%SS%", String.format("%02d", seconds));
+        repl.put("%HH%", String.format("%02d", Integer.parseInt(timer.getTimeLeftHH())));
+        repl.put("%MM%", String.format("%02d", Integer.parseInt(timer.getTimeLeftMM())));
+        repl.put("%SS%", String.format("%02d", Integer.parseInt(timer.getTimeLeftSS())));
 
         msgManager.sendConfigMessage(sender, "Messages.timerStart", true, repl);
     }
@@ -190,16 +112,10 @@ public class MainCommand implements CommandExecutor, TabCompleter {
 
     public void modify(CommandSender sender, String[] args, MessagesManager msgManager) {
         java.util.List<String> parts;
-        String timeToAdd;
-        String[] timeParts;
         int addHours, addMinutes, addSeconds, totalSecondsToAdd;
         Timer timer;
         TimerConfig timerCfg;
-        String timeToSet;
-        String[] timePartsSet;
         int setHours, setMinutes, setSeconds, totalSecondsToSet;
-        String timeToTake;
-        String[] timePartsTake;
         int takeHours, takeMinutes, takeSeconds, totalSecondsToTake;
 
         if (args.length < 2) {
@@ -224,83 +140,65 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                timeToAdd = args[2];
-                timeParts = timeToAdd.split(":");
+                totalSecondsToAdd = VCTAPI.helper_parseTimeToSeconds(args[2]);
 
-                if (timeParts.length != 3) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerSetFormatIncorrect", true, null);
-                    return;
-                }
                 addHours = 0;
                 addMinutes = 0;
                 addSeconds = 0;
-                try {
-                    addHours = Integer.parseInt(timeParts[0]);
-                    addMinutes = Integer.parseInt(timeParts[1]);
-                    addSeconds = Integer.parseInt(timeParts[2]);
-                } catch (NumberFormatException e) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerSetFormatInvalid", true, null);
-                    return;
-                }
+
+                addHours = totalSecondsToAdd / 3600;
+                addMinutes = (totalSecondsToAdd % 3600) / 60;
+                addSeconds = totalSecondsToAdd % 60;
+
                 if (addHours < 0 || addMinutes < 0 || addMinutes > 59 || addSeconds < 0 || addSeconds > 59) {
                     msgManager.sendConfigMessage(sender, "Messages.timerSetFormatIncorrect", true, null);
                     return;
                 }
-                totalSecondsToAdd = addHours * 3600 + addMinutes * 60 + addSeconds;
+
                 if (totalSecondsToAdd == 0) {
                     msgManager.sendConfigMessage(sender, "Messages.timerSetFormatOutRange", true, null);
                     return;
                 }
 
-                if (TimerManager.getInstance().getTimer() == null) {
+                boolean addSuccess = VCTAPI.modifyTimer("add", args[2], sender);
+                if (!addSuccess) {
                     msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
                     return;
                 }
-                timer = TimerManager.getInstance().getTimer();
-                timer.add(totalSecondsToAdd);
-                Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.MODIFY, sender));
 
                 Map<String, String> addRepl = new HashMap<>();
                 addRepl.put("%HH%", String.format("%02d", addHours));
                 addRepl.put("%MM%", String.format("%02d", addMinutes));
                 addRepl.put("%SS%", String.format("%02d", addSeconds));
 
-                msgManager.sendConfigMessage(sender, "Messages.timerModifySetError", true, addRepl);
+                msgManager.sendConfigMessage(sender, "Messages.timerModifyAdd", true, addRepl);
                 return;
             case "set":
                 if (args.length < 3) {
                     msgManager.sendConfigMessage(sender, "Messages.timerModifyTakeError", true, null);
                     return;
                 }
-                timeToSet = args[2];
-                timePartsSet = timeToSet.split(":");
-                if (timePartsSet.length != 3) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerSetFormatIncorrect", true, null);
-                    return;
-                }
+
+                totalSecondsToSet = VCTAPI.helper_parseTimeToSeconds(args[2]);
+
                 setHours = 0;
                 setMinutes = 0;
                 setSeconds = 0;
-                try {
-                    setHours = Integer.parseInt(timePartsSet[0]);
-                    setMinutes = Integer.parseInt(timePartsSet[1]);
-                    setSeconds = Integer.parseInt(timePartsSet[2]);
-                } catch (NumberFormatException e) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerSetFormatInvalid", true, null);
-                    return;
-                }
+
+                setHours = totalSecondsToSet / 3600;
+                setMinutes = (totalSecondsToSet % 3600) / 60;
+                setSeconds = totalSecondsToSet % 60;
+
                 if (setHours < 0 || setMinutes < 0 || setMinutes > 59 || setSeconds < 0 || setSeconds > 59) {
                     msgManager.sendConfigMessage(sender, "Messages.timerSetFormatIncorrect", true, null);
                     return;
                 }
-                totalSecondsToSet = setHours * 3600 + setMinutes * 60 + setSeconds;
-                if (TimerManager.getInstance().getTimer() == null) {
+
+                boolean setSuccess = VCTAPI.modifyTimer("set", args[2], sender);
+                if (!setSuccess) {
                     msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
                     return;
                 }
-                timer = TimerManager.getInstance().getTimer();
-                timer.set(totalSecondsToSet);
-                Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.MODIFY, sender));
 
                 Map<String, String> setRepl = new HashMap<>();
                 setRepl.put("%HH%", String.format("%02d", setHours));
@@ -314,35 +212,27 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     msgManager.sendConfigMessage(sender, "Messages.timerModifyTakeError", true, null);
                     return;
                 }
-                timeToTake = args[2];
-                timePartsTake = timeToTake.split(":");
-                if (timePartsTake.length != 3) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerSetFormatIncorrect", true, null);
-                    return;
-                }
+
+                totalSecondsToTake = VCTAPI.helper_parseTimeToSeconds(args[2]);
+
                 takeHours = 0;
                 takeMinutes = 0;
                 takeSeconds = 0;
-                try {
-                    takeHours = Integer.parseInt(timePartsTake[0]);
-                    takeMinutes = Integer.parseInt(timePartsTake[1]);
-                    takeSeconds = Integer.parseInt(timePartsTake[2]);
-                } catch (NumberFormatException e) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerSetFormatInvalid", true, null);
-                    return;
-                }
+
+                takeHours = totalSecondsToTake / 3600;
+                takeMinutes = (totalSecondsToTake % 3600) / 60;
+                takeSeconds = totalSecondsToTake % 60;
+
                 if (takeHours < 0 || takeMinutes < 0 || takeMinutes > 59 || takeSeconds < 0 || takeSeconds > 59) {
                     msgManager.sendConfigMessage(sender, "Messages.timerSetFormatIncorrect", true, null);
                     return;
                 }
-                totalSecondsToTake = takeHours * 3600 + takeMinutes * 60 + takeSeconds;
-                if (TimerManager.getInstance().getTimer() == null) {
+
+                boolean takeSuccess = VCTAPI.modifyTimer("take", args[2], sender);
+                if (!takeSuccess) {
                     msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
                     return;
                 }
-                timer = TimerManager.getInstance().getTimer();
-                timer.take(totalSecondsToTake);
-                Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.MODIFY, sender));
 
                 Map<String, String> takeRepl = new HashMap<>();
                 takeRepl.put("%HH%", String.format("%02d", takeHours));
@@ -746,5 +636,4 @@ public class MainCommand implements CommandExecutor, TabCompleter {
 
         return completions.isEmpty() ? null : completions;
     }
-
 }

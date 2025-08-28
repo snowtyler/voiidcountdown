@@ -2,6 +2,8 @@ package voiidstudios.vct.managers;
 
 import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.Nullable;
+
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.api.Timer;
 import voiidstudios.vct.api.VCTEvent;
@@ -38,15 +40,20 @@ public class TimerManager {
         }
     }
 
-    public void deleteTimer(CommandSender sender) {
+    public void deleteTimer(@Nullable CommandSender sender) {
         MessagesManager msgManager = VoiidCountdownTimer.getMessagesManager();
 
         if (this.timer != null) {
             this.timer.stop();
             this.timer = null;
-            msgManager.sendConfigMessage(sender, "Messages.timerStop", true, null);
+
+            if (sender != null) {
+                msgManager.sendConfigMessage(sender, "Messages.timerStop", true, null);
+            }
         } else {
-            msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
+            if (sender != null) {
+                msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
+            }
         }
     }
 }
