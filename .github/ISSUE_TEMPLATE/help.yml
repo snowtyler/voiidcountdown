@@ -1,26 +1,18 @@
-name: Bug report
-description: Report Voiid Countdown Timer bugs here
-labels: [bug]
+name: I need help!
+description: If you need help using the engine.
+labels: [help wanted]
 body:
   - type: textarea
     id: description
     attributes:
-      label: "Describe your bug here."
-    validations:
-      required: true
-
-  - type: textarea
-    id: toproduce
-    attributes:
-      label: "Do you know how you reproduced the bug?"
-      description: 'You can include videos for much more detail!'
+      label: "Describe your problem here."
     validations:
       required: true
 
   - type: dropdown
     id: vcttype
     attributes:
-      label: "What type of Voiid Countdown Timer build does it happen in?"
+      label: "Which build of Voiid Countdown Timer do you use?"
       options:
         - Datapack (V1)
         - Plugin (V2)

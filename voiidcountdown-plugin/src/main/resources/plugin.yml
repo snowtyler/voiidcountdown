@@ -1,6 +1,6 @@
 main: voiidstudios.vct.VoiidCountdownTimer
-version: 1.4.0.4
 name: VoiidCountdownTimer
+version: 1.4.0.4
 authors: [Voiid Studios]
 api-version: 1.13
 softdepend: [PlaceholderAPI]
