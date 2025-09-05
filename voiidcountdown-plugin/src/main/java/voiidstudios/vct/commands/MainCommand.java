@@ -9,7 +9,7 @@ import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.api.Timer;
-import voiidstudios.vct.api.VCTAPI;
+import voiidstudios.vct.api.VCTActions;
 import voiidstudios.vct.api.VCTEvent;
 import voiidstudios.vct.configs.model.TimerConfig;
 import voiidstudios.vct.managers.MessagesManager;
@@ -68,7 +68,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         String timeHHMMSS = args[1];
         String timerId = (args.length >= 3) ? args[2] : null;
 
-        Timer timer = VCTAPI.createTimer(timeHHMMSS, timerId, sender);
+        Timer timer = VCTActions.createTimer(timeHHMMSS, timerId, sender);
         if (timer == null) {
             msgManager.sendConfigMessage(sender, "Messages.timerSetFormatIncorrect", true, null);
             return;
@@ -140,7 +140,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                totalSecondsToAdd = VCTAPI.helper_parseTimeToSeconds(args[2]);
+                totalSecondsToAdd = VCTActions.helper_parseTimeToSeconds(args[2]);
 
                 addHours = 0;
                 addMinutes = 0;
@@ -160,7 +160,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                boolean addSuccess = VCTAPI.modifyTimer("add", args[2], sender);
+                boolean addSuccess = VCTActions.modifyTimer("add", args[2], sender);
                 if (!addSuccess) {
                     msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
                     return;
@@ -179,7 +179,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                totalSecondsToSet = VCTAPI.helper_parseTimeToSeconds(args[2]);
+                totalSecondsToSet = VCTActions.helper_parseTimeToSeconds(args[2]);
 
                 setHours = 0;
                 setMinutes = 0;
@@ -194,7 +194,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                boolean setSuccess = VCTAPI.modifyTimer("set", args[2], sender);
+                boolean setSuccess = VCTActions.modifyTimer("set", args[2], sender);
                 if (!setSuccess) {
                     msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
                     return;
@@ -213,7 +213,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                totalSecondsToTake = VCTAPI.helper_parseTimeToSeconds(args[2]);
+                totalSecondsToTake = VCTActions.helper_parseTimeToSeconds(args[2]);
 
                 takeHours = 0;
                 takeMinutes = 0;
@@ -228,7 +228,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                boolean takeSuccess = VCTAPI.modifyTimer("take", args[2], sender);
+                boolean takeSuccess = VCTActions.modifyTimer("take", args[2], sender);
                 if (!takeSuccess) {
                     msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
                     return;

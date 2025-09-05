@@ -9,11 +9,7 @@ import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.configs.model.TimerConfig;
 import voiidstudios.vct.managers.TimerManager;
 
-/**
- * @deprecated VCTAPI has been renamed to VCTActions to distinguish it from other APIs and will be removed in v2.1.0. Please use {@link VCTActions} instead.
-*/
-@Deprecated
-public class VCTAPI {
+public class VCTActions {
     public static boolean isAvailable() {
         return Bukkit.getPluginManager().getPlugin("VoiidCountdownTimer") != null
                 && VoiidCountdownTimer.getInstance() != null
