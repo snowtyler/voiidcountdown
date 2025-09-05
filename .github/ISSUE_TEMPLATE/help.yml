@@ -1,5 +1,5 @@
 name: I need help!
-description: If you need help using the engine.
+description: If you need help using Voiid Countdown Timer
 labels: [help wanted]
 body:
   - type: textarea

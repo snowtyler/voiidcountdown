@@ -13,7 +13,7 @@ body:
     id: toproduce
     attributes:
       label: "Do you know how you reproduced the bug?"
-      description: 'You can include videos for much more detail!'
+      description: 'Tell us the steps to follow to review it. You can include videos for much more detail!'
     validations:
       required: true
 
