@@ -1,13 +1,12 @@
 package voiidstudios.vct.api;
 
 import org.bukkit.Bukkit;
-import org.bukkit.boss.BarColor;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 
 import voiidstudios.vct.VoiidCountdownTimer;
-import voiidstudios.vct.configs.model.TimerConfig;
 import voiidstudios.vct.managers.TimerManager;
+import voiidstudios.vct.utils.TimerDefaults;
 
 public class VCTActions {
     public static boolean isAvailable() {
@@ -21,42 +20,19 @@ public class VCTActions {
         if (totalSeconds <= 0) return null;
 
         String usedTimerId = (timerId == null || timerId.isEmpty()) ? "default" : timerId;
-
-        TimerConfig cfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(usedTimerId);
-        String text;
-        String sound;
-        float soundVolume;
-        float soundPitch;
-        BarColor color;
-        boolean hasSound;
-
-        if (cfg != null && cfg.isEnabled()) {
-            text = cfg.getText();
-            sound = cfg.getSound();
-            soundVolume = cfg.getSoundVolume();
-            soundPitch = cfg.getSoundPitch();
-            color = cfg.getColor();
-            hasSound = cfg.isSoundEnabled();
-        } else {
-            text = "%HH%:%MM%:%SS%";
-            sound = "UI_BUTTON_CLICK";
-            soundVolume = 1.0f;
-            soundPitch = 1.0f;
-            color = BarColor.WHITE;
-            hasSound = false;
-        }
-
+        TimerDefaults.TimerSettings settings = TimerDefaults.getSettings(usedTimerId);
         TimerManager.getInstance().removeTimer();
 
         Timer timer = new Timer(
                 totalSeconds,
-                text,
-                sound,
-                color,
+                settings.text,
+                settings.sound,
+                settings.color,
+                settings.style,
                 usedTimerId,
-                hasSound,
-                soundVolume,
-                soundPitch
+                settings.hasSound,
+                settings.volume,
+                settings.pitch
         );
 
         timer.start();

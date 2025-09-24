@@ -30,7 +30,6 @@ public final class VoiidCountdownTimer extends JavaPlugin {
     private static DynamicsManager dynamicsManager;
     private static MessagesManager messagesManager;
     private static TimerStateManager timerStateManager;
-    private static Metrics bStatsMetrics;
     private static DependencyManager dependencyManager;
 
     public void onEnable() {
@@ -53,8 +52,8 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage("&5   \\/  &6|__  |    &8Running v" + version + " on " + serverName + " (" + cleanVersion + ")"));
         Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage(""));
 
+        new Metrics(this, 26790);
         dependencyManager = new DependencyManager(this);
-        bStatsMetrics = new Metrics(this, 26790);
         dynamicsManager = new DynamicsManager(this);
         updateChecker = new UpdateChecker(version);
 

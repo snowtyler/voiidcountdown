@@ -1,6 +1,7 @@
 package voiidstudios.vct.configs;
 
 import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
 import org.bukkit.configuration.file.FileConfiguration;
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.configs.model.CustomConfig;
@@ -13,12 +14,9 @@ import java.util.Map;
 public class ConfigsManager {
     private final MainConfigManager mainConfigManager;
     private final TimersFolderConfigManager timerFolderConfigManager;
-    private final VoiidCountdownTimer plugin;
-
     private final Map<String, TimerConfig> timersConfigs = new LinkedHashMap<>();
 
     public ConfigsManager(VoiidCountdownTimer plugin){
-        this.plugin = plugin;
         this.mainConfigManager = new MainConfigManager(plugin);
         this.timerFolderConfigManager = new TimersFolderConfigManager(plugin, "timers");
     }
@@ -50,6 +48,34 @@ public class ConfigsManager {
             if(config.contains("Timers")){
                 for (String key : config.getConfigurationSection("Timers").getKeys(false)) {
                     String base = "Timers." + key + ".";
+
+                    if (!config.contains(base + "text")) {
+                        config.set(base + "text", "%HH%:%MM%:%SS%");
+                    }
+                    if (!config.contains(base + "sound")) {
+                        config.set(base + "sound", "UI_BUTTON_CLICK");
+                    }
+                    if (!config.contains(base + "sound_volume")) {
+                        config.set(base + "sound_volume", 1.0);
+                    }
+                    if (!config.contains(base + "sound_pitch")) {
+                        config.set(base + "sound_pitch", 1.0);
+                    }
+                    if (!config.contains(base + "bossbar_color")) {
+                        config.set(base + "bossbar_color", "WHITE");
+                    }
+                    if (!config.contains(base + "bossbar_style")) {
+                        config.set(base + "bossbar_style", "SOLID");
+                    }
+                    if (!config.contains(base + "enabled")) {
+                        config.set(base + "enabled", true);
+                    }
+                    if (!config.contains(base + "sound_enabled")) {
+                        config.set(base + "sound_enabled", false);
+                    }
+
+                    configFile.saveConfig();
+
                     boolean enabled = config.getBoolean(base + "enabled", true);
                     boolean soundEnabled = config.getBoolean(base + "sound_enabled", false);
                     String text = config.getString(base + "text", "%HH%:%MM%:%SS%");
@@ -57,6 +83,7 @@ public class ConfigsManager {
                     float soundVolume = (float) config.getDouble(base + "sound_volume", 1.0);
                     float soundPitch = (float) config.getDouble(base + "sound_pitch", 1.0);
                     String colorStr = config.getString(base + "bossbar_color", "WHITE");
+                    String styleStr = config.getString(base + "bossbar_style", "SOLID");
 
                     BarColor color;
                     try {
@@ -65,7 +92,14 @@ public class ConfigsManager {
                         color = BarColor.WHITE;
                     }
 
-                    TimerConfig tc = new TimerConfig(key, text, sound, color, enabled, soundEnabled, soundVolume, soundPitch);
+                    BarStyle style;
+                    try {
+                        style = BarStyle.valueOf(styleStr.toUpperCase());
+                    } catch (Exception e) {
+                        style = BarStyle.SOLID;
+                    }
+
+                    TimerConfig tc = new TimerConfig(key, text, sound, color, style, enabled, soundEnabled, soundVolume, soundPitch);
 
                     timersConfigs.put(key, tc);
                 }
@@ -86,6 +120,7 @@ public class ConfigsManager {
                 config.set(base + "sound_volume", tc.getSoundVolume());
                 config.set(base + "sound_pitch", tc.getSoundPitch());
                 config.set(base + "bossbar_color", tc.getColor().toString());
+                config.set(base + "bossbar_style", tc.getStyle().toString());
 
                 configFile.saveConfig();
                 break;

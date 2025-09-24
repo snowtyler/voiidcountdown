@@ -27,7 +27,7 @@ public class Timer implements Runnable {
     private final int minValue = 0;
     private final String timerId;
 
-    public Timer(int seconds, String timeText, String timeSound, BarColor barcolor, String timerId, boolean hasSoundd, float soundVolumee, float soundPitchh) {
+    public Timer(int seconds, String timeText, String timeSound, BarColor barcolor, BarStyle barstyle, String timerId, boolean hasSoundd, float soundVolumee, float soundPitchh) {
         this.seconds = seconds;
         this.initialSeconds = seconds;
         this.timerId = timerId;
@@ -40,7 +40,7 @@ public class Timer implements Runnable {
         this.soundVolume = soundVolumee;
         this.soundPitch = soundPitchh;
 
-        this.bossbar = Bukkit.createBossBar("", barcolor, BarStyle.SOLID, new org.bukkit.boss.BarFlag[0]);
+        this.bossbar = Bukkit.createBossBar("", barcolor, barstyle, new org.bukkit.boss.BarFlag[0]);
     }
 
     public int getInitialSeconds() {
@@ -184,10 +184,13 @@ public class Timer implements Runnable {
                         if (Timer.this.seconds <= 0) {
                             if (Timer.this.task != null)
                                 Timer.this.task.cancel();
-                            Bukkit.getScheduler().runTaskLater(VoiidCountdownTimer.getInstance(), () -> {
-                                if (Timer.this.bossbar != null)
-                                    Timer.this.bossbar.removeAll();
-                            }, VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTicks_hide_after_ending());
+
+                                Bukkit.getPluginManager().callEvent(new VCTEvent(Timer.this, VCTEvent.VCTEventType.FINISH, null));
+                            
+                                Bukkit.getScheduler().runTaskLater(VoiidCountdownTimer.getInstance(), () -> {
+                                    if (Timer.this.bossbar != null)
+                                        Timer.this.bossbar.removeAll();
+                                }, VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTicks_hide_after_ending());
                         }
                     }
                 },
@@ -230,6 +233,10 @@ public class Timer implements Runnable {
 
     public void setBossBarColor(BarColor color) {
         this.bossbar.setColor(color);
+    }
+
+    public void setBossBarStyle(BarStyle style) {
+        this.bossbar.setStyle(style);
     }
 
     public void setSeconds(int seconds) {

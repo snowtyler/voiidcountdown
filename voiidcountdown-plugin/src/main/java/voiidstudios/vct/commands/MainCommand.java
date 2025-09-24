@@ -2,6 +2,7 @@ package voiidstudios.vct.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -281,6 +282,48 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     barcolorInvRepl.put("%COLOR%", colorName);
 
                     msgManager.sendConfigMessage(sender, "Messages.timerModifyBarcolorInvalid", true, barcolorInvRepl);
+                }
+                return;
+            case "bossbar_style":
+                if (args.length < 3) {
+                    msgManager.sendConfigMessage(sender, "Messages.timerModifyBarstyleError", true, null);
+                    return;
+                }
+                String styleName = args[2].toUpperCase();
+
+                timer = TimerManager.getInstance().getTimer();
+                if (timer == null) {
+                    msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
+                    return;
+                }
+
+                timerCfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(timer.getTimerId());
+                if (timerCfg == null) {
+                    msgManager.sendConfigMessage(sender, "Messages.timerConfigNotFound", true, null);
+                    return;
+                }
+
+                try {
+                    BarStyle style = BarStyle.valueOf(styleName);
+                    timer.setBossBarStyle(style);
+
+                    timerCfg.setStyle(style);
+                    VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
+                    
+                    Timer.refreshTimerText();
+
+                    Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.MODIFY, sender));
+
+                    Map<String, String> barcolorRepl = new HashMap<>();
+                    barcolorRepl.put("%TIMER%", timer.getTimerId());
+                    barcolorRepl.put("%STYLE%", styleName);
+
+                    msgManager.sendConfigMessage(sender, "Messages.timerModifyBarstyle", true, barcolorRepl);
+                } catch (IllegalArgumentException e) {
+                    Map<String, String> barcolorInvRepl = new HashMap<>();
+                    barcolorInvRepl.put("%STYLE%", styleName);
+
+                    msgManager.sendConfigMessage(sender, "Messages.timerModifyBarstyleInvalid", true, barcolorInvRepl);
                 }
                 return;
             case "sound":
@@ -564,9 +607,9 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 if(args[0].equalsIgnoreCase("modify")) {
                     subcommands.add("add");subcommands.add("set");
                     subcommands.add("take");subcommands.add("bossbar_color");
-                    subcommands.add("sound");subcommands.add("sound_enable");
-                    subcommands.add("sound_volume");subcommands.add("sound_pitch");
-                    subcommands.add("text");
+                    subcommands.add("bossbar_style");subcommands.add("sound");
+                    subcommands.add("sound_enable");subcommands.add("sound_volume");
+                    subcommands.add("sound_pitch");subcommands.add("text");
                 }else if(args[0].equalsIgnoreCase("set")){
                     subcommands.add("<HH:MM:SS>");
                 }
@@ -587,6 +630,10 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                         subcommands.add("PINK");subcommands.add("PURPLE");
                         subcommands.add("RED");subcommands.add("WHITE");
                         subcommands.add("YELLOW");
+                    }else if(args[1].equalsIgnoreCase("bossbar_style")){
+                        subcommands.add("SOLID");subcommands.add("SEGMENTED_6");
+                        subcommands.add("SEGMENTED_10");subcommands.add("SEGMENTED_12");
+                        subcommands.add("SEGMENTED_20");
                     }else if(args[1].equalsIgnoreCase("sound")){
                         subcommands.add("<\"sound in quotes\">");
                     }else if(args[1].equalsIgnoreCase("sound_enable")){
