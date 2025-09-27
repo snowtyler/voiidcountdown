@@ -10,7 +10,7 @@ Voiid Countdown Timer is a simple customizable countdown timer datapack & plugin
 [![CurseForge](https://img.shields.io/curseforge/dt/1145327?style=flat&logo=curseforge&label=CurseForge&color=F16436 "View CurseForge page")](https://curseforge.com/minecraft/data-packs/vct-voiid-countdown-timer/)
 [![SpigotMC](https://img.shields.io/spiget/downloads/127616?style=flat&logo=spigotmc&logoColor=ffd000&label=SpigotMC&color=ffd000 "View SpigotMC page")](https://www.spigotmc.org/resources/voiid-countdown-timer.127616/)
 
-[![Discord Server](https://img.shields.io/badge/Discord-5865F2?style=for-the-badge&logo=discord&logoColor=white "Join to the Voiid Studios Discord server")](https://discord.gg/qkfxbDgdJZ)
+[![GitHub Support](https://img.shields.io/badge/support-github?style=for-the-badge&logo=github&label=GitHub&color=0390fc "Any problems? Create an issue on GitHub")](https://github.com/Voiid-Studios/voiidcountdown/issues)
 [![License](https://img.shields.io/badge/license-example?style=for-the-badge&label=Voiid%20Studios&color=ffffff "View the Voiid Studios public license")](https://github.com/Voiid-Studios/voiidstudios/blob/main/LICENSE.md)
 [![Ko-fi](https://img.shields.io/badge/Kofi-ff6433?logo=kofi&logoColor=fff&style=for-the-badge "Support us on Ko-fi!")](https://api.maxxvoiid.space/kofi)
 
@@ -73,9 +73,9 @@ Voiid Countdown Timer includes:
 ### 🔌 Plugin
 - Configuration using commands and configuration files (`config.yml`)
 - To see all available commands, use `/vct help`.
-- In `config.yml`, you can customize various timer options; all of them are detailed in the [official documentation.](https://voiidstudios.gitbook.io/vct/)
+- In `config.yml`, you can customize various timer options; all of them are detailed in the [official documentation.](https://vctdocs.mintlify.app/)
 
-## [📚 Documentation](https://voiidstudios.gitbook.io/vct/)
+## [📚 Documentation](https://vctdocs.mintlify.app/)
 
 <img src="https://github.com/user-attachments/assets/19d69e0d-1e31-450f-aa13-835cc22c93de" height="120px"/>
 <a href="https://maxxvoiid.space" target="_blank" rel="noopener noreferrer"><img src="https://github.com/user-attachments/assets/32d8ca57-5185-46e2-b8f6-d60354408a38" height="120px"></img></a>
