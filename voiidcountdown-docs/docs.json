@@ -1,0 +1,100 @@
+{
+  "$schema": "https://mintlify.com/docs.json",
+  "theme": "maple",
+  "name": "VCT Docs",
+  "colors": {
+    "primary": "#9A3412",
+    "light": "#EA580C",
+    "dark": "#9A3412"
+  },
+  "favicon": "/favicon.png",
+  "icons": {
+    "library": "lucide"
+  },
+  "navigation": {
+    "dropdowns": [
+      {
+        "dropdown": "Documentation",
+        "icon": "book",
+        "groups": [
+          {
+            "group": "Get Started",
+            "pages": [
+              "index",
+              "get-started/quick-overview",
+              "get-started/installation-or-updation"
+            ]
+          },
+          {
+            "group": "Usage Guide",
+            "pages": [
+              "usage-guide/commands-permissions",
+              "usage-guide/configuration",
+              "usage-guide/animations",
+              "usage-guide/integrations"
+            ]
+          }
+        ]
+      },
+      {
+        "dropdown": "API Documentation",
+        "icon": "terminal",
+        "groups": [
+          {
+            "group": "API Documentation",
+            "pages": [
+              "api-docs/introduction",
+              {
+                "group": "Actions",
+                "icon": "play",
+                "pages": [
+                  "api-docs/actions/overview",
+                  "api-docs/actions/createtimer",
+                  "api-docs/actions/pausetimer",
+                  "api-docs/actions/resumetimer",
+                  "api-docs/actions/stoptimer",
+                  "api-docs/actions/modifytimer",
+                  "api-docs/actions/examples"
+                ]
+              },
+              {
+                "group": "Events",
+                "icon": "satellite-dish",
+                "pages": [
+                  "api-docs/events/overview",
+                  "api-docs/events/create",
+                  "api-docs/events/change",
+                  "api-docs/events/finish",
+                  "api-docs/events/pause",
+                  "api-docs/events/resume",
+                  "api-docs/events/stop",
+                  "api-docs/events/modify",
+                  "api-docs/events/examples"
+                ]
+              }
+            ]
+          }
+        ]
+      }
+    ]
+  },
+  "navbar": {
+    "primary": {
+      "type": "button",
+      "label": "Problems? Get help on GitHub", 
+      "href": "https://github.com/Voiid-Studios/voiidcountdown/issues"
+    }
+  },
+  "logo": {
+    "light": "/images/logo.png",
+    "dark": "/images/logo.png"
+  },
+  "thumbnails": {
+    "background": "/images/embeds/background.png"
+  },
+  "footer": {
+    "socials": {
+      "github": "https://github.com/Voiid-Studios/voiidcountdown"
+    }
+  }
+}

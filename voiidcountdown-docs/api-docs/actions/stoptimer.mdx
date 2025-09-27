@@ -1,0 +1,43 @@
+---
+title: ".stopTimer()"
+description: "Stop and destroy the active timer immediately."
+---
+
+## Usage Example
+
+```java
+//// VCTActions.stopTimer(sender?) ////
+
+// Stop the active timer
+boolean success = VCTActions.stopTimer(null);
+
+// Stop the timer triggered by a player
+boolean success = VCTActions.stopTimer(player);
+```
+
+## Behavior
+
+- Completely ends the currently active timer.
+- When stopped:
+  - The timer is removed from memory.
+  - The bossbar disappears immediately.
+  - The `FINISH` event is not triggered (it is considered a manual interruption), but as a result, the `STOP` event is triggered.
+- If no active timer exists, the method returns `false`.
+
+## Parameters
+
+<ResponseField name="sender" type="CommandSender">
+  Reference to the player who performed the action.
+
+  - If a player passes, they will receive a message indicating that the timer was modified
+    - It is usually not necessary to use it directly in the API
+</ResponseField>
+
+## Returns
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the operation succeeded.
+
+  - `true` — an active timer existed and was stopped.
+  - `false` — no active timer existed or the operation failed.
+</ResponseField>

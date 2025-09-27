@@ -1,0 +1,29 @@
+---
+title: "PAUSE"
+description: "Triggered when a timer is paused."
+---
+
+## Usage Example
+
+```java
+@EventHandler
+public void onVCTEvent(VCTEvent event) {
+    if (event.getType() == VCTEventType.PAUSE) {
+        Bukkit.broadcastMessage("The timer " + event.getTimerId() + " has been paused!");
+    }
+}
+```
+
+## Behavior
+
+* Fired when the active timer is paused (via command or API).
+* The countdown freezes until resumed.
+
+## Parameters
+
+<ResponseField name="event" type="VCTEvent">
+  Represents the event. Useful getters:  
+
+* `String getTimerId()` — ID of the paused timer
+
+</ResponseField>

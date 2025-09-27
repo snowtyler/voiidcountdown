@@ -1,0 +1,148 @@
+---
+title: "Introduction"
+description: "Example section for showcasing API endpoints"
+icon: "book-open"
+---
+
+## First steps
+
+Before you can use the Voiid Countdown Timer API, you must first import it into your project.
+
+Use the following code example that matches your dependency manager.
+
+<Tabs>
+  <Tab title="Maven">
+    **Step 1.** Add the JitPack repository to your build file. Add to `pom.xml`
+
+    ```xml
+    <repository>
+      <id>jitpack.io</id>
+      <url>https://jitpack.io</url>
+    </repository>
+    ```
+
+    **Step 2.** Add the dependency
+
+    ```xml
+    <dependency>
+      <groupId>com.github.Voiid-Studios</groupId>
+      <artifactId>voiidcountdown</artifactId>
+      <version>2.0.0</version>
+      <scope>provided</scope>
+    </dependency>
+    ```
+  </Tab>
+  <Tab title="Gradle">
+    **Step 1.** Add the JitPack repository to your build file. Add it in your root `settings.gradle` at the end of repositories
+
+    ```gradle
+    dependencyResolutionManagement {
+      repositoriesMode.set(RepositoriesMode.FAIL_ON_PROJECT_REPOS)
+      repositories {
+        mavenCentral()
+        maven { url 'https://jitpack.io' }
+      }
+    }
+    ```
+
+    **Step 2.** Add the dependency
+
+    ```gradle
+    dependencies {
+      implementation 'com.github.Voiid-Studios:voiidcountdown:2.0.0'
+    }
+    ```
+  </Tab>
+</Tabs>
+
+### Set Voiid Countdown Timer as (soft)depend <a href="#set-placeholderapi-as-softdepend" id="set-placeholderapi-as-softdepend" />
+
+Next step is to go to your `plugin.yml` or `paper-plugin.yml` and add Voiid Countdown Timer as a depend or softdepend, depending (no pun intended) on if it is optional or not.
+
+<Tabs>
+  <Tab title="plugin.yml">
+    <CodeGroup>
+
+    ```yaml Optional dependency
+    name: ExamplePlugin
+    version: 1.0
+    author: author
+    main: your.main.path.Here
+    
+    softdepend: ["VoiidCountdownTimer"] # This sets Voiid Countdown Timer as an optional dependency for your plugin.
+    ```
+
+    
+    ```yaml Required dependency
+    name: ExamplePlugin
+    version: 1.0
+    author: author
+    main: your.main.path.Here
+    
+    depend: ["VoiidCountdownTimer"] # This sets Voiid Countdown Timer as an required dependency for your plugin.
+    ```
+
+    </CodeGroup>
+  </Tab>
+  <Tab title="paper-plugin.yml">
+    <CodeGroup>
+
+    ```yaml Optional dependency
+    name: ExamplePlugin
+    version: 1.0
+    author: author
+    main: your.main.path.Here
+    
+    dependencies:
+      server:
+        VoiidCountdownTimer:
+          load: BEFORE # This means that Voiid Countdown Timer will load BEFORE your plugin.
+          required: false # This sets Voiid Countdown Timer as an optional dependency for your plugin.
+    ```
+
+    
+    ```yaml Required dependency
+    name: ExamplePlugin
+    version: 1.0
+    author: author
+    main: your.main.path.Here
+    
+    dependencies:
+      server:
+        VoiidCountdownTimer:
+          load: BEFORE # This means that Voiid Countdown Timer will load BEFORE your plugin.
+          required: true # This sets Voiid Countdown Timer as an required dependency for your plugin.
+    ```
+
+    </CodeGroup>
+  </Tab>
+</Tabs>
+
+## Availability Check
+
+Before using the API, it is recommended to check if it is available using:
+
+```java
+if (VCTAPI.isAvailable()) {
+    // The API is ready to use
+}
+```
+
+<Info>
+  This function will return `true` if the API is available or `false` otherwise.
+</Info>
+
+## You're ready to start using the API!
+
+Now that you have imported the API and verified its availability, you are ready to start using it.
+
+From here, you can explore the following sections to learn how to interact with the VCT API
+
+<Columns cols={2}>
+  <Card title="Actions" icon="play" href="/api-docs/actions/overview">
+    Learn how to create, pause, resume, stop and modify timers programmatically
+  </Card>
+  <Card title="Events" icon="satellite-dish" href="/api-docs/events/overview">
+    Discover how to listen and respond when timers are created, modified, finished, and more
+  </Card>
+</Columns>

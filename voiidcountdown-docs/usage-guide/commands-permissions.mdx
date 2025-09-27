@@ -1,0 +1,92 @@
+---
+title: "Commands & Permissions"
+description: "Learn how to use Voiid Countdown Timer commands with their arguments"
+icon: "message-circle"
+---
+
+## Commands
+
+<Tip>
+  If you have problems using the command, remember that there is an alias `/voiidcountdowntimer`.
+</Tip>
+
+### **`/vct help`**
+
+- **Description**: Shows plugin commands.
+- **Usage**: `/vct help`
+- **Example**:
+  - `/vct help`
+
+### **`/vct reload`**
+
+- **Description**: Reloads `config.yml` file.
+- **Usage**: `/vct reload`
+- **Example**:
+  - `/vct reload`
+
+### **`/vct set <HH:MM:SS> <timer_id>`**
+
+- **Description**: Set the timer.
+- **Usage**: `/vct set <HH:MM:SS> <timer_id>`
+  - `<HH:MM:SS>` - Time format
+  - `<timer_id>` - (Optional) Timer ID, [you can find more information here.](/usage-guide/configuration#configuration-of-timers)
+- **Examples**:
+  - `/vct set 01:25:05`
+  - `/vct set 00:05:45 timer_1`
+
+### **`/vct modify <modifier> <value>`**
+
+- **Description**: Modify the timer.
+- **Usage**: `/vct modify <modifier> <value>`
+  - `<modifier>` - A modifier for the timer
+    - `add` - Add time to the timer
+    - `set` - Set the timer time
+    - `take` - Remove time from the timer
+    - `bossbar_color` _<u>(Formerly barcolor)</u>_ - Change the color of the timer's boss bar
+    - `sound` - Change the sound that plays each time a second is lowered
+    - `sound_enable` - Toggle whether the sound should be played or not
+    - `sound_volume` - Change the volume of the sound being played
+    - `sound_pitch` - Change the pitch of the sound being played
+    - `text` - Change the text of the boss bar
+  - `<value>` - A modifier for the timer
+    - `add/set/take` - Need the value of HH:MM:SS
+    - `bossbar_color` - Need the vanilla name of a color: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/boss/BarColor.html
+    - `sound` - Need the vanilla name of a sound (https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html) or a sound from a resource pack in quotation marks, example: "BLOCK_ANVIL_PLACE"
+    - `sound_enable` - Need a boolean value (`true`/`false`)
+    - `sound_volume/sound_pitch` - Need a number value from `0.1` to `2.0`
+    - `text` - Need a string value in quotation marks, example: "I am a timer :D". Accepts color formats and timer placeholders, [more information here](/usage-guide/configuration#text%3A-"%26ai-m-a-green-timer-of-%25hh%25%3A%25mm%25%3A%25ss%25-%3Ad")
+- **Examples**:
+  - `/vct modify add 00:05:20`
+  - `/vct modify bossbar_color PURPLE`
+  - `/vct modify sound "UI_BUTTON_CLICK"`
+  - `/vct modify sound_volume 0.75`
+  - `/vct modify text "&aI'm a timer"`
+
+### **`/vct pause`**
+
+- **Description**: Pause the timer.
+- **Usage**: `/vct pause`
+- **Example**:
+  - `/vct pause`
+
+### **`/vct resume`**
+
+- **Description**: Resume the timer.
+- **Usage**: `/vct resume`
+- **Example**:
+  - `/vct resume`
+
+### **`/vct stop`**
+
+- **Description**: Stop the timer.
+- **Usage**: `/vct stop`
+- **Example**:
+  - `/vct stop`
+
+## Permissions
+
+<Tip>
+  You can assign these permissions with plugins such as LuckPerms, PermissionsEx, etc.
+</Tip>
+
+- `voiidcountdowntimer.admin` - Access to the main command.

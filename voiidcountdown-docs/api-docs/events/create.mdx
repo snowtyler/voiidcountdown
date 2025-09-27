@@ -1,0 +1,31 @@
+---
+title: "CREATE"
+description: "Triggered when a new timer is created."
+---
+
+## Usage Example
+
+```java
+@EventHandler
+public void onVCTEvent(VCTEvent event) {
+    if (event.getType() == VCTEventType.CREATE) {
+        Bukkit.getLogger().info("[MyPlugin] Timer created: " + event.getTimerId());
+        Bukkit.broadcastMessage("The timer " + event.getTimerId() + " has started (" + event.getInitialTime() + ")");
+    }
+}
+```
+
+## Behavior
+
+* Fired immediately after a timer is created (either via command or API).
+* Provides access to the new timer’s **ID** and **initial time**.
+
+## Parameters
+
+<ResponseField name="event" type="VCTEvent">
+  Represents the event. Useful getters:  
+
+* `String getTimerId()` — the ID of the created timer
+* `String getInitialTime()` — time in HH:MM:SS format
+
+</ResponseField>

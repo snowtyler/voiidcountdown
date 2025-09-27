@@ -1,0 +1,62 @@
+---
+title: ".modifyTimer()"
+description: "Modify an existing timer by adding, taking, or setting a specific amount of time."
+---
+
+## Usage Example
+
+```java
+//// VCTActions.modifyTimer(modifier, timeHHMMSS, sender?) ////
+
+// Add 5 minutes to the timer
+boolean success = VCTActions.modifyTimer("add", "00:05:00");
+
+// Take 2 minutes from the timer
+boolean success = VCTActions.modifyTimer("take", "00:02:00");
+
+// Set the timer to 10 minutes exactly
+boolean success = VCTActions.modifyTimer("set", "00:10:00");
+```
+
+## Behavior
+
+- The method requires that a **timer already exists**.
+  - If no active timer is found, the method will fail and return `false`.
+- Available actions (`modifier`):
+  - `"add"` — increases the current remaining time.
+  - `"take"` — decreases the current remaining time (cannot go below `00:00:00`).
+  - `"set"` — overrides the timer with the new exact time.
+- When modified:
+  - The timer’s will automatically refresh to reflect the new value. This does NOT mean deleting and creating a new timer with the same style.
+  - The `MODIFY` event is triggered.
+
+## Parameters
+
+<ResponseField name="modifier" type="string" required>
+  Action to apply to the timer.
+
+  The available actions are `"add"`, `"take"`, and `"set"`
+</ResponseField>
+
+<ResponseField name="timeHHMMSS" type="string" required>
+  The time in HH:MM:SS format.
+
+  - Example: “00:05:30” (5 minutes, 30 seconds)
+  - If the value is “00:00:00” or does not comply with the format, the modify will fail.
+</ResponseField>
+
+<ResponseField name="sender" type="CommandSender">
+  Reference to the player who performed the action.
+
+  - If a player passes, they will receive a message indicating that the timer was modified
+    - It is usually not necessary to use it directly in the API
+</ResponseField>
+
+## Returns
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the operation succeeded.
+
+  - `true` — a timer exists and the modification was applied successfully.
+  - `false` — no active timer exists, or the provided parameters were invalid.
+</ResponseField>

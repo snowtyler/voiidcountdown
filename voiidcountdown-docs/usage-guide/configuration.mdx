@@ -1,0 +1,248 @@
+---
+title: "Configuration"
+description: "Learn all the changes you can make to Voiid Countdown Timer"
+icon: "wrench"
+---
+
+This page specifically discusses the options available in the Voiid Countdown Timer `config.yml` file. You can customize how the timer looks, the refresh time, text format, and the messages sent by VCT.
+
+<Expandable title="Default config.yml">
+  ```yaml
+  Config:
+  # The plugin will send an update notification message when it finds an available update.
+  update_notification: true
+  # When the timer ends, how many ticks should wait to hide the boss bar (1 second = 20 ticks)
+  ticks_hide_after_ending: 60
+  # Which text formatter to use (MINIMESSAGE, LEGACY or UNIVERSAL)
+  # Please note that UNIVERSAL requires the most resources, but supports all types of formats.
+  
+  # (&x&f&f&5&5&f&fc and &#ff55ff LEGACY - <color:#ff55ff> MINIMESSAGE)
+  text_format: LEGACY
+  # How many ticks should the boss bar text refresh?
+  # It is usually used when you use animations to make them more fluid.
+  refresh_ticks: 10
+  # Should the plugin save and load the timer states when the server is closed and opened?
+  save_state_timers: true
+  
+  Messages:
+  commandReload: '&aConfig Reloaded.'
+  commandNoPermissions: '&cYou don''t have permissions to use this command.'
+  timerSetError: '&cUse: /vct set <HH:MM:SS>'
+  timerSetFormatIncorrect: '&cIncorrect format. Please use HH:MM:SS'
+  timerSetFormatInvalid: '&cThe format does not contain a valid number.'
+  timerSetFormatOutRange: '&cThe timer must be greater than 0 seconds.'
+  timerModifyInvalid: '&cUse: /vct modify <modifier>'
+  timerModifyAddError: '&cUse: /vct modify add <HH:MM:SS>'
+  timerModifyAdd: '&a%HH%:%MM%:%SS% has been added to the timer.'
+  timerModifySetError: '&cUse: /vct modify set <HH:MM:SS>'
+  timerModifySet: '&aThe timer was set to %HH%:%MM%:%SS%.'
+  timerModifyTakeError: '&cUse: /vct modify take <HH:MM:SS>'
+  timerModifyTake: '&a%HH%:%MM%:%SS% has been removed from the timer.'
+  timerModifyBarcolorError: '&cUse: /vct modify bossbar_color <color>. &eYou can use these colors: BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.'
+  timerModifyBarcolorInvalid: '&cThe color "%COLOR%" of the timer boss bar is invalid. Use BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.'
+  timerModifyBarcolor: '&aThe color of the timer %TIMER% has been changed to "%COLOR%".'
+  timerModifyBarstyleError: '&cUse: /vct modify bossbar_style <style>. &eYou can use these styles: SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, or SEGMENTED_20.'
+  timerModifyBarstyleInvalid: '&cThe style "%STYLE%" of the timer boss bar is invalid. Use SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, or SEGMENTED_20.'
+  timerModifyBarstyle: '&aThe style of the timer %TIMER% has been changed to "%STYLE%".'
+  timerModifySoundError: '&cUse: /vct modify sound <"sound in quotes">'
+  timerModifySoundRequireQuotes: '&cThe sound needs to be enclosed in quotation marks (") in order to change it.'
+  timerModifySound: '&aThe sound of the timer %TIMER% has been changed to "%SOUND%" &e(%TYPE%)&a.'
+  timerModifySoundenableError: '&cUse: /vct modify sound_enable <true|false>'
+  timerModifySoundenableInvalid: '&cThe boolean is invalid. Use TRUE or FALSE.'
+  timerModifySoundenable: '&aThe sound_enable of the timer %TIMER% has been changed to %SOUNDENABLE%.'
+  timerModifySoundvolumeError: '&cUse: /vct modify sound_volume <0.1 - 2.0>'
+  timerModifySoundvolumeInvalid: '&cThe number is invalid. Please use a number between &e0.1 &cand &e2.0.'
+  timerModifySoundvolumeOutRange: '&cThe volume must be between &e0.1 &cand &e2.0&c.'
+  timerModifySoundvolume: '&aThe sound_volume of the timer %TIMER% has been changed to &e%VOLUME%&a.'
+  timerModifySoundpitchError: '&cUse: /vct modify sound_pitch <0.1 - 2.0>'
+  timerModifySoundpitchInvalid: '&cThe number is invalid. Please use a number between &e0.1 &cand &e2.0.'
+  timerModifySoundpitchOutRange: '&cThe pitch must be between &e0.1 &cand &e2.0&c.'
+  timerModifySoundpitch: '&aThe sound_pitch of the timer %TIMER% has been changed to &e%PITCH%&a.'
+  timerModifyTextError: '&cUse: /vct modify text <"text in quotes">'
+  timerModifyTextRequireQuotes: '&cThe text needs to be enclosed in quotation marks (") in order to change it.'
+  timerModifyText: '&aThe text of the timer %TIMER% has been changed to "&r%TEXT%&a".'
+  timerStart: '&aTimer started of %HH%:%MM%:%SS%!'
+  timerPause: '&6Timer paused!'
+  timerResume: '&6Timer resumed!'
+  timerStop: '&6Timer stopped!'
+  timerDontExists: '&cThe timer does not exist.'
+  timerConfigNotFound: '&cThe timer configuration could not be found.'
+  
+  Timers:
+  default:
+    text: "%HH%:%MM%:%SS%" # The text of the boss bar (%HH% hours, %MM% minutes, %SS% seconds)
+    sound: UI_BUTTON_CLICK # The sound of the timer every second
+    sound_volume: 1.0 # The volume of the sound (1.0 is 100%)
+    sound_pitch: 1.0 # The pitch of the sound (1.0 is normal pitch)
+    bossbar_color: WHITE # The boss bar color is BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.
+    bossbar_style: SOLID # The boss bar style is SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, or SEGMENTED_20.
+    enabled: true # Defines whether this timer is available for selection.
+    sound_enabled: false # Defines whether this timer plays sound every second.
+  
+  timer_1:
+    text: "&aI'm the Timer 1 :D (%HH%:%MM%:%SS%)"
+    sound: UI_BUTTON_CLICK
+    sound_volume: 0.5
+    sound_pitch: 2.0
+    bossbar_color: GREEN
+    bossbar_style: SEGMENTED_6
+    enabled: true
+    sound_enabled: true
+  ```
+</Expandable>
+
+## Configuration Options
+
+Below are the settings and descriptions in the `config.yml` file for Voiid Countdown Timer.
+
+### `update_notification: false`
+
+Usually, every time VCT is launched, it will automatically check for available updates. This setting defines whether the plugin should send a message to the console and players with the `voiidcountdowntimer.admin` permission notifying them of a new version.
+
+### `ticks_hide_after_ending: 60`
+
+This setting defines how many ticks to wait before hiding the timer completely when the timer ends.
+
+### `text_format: LEGACY`
+
+This setting defines which text formatting system to use for name tags. The `LEGACY` format is the text that Minecraft Vanilla understands to use colors, bold, italics, and everything else. Other supported formats include:
+
+- `MINIMESSAGE`: A rich text format with allows you to use rich text formatting features, like colors, gradients, styles, hover events, and click events.
+- `UNIVERSAL`: Attempts to support all formatting options but is the most resource-intensive.
+
+Here are some examples of use with the different types of supported formats:
+
+<Tabs>
+  <Tab title="LEGACY">
+    The `LEGACY` format supports the color format with `&`.
+
+    ```yaml
+    text: "&eThis is an &aexample &ausing the &l&9LEGACY format. &r&bTime remaining: &l&d%HH%:%MM%:%SS%"
+    ```
+
+    ![Legacyexample Gi](/images/configuration/legacyexample.gif)
+  </Tab>
+  <Tab title="MINIMESSAGE">
+    The `MINIMESSAGE` format supports its own parameters. You can find more information here: https://docs.advntr.dev/minimessage/index.html
+
+    ```yaml
+    text: "<gradient:#ff08ff:#fef502>This is an <green>example</green> using the <bold>MINIMESSAGE format.</bold></gradient> <rainbow>Time remaining: <bold>%HH%:%MM%:%SS%</bold></rainbow>"
+    ```
+
+    ![Minimessageexample Gi](/images/configuration/minimessageexample.gif)
+  </Tab>
+  <Tab title="UNIVERSAL">
+    The `UNIVERSAL` format supports both the `LEGACY` and `MINIMESSAGE` formats, but keep in mind that it may consume more resources.
+
+    ```yaml
+    text: "<gradient:red:aqua>This is an &aexample &rusing the &lUNIVERSAL format.</gradient> <rainbow>Time remaining: <bold>%HH%:%MM%:%SS%</bold></rainbow>"
+    ```
+
+    ![Universalexample Gi](/images/configuration/universalexample.gif)
+  </Tab>
+</Tabs>
+
+<Tip>
+  If you use the `MINIMESSAGE` format with a gradient, you can improve it even more by making it animated. [You can find more information here.](/usage-guide/animations)
+</Tip>
+
+### `refresh_ticks: 10`
+
+This setting determines how many ticks the timer text should refresh. This setting is designed for gradient animations, to make them appear smoother or slower, for example:
+
+![Refreshxample Gi](/images/configuration/refreshexample.gif)
+
+### `save_state_timers: true`
+
+This setting defines whether the plugin should save the timer status when the server is shut down and load it when the server is started up.
+
+It is advisable to leave it set to **true**, because if your server crashes, the plugin will save the status so that you don't lose the time that was set.
+
+## Configuration of Messages
+
+Messages are configured in `LEGACY` format (regardless of the text format chosen), each section has a small identifier indicating where it comes from.
+
+<Warning>
+  Adding or removing messages may damage the plugin configuration!
+</Warning>
+
+## Configuration of Timers
+
+The configuration of the timers is simple and flexible. Here is an example:
+
+```yaml
+Timers:
+  green_timer:
+    text: "&aI'm a green timer of (%HH%:%MM%:%SS%) :D"
+    sound: UI_BUTTON_CLICK
+    sound_volume: 0.5
+    sound_pitch: 2.0
+    bossbar_color: GREEN
+    bossbar_style: SOLID
+    enabled: true
+    sound_enabled: true
+```
+
+<Info>
+  All of these configurations can be changed in-game using the `/vct modify` command and the following modifiers: `text`, `sound`, `sound_volume`, `sound_pitch`, `bossbar_color`, `bossbar_style`, `sound_enabled`
+</Info>
+
+### `Timers:`
+
+Defines the root section where timers are registered.
+This key is **required** when you create timers in a file other than `config.yml` (inside the **timers** folder).
+
+### `green_timer:`
+
+The **name identifier** of the timer.
+Example: `timer_for_pvp_on`.
+
+### `text: "&aI'm a green timer of (%HH%:%MM%:%SS%) :D"`
+
+The text displayed on the boss bar. Supports variables:
+
+- `%HH%` - Displays the current hours (00)
+- `%MM%` - Displays the current minutes (00)
+- `%SS%` - Displays the current seconds (00)
+
+### `sound: UI_BUTTON_CLICK`
+
+The sound played every second while the timer counts down.
+
+- List of available sounds: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/Sound.html
+- You can also use **resource pack sounds**:
+
+```yaml
+sound: resourcepackNameHere:soundNameHere
+```
+
+<Note>
+  The setting `sound_enabled` must be set to `true` for the sound to play.
+</Note>
+
+### `sound_volume: 0.5`
+
+Volume of the sound. Range: `0.1` to `2.0`.
+
+### `sound_pitch: 2.0`
+
+Pitch of the sound. Range: `0.1` (very low) to `2.0` (very high).
+
+### `bossbar_color: GREEN`
+
+Color of the boss bar when created.
+You can find a list of colors here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/boss/BarColor.html
+
+### `bossbar_style: SOLID`
+
+Segment style of the boss bar.
+You can find a list of colors here: https://hub.spigotmc.org/javadocs/spigot/org/bukkit/boss/BarStyle.html
+
+### `enabled: true`
+
+Whether the timer is selectable/usable.
+If disabled while in use, it will automatically switch to the **default** style.
+
+### `sound_enabled: true`
+
+Controls whether the timer’s sound should play.

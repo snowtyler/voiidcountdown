@@ -1,0 +1,66 @@
+---
+title: ".createTimer()"
+description: "Create and start a timer immediately."
+---
+
+## Usage Example
+
+```java
+//// VCTActions.createTimer(timeHHMMSS, timerId?, sender?) ////
+
+// Create a timer of 20 minutes and 15 seconds with the id "default"
+Timer timer = VCTActions.createTimer("00:20:15", "default");
+
+// Create a 5-second timer associated with a player
+Timer timer = VCTActions.createTimer("00:00:05", "pvp1", player);
+```
+
+## Behavior
+
+- The timer starts immediately upon creation.
+- At the end of the time:
+  - The `FINISH` event is triggered IF the timer is NOT stopped manually.
+  - The timer is automatically destroyed after the time set in [ticks_hide_after_ending](https://vctdocs.mintlify.app/usage-guide/configuration#ticks-hide-after-ending%3A-60) has elapsed.
+- You can pause, stop, or modify it using other API methods (documented on separate pages)
+
+## Parameters
+
+<ResponseField name="timeHHMMSS" type="string" required>
+  The time in HH:MM:SS format.
+
+  - Example: “00:05:30” (5 minutes, 30 seconds)
+  - If the value is “00:00:00” or does not comply with the format, the timer will not be created
+</ResponseField>
+
+<ResponseField name="timerId" type="string">
+  Unique identifier for the timer.
+
+  - If a timer with the same timerId already exists, the plugin will assign one of them to that ID and the other will remain on standby
+  - It is recommended to use unique IDs to avoid conflicts
+</ResponseField>
+
+<ResponseField name="sender" type="CommandSender">
+  Reference to the player who performed the action.
+
+  - If a player passes, they will receive a message indicating that the timer was created
+    - It is usually not necessary to use it directly in the API
+</ResponseField>
+
+## Returns
+
+<ResponseField name="timer" type="Timer">
+  This `Timer` instance represents the active timer and usually exposes useful methods such as:
+
+  - `String getTimerId()` — returns the timerId
+  - `boolean isActive()` — true if the timer exists AND is not paused
+  - `boolean isPaused()` — true if the timer is paused
+  - `int getInitialSeconds()` — returns the total seconds of the timer
+  - `int getRemainingSeconds()` — returns the seconds remaining until the timer ends
+  - `void refreshTimerText()` — refresh and get the new settings
+  - `String getTimeLeft()` — returns the remaining time in HH:MM:SS
+  - `String getTimeLeftHH()` / `String getTimeLeftMM()` / `String getTimeLeftSS()` — returns the remaining time in HH, MM, or SS formats
+
+  <Warning>
+    If any of the above requirements fail, it will return `null`.
+  </Warning>
+</ResponseField>

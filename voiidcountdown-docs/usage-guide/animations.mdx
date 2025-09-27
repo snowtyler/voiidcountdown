@@ -1,0 +1,87 @@
+---
+title: "Animations"
+description: "Learn all the animations available for MINIMESSAGE with Voiid Countdown Timer"
+icon: "paintbrush"
+---
+
+This plugin has its own built-in placeholders called “dynamics”, which you can use to create animations in the boss bar text. These placeholders are intended for animating colors and effects, which can only be used in the **MINIMESSAGE** format.
+
+<Note>
+  Remember that the `MINIMESSAGE` format requires **Paper 1.19.4\+**, [you can find more information here.](/usage-guide/configuration#text-format%3A-legacy)
+</Note>
+
+## Available Placeholders for animations
+
+### 1. `#dynamic#` (for RAINBOW)
+
+- **Description**: This placeholder is used for for creating **rainbow**.
+- **Range**: The value ranges from `10` (full offset) to `1` (minimal offset).
+- **Example**:
+
+  ```yaml
+  "<rainbow:#dynamic#>Rainbow animation with Voiid Countdown Timer (%HH%:%MM%:%SS%)</rainbow>"
+  ```
+
+<img
+  src="/images/animations/rainbowdynamic.gif"
+  alt="Rainbowdynamic Gi"
+  title="Rainbowdynamic Gi"
+  className="mx-auto"
+  style={{ width:"80%" }}
+/>
+
+### 2. `#dynamic-g#` (for GRADIENTS)
+
+- **Description**: This placeholder is used for for creating **gradients**.
+- **Range**: The value ranges from `-1.0` (full gradient transition) to `1.0` (no transition), with increments of `0.1`.
+- **Example**:
+
+  ```yaml
+  "<gradient:#ff08ff:#fe994e:#fef502:red:#dynamic-g#>Gradient animation with Voiid Countdown Timer (%HH%:%MM%:%SS%)</gradient>"
+  ```
+
+<img
+  src="/images/animations/gradientdynamic.gif"
+  alt="Gradientdynamic Gi"
+  title="Gradientdynamic Gi"
+  className="mx-auto"
+  style={{ width:"78%" }}
+/>
+
+### 3. `#dynamic-g-l#` (for GRADIENTS)
+
+- **Description**: This placeholder is used for for creating **gradients**. This is a variation of the previous one, specifically for people who don't like the sudden cut from `-1.0` to `1.0`.
+- **Range**: The value ranges from `-1.0` (full gradient transition) to `1.0` (no transition), with increments of `0.1` (when it reaches -1.0) and `-0.1` (when it reaches 1.0).
+- **Example**:
+
+  ```yaml
+    "<gradient:blue:green:#dynamic-g-l#>Gradient animation with Voiid Countdown Timer (%HH%:%MM%:%SS%)</gradient>"
+  ```
+
+<img
+  src="/images/animations/gradientloopdynamic.gif"
+  alt="Gradientloopdynamic Gi"
+  title="Gradientloopdynamic Gi"
+  className="mx-auto"
+  style={{ width:"88%" }}
+/>
+
+### Changing the Animation Speed
+
+You can change the speed of the animation by modifying the `refresh_ticks` setting in the `config.yml` file. The default value is `10`. If you want to reduce the animation speed, you can set a lower value, minimum is `1`.
+
+In the `config.yml` file:
+
+```yaml
+refresh_ticks: 10
+```
+
+### Animation with the opposite direction
+
+You can animate the opposite direction by using the `#-dynamic#` or `#-dynamic-g#` placeholders. This will animate the color transition in the opposite direction.
+
+For example, if you want it to go from green to red instead of red to green, you can do so with this code:
+
+```yaml
+"<rainbow:#-dynamic#>Rainbow animation with Voiid Countdown Timer (%HH%:%MM%:%SS%)</rainbow>"
+```

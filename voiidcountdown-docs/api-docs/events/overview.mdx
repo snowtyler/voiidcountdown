@@ -1,0 +1,89 @@
+---
+title: "Timer Events Overview"
+description: "Information about the main VCT event and how to implement it."
+---
+
+The VCT API exposes a single main event `VCTEvent`, which is triggered whenever a timer-related action occurs.
+This event provides all the information necessary to react appropriately in your plugin.
+
+## The event itself
+
+```java
+import voiidstudios.vct.api.VCTEvent;
+
+// Event called when a timer action is performed
+@EventHandler
+public void onVCTEvent(VCTEvent event) {
+
+  Timer timer = event.getTimer(); // Returns null if the timer no longer exists
+  CommandSender sender = event.getSender(); // It can be a player, the console, or null if it comes from another source, such as a plugin
+  Player player = event.getPlayer(); // Return null if not a player
+  String timerId = event.getTimerId();
+  String timeInitial = event.getInitialTime();
+  String timeLeft = event.getTimeLeft();
+  
+}
+```
+
+<Tip>
+  There are plugins such as [Conditional Events](https://www.spigotmc.org/resources/conditionalevents-custom-actions-for-specific-events-1-8-1-21-8.82271/) that support API listening, and you can use them to create great things!
+</Tip>
+
+## Information available in `VCTEvent`
+
+<ResponseField name="timer" type="Timer">
+  Returns the timer instance (may be null if the timer no longer exists)
+</ResponseField>
+
+<ResponseField name="sender" type="CommandSender">
+  Source that performed the action. This can be a player, the console, or `null` if it comes from another source (such as a plugin)
+</ResponseField>
+
+<ResponseField name="player" type="Player">
+  Player who performed the action, or `null` if it was not a player
+</ResponseField>
+
+<ResponseField name="timerId" type="String">
+  The unique identifier of the timer
+</ResponseField>
+
+<ResponseField name="timeInitial" type="String">
+  Initial time set on the timer in HH:MM:SS format
+</ResponseField>
+
+<ResponseField name="timeLeft" type="String">
+  Current remaining timer time in HH:MM:SS format
+</ResponseField>
+
+## Available Events
+
+<Columns cols={2}>
+  <Card title="CREATE" href="/api-docs/events/create">
+    Triggered when a new timer is created
+  </Card>
+  <Card title="CHANGE" href="/api-docs/events/change">
+    Triggered every second while the timer is counting down
+  </Card>
+  <Card title="FINISH" href="/api-docs/events/finish">
+    Triggered when a timer reaches 00:00:00
+  </Card>
+  <Card title="PAUSE" href="/api-docs/events/pause">
+    Triggered when a timer is paused
+  </Card>
+  <Card title="RESUME" href="/api-docs/events/resume">
+    Triggered when a paused timer is resumed
+  </Card>
+  <Card title="STOP" href="/api-docs/events/stop">
+    Triggered when a timer is stopped manually
+  </Card>
+</Columns>
+
+<Card title="MODIFY" href="/api-docs/events/modify">
+  Triggered when the remaining time of a timer is modified
+</Card>
+
+## Not sure how to begin?
+
+<Card title="Examples" icon="sparkles" href="/api-docs/events/examples">
+  Check out the examples using API events by clicking this card!
+</Card>

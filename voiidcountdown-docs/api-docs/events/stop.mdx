@@ -1,0 +1,29 @@
+---
+title: "STOP"
+description: "Triggered when a timer is stopped manually."
+---
+
+## Usage Example
+
+```java
+@EventHandler
+public void onVCTEvent(VCTEvent event) {
+    if (event.getType() == VCTEventType.STOP) {
+        Bukkit.broadcastMessage("The timer " + event.getTimerId() + " has been stopped!");
+    }
+}
+```
+
+## Behavior
+
+* Fired when the active timer is stopped and removed manually.
+* Does not trigger `FINISH`, since it is considered an interruption.
+
+## Parameters
+
+<ResponseField name="event" type="VCTEvent">
+  Represents the event. Useful getters:  
+
+* `String getTimerId()` — ID of the stopped timer
+
+</ResponseField>

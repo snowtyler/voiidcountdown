@@ -1,0 +1,104 @@
+---
+title: "Event Usage Examples"
+description: "Practical examples of using VCT events in your plugin."
+---
+
+<Info>
+  These are only basic examples — you can mix and match events to create complex logic such as countdown-based minigames, reward systems, or event triggers.
+</Info>
+
+## Broadcast when a timer starts
+
+```java
+@EventHandler
+public void onVCTEvent(VCTEvent event) {
+    if (event.getType() == VCTEventType.CREATE) {
+        Bukkit.broadcastMessage("A new timer has started: " + event.getTimerId() + " (" + event.getInitialTime() + ")");
+    }
+}
+```
+
+- Useful for announcing timers to all players.
+- Gives context when a new timer begins.
+
+## Send bossbar updates every second
+
+```java
+@EventHandler
+public void onVCTEvent(VCTEvent event) {
+    if (event.getType() == VCTEventType.CHANGE) {
+        String timeLeft = event.getTimeLeft();
+        Bukkit.getOnlinePlayers().forEach(player -> {
+            player.sendActionBar("⏳ Time left: " + timeLeft);
+        });
+    }
+}
+```
+
+- Runs every second.
+- Good for syncing custom UI or scoreboards with the timer.
+
+## Grant rewards when timer finishes
+
+```java
+@EventHandler
+public void onVCTEvent(VCTEvent event) {
+    if (event.getType() == VCTEventType.FINISH) {
+        Bukkit.broadcastMessage("The timer " + event.getTimerId() + " has ended! 🎉");
+
+        // Reward all players
+        for (Player player : Bukkit.getOnlinePlayers()) {
+            player.giveExpLevels(5);
+        }
+    }
+}
+```
+
+- Perfect for minigames or challenges that end with rewards.
+- Trigger extra logic when the timer reaches 00:00:00.
+
+## Pause/resume feedback
+
+```java
+@EventHandler
+public void onVCTEvent(VCTEvent event) {
+    switch (event.getType()) {
+        case PAUSE:
+            Bukkit.broadcastMessage("The timer " + event.getTimerId() + " has been paused ⏸️");
+            break;
+        case RESUME:
+            Bukkit.broadcastMessage("The timer " + event.getTimerId() + " has resumed ▶️");
+            break;
+    }
+}
+```
+
+- Simple way to keep players informed when the timer state changes.
+
+## Log when a timer is stopped manually
+
+```java
+@EventHandler
+public void onVCTEvent(VCTEvent event) {
+    if (event.getType() == VCTEventType.STOP) {
+        Bukkit.getLogger().info("[MyPlugin] Timer stopped: " + event.getTimerId());
+    }
+}
+```
+
+- Useful for debugging or auditing timer interruptions.
+
+## Announce time modifications
+
+```java
+@EventHandler
+public void onVCTEvent(VCTEvent event) {
+    if (event.getType() == VCTEventType.MODIFY) {
+        Bukkit.broadcastMessage("Timer " + event.getTimerId() + 
+                                " was modified! New time: " + event.getTimeLeft());
+    }
+}
+```
+
+- Lets everyone know when the timer is adjusted.
+- Great for competitive scenarios (adding bonus time, penalties, etc.).
