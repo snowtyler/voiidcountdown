@@ -1,0 +1,31 @@
+---
+title: "CHANGE"
+description: "Triggered every second while the timer is counting down."
+---
+
+## Usage Example
+
+```java
+@EventHandler
+public void onVCTEvent(VCTEvent event) {
+    if (event.getType() == VCTEventType.CHANGE) {
+        String left = event.getTimeLeft();
+        Bukkit.broadcastMessage("Time left: " + left);
+    }
+}
+```
+
+## Behavior
+
+* Runs **every second** while the timer is active and decreasing.
+* Useful for showing live updates, side effects, or syncing other features.
+
+## Parameters
+
+<ResponseField name="event" type="VCTEvent">
+  Represents the event. Useful getters:  
+
+* `String getTimeLeft()` — the remaining time in HH:MM:SS
+* `String getTimerId()` — the ID of the active timer
+
+</ResponseField>

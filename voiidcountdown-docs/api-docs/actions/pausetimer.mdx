@@ -1,0 +1,43 @@
+---
+title: ".pauseTimer()"
+description: "Pause the currently active timer."
+---
+
+## Usage Example
+
+```java
+//// VCTActions.pauseTimer(sender?) ////
+
+// Pause the active timer
+boolean success = VCTActions.pauseTimer();
+
+// Pause the active timer triggered by a player
+boolean success = VCTActions.pauseTimer(player);
+```
+
+## Behavior
+
+- Temporarily freezes the countdown of the **currently active timer**.
+- While paused:
+  - The timer will **not decrease** in time.
+  - The bossbar remains visible, showing the last paused value.
+  - Events such as `FINISH` will not trigger until the timer is resumed.
+- If no active timer exists, the method returns `false`.
+
+## Parameters
+
+<ResponseField name="sender" type="CommandSender">
+  Reference to the player who performed the action.
+
+  - If a player passes, they will receive a message indicating that the timer was modified
+    - It is usually not necessary to use it directly in the API
+</ResponseField>
+
+## Returns
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the operation succeeded.
+
+  - `true` — the timer exists and is now paused.
+  - `false` — no active timer exists or the operation failed.
+</ResponseField>

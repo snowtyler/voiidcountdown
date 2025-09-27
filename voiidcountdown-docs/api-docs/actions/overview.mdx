@@ -1,0 +1,52 @@
+---
+title: "Timer Actions Overview"
+description: "High-level overview of all available actions to control existing timers."
+---
+
+## What are Timer Actions?
+
+Timer Actions are **utility methods** that let you control the lifecycle and state of an already active timer using the integrated API.\
+They provide developers and commands with a simple interface to:
+
+- Pause or resume the countdown.
+- Modify the remaining time dynamically.
+- Stop and destroy the timer when it’s no longer needed.
+
+These methods are usually accessed through `VCTActions` depending on the action.
+
+<Warning>
+  Previously, `VCTAPI` was used to execute actions, but it has been **deprecated and will be removed in version 2.1.0**, as it has been renamed to `VCTActions` to better differentiate it.
+</Warning>
+
+The VCT API exposes a single main event `VCTEvent`, which is triggered whenever a timer-related action occurs.
+This event provides all the information necessary to react appropriately in your plugin.
+
+## Available Actions
+
+<Columns cols={2}>
+  <Card title=".createTimer()" href="/api-docs/actions/createtimer">
+    Create and start a timer immediately
+  </Card>
+  <Card title=".pauseTimer()" href="/api-docs/actions/pausetimer">
+    Pause the currently active timer
+  </Card>
+  <Card title=".resumeTimer()" href="/api-docs/actions/resumetimer">
+    Resume a previously paused timer
+  </Card>
+  <Card title=".stopTimer()" href="/api-docs/actions/stoptimer">
+    Stop and destroy the active timer immediately
+  </Card>
+</Columns>
+<Card title=".modifyTimer()" href="/api-docs/actions/modifytimer">
+  Modify an existing timer by adding, taking, or setting a specific amount of time
+</Card>
+
+<Note>
+  There are many actions that require an **active timer** to work. If there is no timer when the action is called, it will fail and return `null`/`false`.
+</Note>
+
+## Not sure how to begin?
+
+<Card title="Examples" icon="sparkles" href="/api-docs/actions/examples">
+  Check out the examples using API actions by clicking this card!
+</Card>

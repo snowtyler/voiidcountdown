@@ -2,6 +2,7 @@ package voiidstudios.vct.commands;
 
 import org.bukkit.Bukkit;
 import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -9,7 +10,7 @@ import org.bukkit.command.TabCompleter;
 import org.jetbrains.annotations.NotNull;
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.api.Timer;
-import voiidstudios.vct.api.VCTAPI;
+import voiidstudios.vct.api.VCTActions;
 import voiidstudios.vct.api.VCTEvent;
 import voiidstudios.vct.configs.model.TimerConfig;
 import voiidstudios.vct.managers.MessagesManager;
@@ -68,7 +69,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         String timeHHMMSS = args[1];
         String timerId = (args.length >= 3) ? args[2] : null;
 
-        Timer timer = VCTAPI.createTimer(timeHHMMSS, timerId, sender);
+        Timer timer = VCTActions.createTimer(timeHHMMSS, timerId, sender);
         if (timer == null) {
             msgManager.sendConfigMessage(sender, "Messages.timerSetFormatIncorrect", true, null);
             return;
@@ -140,7 +141,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                totalSecondsToAdd = VCTAPI.helper_parseTimeToSeconds(args[2]);
+                totalSecondsToAdd = VCTActions.helper_parseTimeToSeconds(args[2]);
 
                 addHours = 0;
                 addMinutes = 0;
@@ -160,7 +161,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                boolean addSuccess = VCTAPI.modifyTimer("add", args[2], sender);
+                boolean addSuccess = VCTActions.modifyTimer("add", args[2], sender);
                 if (!addSuccess) {
                     msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
                     return;
@@ -179,7 +180,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                totalSecondsToSet = VCTAPI.helper_parseTimeToSeconds(args[2]);
+                totalSecondsToSet = VCTActions.helper_parseTimeToSeconds(args[2]);
 
                 setHours = 0;
                 setMinutes = 0;
@@ -194,7 +195,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                boolean setSuccess = VCTAPI.modifyTimer("set", args[2], sender);
+                boolean setSuccess = VCTActions.modifyTimer("set", args[2], sender);
                 if (!setSuccess) {
                     msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
                     return;
@@ -213,7 +214,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                totalSecondsToTake = VCTAPI.helper_parseTimeToSeconds(args[2]);
+                totalSecondsToTake = VCTActions.helper_parseTimeToSeconds(args[2]);
 
                 takeHours = 0;
                 takeMinutes = 0;
@@ -228,7 +229,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                boolean takeSuccess = VCTAPI.modifyTimer("take", args[2], sender);
+                boolean takeSuccess = VCTActions.modifyTimer("take", args[2], sender);
                 if (!takeSuccess) {
                     msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
                     return;
@@ -281,6 +282,48 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     barcolorInvRepl.put("%COLOR%", colorName);
 
                     msgManager.sendConfigMessage(sender, "Messages.timerModifyBarcolorInvalid", true, barcolorInvRepl);
+                }
+                return;
+            case "bossbar_style":
+                if (args.length < 3) {
+                    msgManager.sendConfigMessage(sender, "Messages.timerModifyBarstyleError", true, null);
+                    return;
+                }
+                String styleName = args[2].toUpperCase();
+
+                timer = TimerManager.getInstance().getTimer();
+                if (timer == null) {
+                    msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
+                    return;
+                }
+
+                timerCfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(timer.getTimerId());
+                if (timerCfg == null) {
+                    msgManager.sendConfigMessage(sender, "Messages.timerConfigNotFound", true, null);
+                    return;
+                }
+
+                try {
+                    BarStyle style = BarStyle.valueOf(styleName);
+                    timer.setBossBarStyle(style);
+
+                    timerCfg.setStyle(style);
+                    VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
+                    
+                    Timer.refreshTimerText();
+
+                    Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.MODIFY, sender));
+
+                    Map<String, String> barcolorRepl = new HashMap<>();
+                    barcolorRepl.put("%TIMER%", timer.getTimerId());
+                    barcolorRepl.put("%STYLE%", styleName);
+
+                    msgManager.sendConfigMessage(sender, "Messages.timerModifyBarstyle", true, barcolorRepl);
+                } catch (IllegalArgumentException e) {
+                    Map<String, String> barcolorInvRepl = new HashMap<>();
+                    barcolorInvRepl.put("%STYLE%", styleName);
+
+                    msgManager.sendConfigMessage(sender, "Messages.timerModifyBarstyleInvalid", true, barcolorInvRepl);
                 }
                 return;
             case "sound":
@@ -564,9 +607,9 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 if(args[0].equalsIgnoreCase("modify")) {
                     subcommands.add("add");subcommands.add("set");
                     subcommands.add("take");subcommands.add("bossbar_color");
-                    subcommands.add("sound");subcommands.add("sound_enable");
-                    subcommands.add("sound_volume");subcommands.add("sound_pitch");
-                    subcommands.add("text");
+                    subcommands.add("bossbar_style");subcommands.add("sound");
+                    subcommands.add("sound_enable");subcommands.add("sound_volume");
+                    subcommands.add("sound_pitch");subcommands.add("text");
                 }else if(args[0].equalsIgnoreCase("set")){
                     subcommands.add("<HH:MM:SS>");
                 }
@@ -587,6 +630,10 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                         subcommands.add("PINK");subcommands.add("PURPLE");
                         subcommands.add("RED");subcommands.add("WHITE");
                         subcommands.add("YELLOW");
+                    }else if(args[1].equalsIgnoreCase("bossbar_style")){
+                        subcommands.add("SOLID");subcommands.add("SEGMENTED_6");
+                        subcommands.add("SEGMENTED_10");subcommands.add("SEGMENTED_12");
+                        subcommands.add("SEGMENTED_20");
                     }else if(args[1].equalsIgnoreCase("sound")){
                         subcommands.add("<\"sound in quotes\">");
                     }else if(args[1].equalsIgnoreCase("sound_enable")){

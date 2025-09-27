@@ -28,9 +28,12 @@ Messages:
   timerModifySet: '&aThe timer was set to %HH%:%MM%:%SS%.'
   timerModifyTakeError: '&cUse: /vct modify take <HH:MM:SS>'
   timerModifyTake: '&a%HH%:%MM%:%SS% has been removed from the timer.'
-  timerModifyBarcolorError: '&cUse: /vct modify barcolor <color>. &eYou can use these colors: BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.'
+  timerModifyBarcolorError: '&cUse: /vct modify bossbar_color <color>. &eYou can use these colors: BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.'
   timerModifyBarcolorInvalid: '&cThe color "%COLOR%" of the timer boss bar is invalid. Use BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.'
   timerModifyBarcolor: '&aThe color of the timer %TIMER% has been changed to "%COLOR%".'
+  timerModifyBarstyleError: '&cUse: /vct modify bossbar_style <style>. &eYou can use these styles: SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, or SEGMENTED_20.'
+  timerModifyBarstyleInvalid: '&cThe style "%STYLE%" of the timer boss bar is invalid. Use SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, or SEGMENTED_20.'
+  timerModifyBarstyle: '&aThe style of the timer %TIMER% has been changed to "%STYLE%".'
   timerModifySoundError: '&cUse: /vct modify sound <"sound in quotes">'
   timerModifySoundRequireQuotes: '&cThe sound needs to be enclosed in quotation marks (") in order to change it.'
   timerModifySound: '&aThe sound of the timer %TIMER% has been changed to "%SOUND%" &e(%TYPE%)&a.'
@@ -62,14 +65,16 @@ Timers:
     sound_volume: 1.0 # The volume of the sound (1.0 is 100%)
     sound_pitch: 1.0 # The pitch of the sound (1.0 is normal pitch)
     bossbar_color: WHITE # The boss bar color is BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.
+    bossbar_style: SOLID # The boss bar style is SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, or SEGMENTED_20.
     enabled: true # Defines whether this timer is available for selection.
     sound_enabled: false # Defines whether this timer plays sound every second.
 
   timer_1:
-    text: "&aI'm the Timer 1 :D (%HH%:%MM%:%SS%)" # The text of the boss bar (%HH% hours, %MM% minutes, %SS% seconds)
-    sound: UI_BUTTON_CLICK # The sound of the timer every second
-    sound_volume: 0.5 # The volume of the sound (1.0 is 100%)
-    sound_pitch: 2.0 # The pitch of the sound (1.0 is normal pitch)
-    bossbar_color: GREEN # The boss bar color is BLUE, GREEN, PINK, PURPLE, RED, WHITE, or YELLOW.
-    enabled: true # Defines whether this timer is available for selection.
-    sound_enabled: true # Defines whether this timer plays sound every second.
+    text: "&aI'm the Timer 1 :D (%HH%:%MM%:%SS%)"
+    sound: UI_BUTTON_CLICK
+    sound_volume: 0.5
+    sound_pitch: 2.0
+    bossbar_color: GREEN
+    bossbar_style: SEGMENTED_6
+    enabled: true
+    sound_enabled: true

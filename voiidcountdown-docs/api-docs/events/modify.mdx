@@ -1,0 +1,30 @@
+---
+title: "MODIFY"
+description: "Triggered when the remaining time of a timer is modified."
+---
+
+## Usage Example
+
+```java
+@EventHandler
+public void onVCTEvent(VCTEvent event) {
+    if (event.getType() == VCTEventType.MODIFY) {
+        Bukkit.broadcastMessage("Timer " + event.getTimerId() + " was modified! New time: " + event.getTimeLeft());
+    }
+}
+```
+
+## Behavior
+
+* Fired when the timer is modified with `/vct modify` or the API.
+* The event provides the **new remaining time** after the modification.
+
+## Parameters
+
+<ResponseField name="event" type="VCTEvent">
+  Represents the event. Useful getters:  
+
+* `String getTimerId()` — ID of the modified timer
+* `String getTimeLeft()` — the new remaining time in HH:MM:SS
+
+</ResponseField>

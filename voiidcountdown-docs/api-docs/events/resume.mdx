@@ -1,0 +1,28 @@
+---
+title: "RESUME"
+description: "Triggered when a paused timer is resumed."
+---
+
+## Usage Example
+
+```java
+@EventHandler
+public void onVCTEvent(VCTEvent event) {
+    if (event.getType() == VCTEventType.RESUME) {
+        Bukkit.broadcastMessage("The timer " + event.getTimerId() + " has resumed!");
+    }
+}
+```
+
+## Behavior
+
+* Fired when a paused timer continues counting down.
+
+## Parameters
+
+<ResponseField name="event" type="VCTEvent">
+  Represents the event. Useful getters:  
+
+* `String getTimerId()` — ID of the resumed timer
+
+</ResponseField>

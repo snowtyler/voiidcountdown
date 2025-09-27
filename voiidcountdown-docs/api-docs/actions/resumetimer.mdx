@@ -1,0 +1,42 @@
+---
+title: ".resumeTimer()"
+description: "Resume a previously paused timer."
+---
+
+## Usage Example
+
+```java
+//// VCTActions.resumeTimer(sender?) ////
+
+// Resume the timer
+boolean success = VCTActions.resumeTimer();
+
+// Resume a timer by command sender
+boolean success = VCTActions.resumeTimer(player);
+```
+
+## Behavior
+
+- Resumes the countdown of a paused timer.
+- While resumed:
+  - The timer continues counting down from the paused value.
+  - The bossbar updates accordingly.
+- If no paused timer exists, the method returns `false`.
+
+## Parameters
+
+<ResponseField name="sender" type="CommandSender">
+  Reference to the player who performed the action.
+
+  - If a player passes, they will receive a message indicating that the timer was modified
+    - It is usually not necessary to use it directly in the API
+</ResponseField>
+
+## Returns
+
+<ResponseField name="success" type="boolean">
+  Indicates whether the operation succeeded.
+
+  - `true` — the timer exists and is now resumed.
+  - `false` — no active timer exists or the operation failed.
+</ResponseField>

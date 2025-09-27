@@ -12,11 +12,9 @@ import voiidstudios.vct.configs.MainConfigManager;
 public class MessagesManager {
     private static String prefix;
 
-    private VoiidCountdownTimer plugin;
 	private MainConfigManager mainConfigManager;
 	public MessagesManager(VoiidCountdownTimer plugin) {
-		this.plugin = plugin;
-		this.mainConfigManager = plugin.getConfigsManager().getMainConfigManager();
+		this.mainConfigManager = VoiidCountdownTimer.getConfigsManager().getMainConfigManager();
 	}
 
     public static String getColoredMessage(String message) {

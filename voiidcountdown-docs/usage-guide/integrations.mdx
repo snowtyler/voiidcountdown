@@ -1,0 +1,23 @@
+---
+title: "Integrations"
+description: "Learn about all the integrations Voiid Countdown Timer has to expand its actions"
+icon: "link-2"
+---
+
+The plugin has some integrations to expand its actions. The available integrations are:
+
+## 1. PlaceholderAPI
+
+PlaceholderAPI integration is supported to obtain timer information with placeholders.
+
+| Placeholder                      | Description                                                 |
+| -------------------------------- | ----------------------------------------------------------- |
+| `%vct_timer_hhmmss:<timer_id>%`  | Get the hours, minutes and seconds (00:00:00) of the timer. |
+| `%vct_timer_hh:<timer_id>%`      | Get the hours (00) of the timer.                            |
+| `%vct_timer_mm:<timer_id>%`      | Get the minutes (00) of the timer.                          |
+| `%vct_timer_ss:<timer_id>%`      | Get the seconds (00) of the timer.                          |
+| `%vct_timer_active:<timer_id>%`  | Return 'true' or 'false' if the timer is active.            |
+| `%vct_timer_running:<timer_id>%` | Return 'true' or 'false' if the timer is running.           |
+| `%vct_timer_paused:<timer_id>%`  | Return 'true' or 'false' if the timer is paused.            |
+
+The argument of is the timerid of a specific timer created, for example: `%vct_timer_hhmmss:timer_1%`. Also, if you use it without `:<timer_id>`, it will take the timer that is currently active (global).

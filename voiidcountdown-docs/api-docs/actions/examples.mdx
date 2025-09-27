@@ -1,0 +1,153 @@
+---
+title: "Actions Usage Examples"
+description: "Examples showing how to use timer actions with the VCT API."
+---
+
+<Info>
+  These examples show the most common use cases of timer actions. You can combine them to create more complex mechanics, such as countdown-based games, challenges, or events.
+</Info>
+
+### Example 1 — Create a 5-minute timer (`/fivetimer`)
+
+```java expandable
+import voiidstudios.vct.api.VCTAPI;
+import voiidstudios.vct.api.VCTActions;
+import voiidstudios.vct.api.Timer;
+
+public class FiveMinuteTimerCommand implements CommandExecutor {
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!command.getName().equalsIgnoreCase("fivetimer")) {
+           return false;
+        }
+
+        if (!VCTAPI.isAvailable()) {
+            sender.sendMessage("The VCT API is not available");
+            return true;
+        }
+
+        Timer timer = VCTActions.createTimer("00:05:00", "default", sender);
+
+        if (timer != null) {
+            sender.sendMessage("5-minute timer created successfully!");
+        } else {
+            sender.sendMessage("The timer could not be created.");
+        }
+
+        return true;
+    }
+}
+```
+
+### Example 2 — Pause the timer (`/pausetimer`)
+
+```java expandable
+import voiidstudios.vct.api.VCTActions;
+
+public class PauseTimerCommand implements CommandExecutor {
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!command.getName().equalsIgnoreCase("pausetimer")) {
+           return false;
+        }
+
+        boolean success = VCTActions.pauseTimer(sender);
+
+        if (success) {
+            sender.sendMessage("Timer paused successfully!");
+        } else {
+            sender.sendMessage("No active timer to pause.");
+        }
+
+        return true;
+    }
+}
+```
+
+### Example 3 — Resume the timer (`/resumetimer`)
+
+```java expandable
+import voiidstudios.vct.api.VCTActions;
+
+public class ResumeTimerCommand implements CommandExecutor {
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!command.getName().equalsIgnoreCase("resumetimer")) {
+           return false;
+        }
+
+        boolean success = VCTActions.resumeTimer(sender);
+
+        if (success) {
+            sender.sendMessage("Timer resumed!");
+        } else {
+            sender.sendMessage("No paused timer found.");
+        }
+
+        return true;
+    }
+}
+```
+
+### Example 4 — Add time dynamically (`/addtime <minutes>`)
+
+```java expandable
+import voiidstudios.vct.api.VCTAPI;
+
+public class AddTimeCommand implements CommandExecutor {
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!command.getName().equalsIgnoreCase("addtime")) {
+           return false;
+        }
+
+        if (args.length < 1) {
+            sender.sendMessage("Usage: /addtime <minutes>");
+            return true;
+        }
+
+        String minutes = args[0];
+        String formatted = "00:" + (minutes.length() == 1 ? "0" + minutes : minutes) + ":00";
+
+        boolean success = VCTAPI.modifyTimer("add", formatted, sender);
+
+        if (success) {
+            sender.sendMessage("Added " + minutes + " minutes to the timer!");
+        } else {
+            sender.sendMessage("No active timer to modify.");
+        }
+
+        return true;
+    }
+}
+```
+
+### Example 5 — Stop the timer (`/stoptimer`)
+
+```java expandable
+import voiidstudios.vct.api.VCTActions;
+
+public class StopTimerCommand implements CommandExecutor {
+
+    @Override
+    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+        if (!command.getName().equalsIgnoreCase("stoptimer")) {
+           return false;
+        }
+
+        boolean success = VCTActions.stopTimer(sender);
+
+        if (success) {
+            sender.sendMessage("Timer stopped.");
+        } else {
+            sender.sendMessage("No active timer found.");
+        }
+
+        return true;
+    }
+}
+```

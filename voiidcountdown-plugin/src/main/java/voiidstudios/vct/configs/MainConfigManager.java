@@ -12,7 +12,6 @@ import voiidstudios.vct.utils.Formatter;
 
 public class MainConfigManager {
     private CustomConfig configFile;
-    private VoiidCountdownTimer plugin;
 
     private boolean update_notification;
     private int ticks_hide_after_ending;
@@ -21,7 +20,6 @@ public class MainConfigManager {
     private boolean save_state_timers;
 
     public MainConfigManager(VoiidCountdownTimer plugin){
-        this.plugin = plugin;
         configFile = new CustomConfig("config.yml", plugin, null, false);
         configFile.registerConfig();
         checkConfigsUpdate();
@@ -112,6 +110,12 @@ public class MainConfigManager {
                 getConfig().set("Messages.timerModifyBarcolor", "&aThe color of the timer %TIMER% has been changed to \"%COLOR%\".");
                 saveConfig();
             }
+            if(!text.contains("timerModifyBarstyleError:")){
+                getConfig().set("Messages.timerModifyBarstyleError", "&cUse: /vct modify bossbar_style <style>. &eYou can use these styles: SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, or SEGMENTED_20.");
+                getConfig().set("Messages.timerModifyBarstyleInvalid", "&cThe style \"%STYLE%\" of the timer boss bar is invalid. Use SOLID, SEGMENTED_6, SEGMENTED_10, SEGMENTED_12, or SEGMENTED_20.");
+                getConfig().set("Messages.timerModifyBarstyle", "&aThe style of the timer %TIMER% has been changed to \"%STYLE%\".");
+                saveConfig();
+            }
             if(!text.contains("timerModifySoundError:")){
                 getConfig().set("Messages.timerModifySoundError", "&cUse: /vct modify sound <\"sound in quotes\">");
                 getConfig().set("Messages.timerModifySoundRequireQuotes", "&cThe sound needs to be enclosed in quotation marks (\") in order to change it.");
@@ -166,6 +170,38 @@ public class MainConfigManager {
             }
             if(!text.contains("timerConfigNotFound:")){
                 getConfig().set("Messages.timerConfigNotFound", "&cThe timer configuration could not be found.");
+                saveConfig();
+            }
+
+            if (getConfig().contains("Timers")) {
+                for (String timerKey : getConfig().getConfigurationSection("Timers").getKeys(false)) {
+                    String base = "Timers." + timerKey + ".";
+
+                    if (!getConfig().contains(base + "text")) {
+                        getConfig().set(base + "text", "%HH%:%MM%:%SS%");
+                    }
+                    if (!getConfig().contains(base + "sound")) {
+                        getConfig().set(base + "sound", "UI_BUTTON_CLICK");
+                    }
+                    if (!getConfig().contains(base + "sound_volume")) {
+                        getConfig().set(base + "sound_volume", 1.0);
+                    }
+                    if (!getConfig().contains(base + "sound_pitch")) {
+                        getConfig().set(base + "sound_pitch", 1.0);
+                    }
+                    if (!getConfig().contains(base + "bossbar_color")) {
+                        getConfig().set(base + "bossbar_color", "WHITE");
+                    }
+                    if (!getConfig().contains(base + "bossbar_style")) {
+                        getConfig().set(base + "bossbar_style", "SOLID");
+                    }
+                    if (!getConfig().contains(base + "enabled")) {
+                        getConfig().set(base + "enabled", true);
+                    }
+                    if (!getConfig().contains(base + "sound_enabled")) {
+                        getConfig().set(base + "sound_enabled", false);
+                    }
+                }
                 saveConfig();
             }
         } catch(IOException e) {

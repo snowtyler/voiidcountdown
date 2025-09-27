@@ -1,0 +1,154 @@
+---
+title: "Introduction"
+description: "Discover the official documentation for the Voiid Countdown Timer plugin!"
+icon: "book-open"
+mode: "custom"
+---
+
+export const HeroCard = ({ filename, title, description, href }) => {
+  return (
+    <a className="group cursor-pointer pb-8" href={href}>
+      <img
+        src={`/images/introduction/${filename}.png`}
+        className="block dark:hidden pointer-events-none group-hover:scale-105 transition-all duration-100"
+      />
+      <img
+        src={`/images/introduction/${filename}-dark.png`}
+        className="pointer-events-none group-hover:scale-105 transition-all duration-100 hidden dark:block"
+      />
+      <h3 className="mt-5 text-gray-900 dark:text-zinc-50 font-medium">
+        {title}
+      </h3>
+      <span className="mt-1.5">{description}</span>
+    </a>
+  );
+};
+
+<div className="relative">
+  <div className="absolute top-0 lg:-top-16 left-0 right-0">
+    <img
+      src="/images/introduction/background.png"
+      className="block pointer-events-none"
+    />
+  </div>
+
+  <div className="px-4 py-16 lg:py-48 lg:pb-24 max-w-3xl mx-auto">
+    <h1 className="block text-4xl font-medium text-center text-gray-900 dark:text-zinc-50 tracking-tight">
+      Voiid Countdown Timer Documentation
+    </h1>
+
+    <div className="max-w-xl mx-auto px-4 mt-4 text-lg text-center text-gray-500 dark:text-zinc-500">
+      Welcome to the documentation for the Voiid Countdown Timer (abbreviated VCT) plugin. This wiki provides detailed information about the plugin's features, installation, configuration, commands, and more.
+    </div>
+
+    <div className="max-w-xl mx-auto px-4 mt-4 flex justify-center gap-1 flex-wrap">
+      <a
+        href="https://github.com/Voiid-Studios/voiidcountdown/releases"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img
+          src="https://img.shields.io/github/v/release/Voiid-Studios/voiidcountdown?style=flat&logo=github&label=Release&color=fe50dc"
+          alt="View the latest release"
+        />
+      </a>
+      <a
+        href="https://modrinth.com/datapack/voiid-countdown-timer"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img
+          src="https://img.shields.io/modrinth/dt/N6N9gUha?style=flat&logo=modrinth&label=Modrinth&color=%2300AF5C"
+          alt="View Modrinth page"
+        />
+      </a>
+      <a
+        href="https://curseforge.com/minecraft/data-packs/vct-voiid-countdown-timer/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img
+          src="https://img.shields.io/curseforge/dt/1145327?style=flat&logo=curseforge&label=CurseForge&color=F16436"
+          alt="View CurseForge page"
+        />
+      </a>
+      <a
+        href="https://www.spigotmc.org/resources/voiid-countdown-timer.127616/"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img
+          src="https://img.shields.io/spiget/downloads/127616?style=flat&logo=spigotmc&logoColor=ffd000&label=SpigotMC&color=ffd000"
+          alt="View SpigotMC page"
+        />
+      </a>
+    </div>
+
+    <div className="max-w-xl mx-auto px-4 mt-4 flex justify-center gap-1 flex-wrap">
+      <a
+        href="https://github.com/Voiid-Studios/voiidstudios/blob/main/LICENSE.md"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img
+          src="https://img.shields.io/badge/license-example?style=for-the-badge&label=Voiid%20Studios&color=ffffff"
+          alt="View the Voiid Studios public license"
+        />
+      </a>
+      <a
+        href="https://ko-fi.com/maxxvoiid"
+        target="_blank"
+        rel="noopener noreferrer"
+      >
+        <img
+          src="https://img.shields.io/badge/Kofi-ff6433?logo=kofi&logoColor=fff&style=for-the-badge"
+          alt="Support us on Ko-fi!"
+        />
+      </a>
+    </div>
+
+    <div className="px-6 lg:px-0 mt-12 lg:mt-24 grid sm:grid-cols-2 gap-x-6 gap-y-4">
+      <HeroCard
+        filename="bolt"
+        title="Quick Overview"
+        description="Start learning about everything VCT has to offer with our quick overview"
+        href="/get-started/quick-overview"
+      />
+
+      <HeroCard
+        filename="blocks"
+        title="Installation or Updation"
+        description="Get started with VCT in minutes with our guide to installing & updating"
+        href="/get-started/installation-or-updation"
+      />
+
+      <HeroCard
+        filename="wrench"
+        title="Configuration"
+        description="Change many aspects of VCT with our configuration guide"
+        href="/usage-guide/configuration"
+      />
+
+      <HeroCard
+        filename="bubble"
+        title="Commands & Perms"
+        description="Review the commands and permissions that VCT has in our commands & perms guide"
+        href="/usage-guide/commands-permissions"
+      />
+
+      <HeroCard
+        filename="link"
+        title="Integrations"
+        description="Learn about VCT's integrations with other projects in our integration guide"
+        href="/quickstart"
+      />
+
+      <HeroCard
+        filename="terminal"
+        title="API Reference"
+        description="Use the VCT API in other projects with our API guide"
+        href="/quickstart"
+      />
+    </div>
+  </div>
+</div>

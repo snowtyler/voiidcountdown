@@ -1,0 +1,28 @@
+---
+title: "FINISH"
+description: "Triggered when a timer reaches 00:00:00."
+---
+
+## Usage Example
+
+```java
+@EventHandler
+public void onVCTEvent(VCTEvent event) {
+    if (event.getType() == VCTEventType.FINISH) {
+        Bukkit.getLogger().info("[MyPlugin] Timer finished: " + event.getTimerId());
+    }
+}
+```
+
+## Behavior
+
+- Fired when the timer **naturally finishes** its countdown.
+- By default, the timer is also destroyed after the configured [ticks_hide_after_ending](https://vctdocs.mintlify.app/usage-guide/configuration#ticks-hide-after-ending%3A-60).
+
+## Parameters
+
+<ResponseField name="event" type="VCTEvent">
+  Represents the event. Useful getters:
+
+  - `String getTimerId()` — ID of the finished timer
+</ResponseField>

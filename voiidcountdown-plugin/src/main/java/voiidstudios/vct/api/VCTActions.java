@@ -4,21 +4,10 @@ import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 
-import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.managers.TimerManager;
 import voiidstudios.vct.utils.TimerDefaults;
 
-/**
- * @deprecated VCTAPI has been renamed to VCTActions to distinguish it from other APIs and will be removed in v2.1.0. Please use {@link VCTActions} instead.
-*/
-@Deprecated
-public class VCTAPI {
-    public static boolean isAvailable() {
-        return Bukkit.getPluginManager().getPlugin("VoiidCountdownTimer") != null
-                && VoiidCountdownTimer.getInstance() != null
-                && VoiidCountdownTimer.getInstance().isEnabled();
-    }
-
+public class VCTActions {
     public static Timer createTimer(String timeHHMMSS, @Nullable String timerId, @Nullable CommandSender sender) {
         int totalSeconds = helper_parseTimeToSeconds(timeHHMMSS);
         if (totalSeconds <= 0) return null;
@@ -88,6 +77,27 @@ public class VCTAPI {
 
     public static Timer getTimer() {
         return TimerManager.getInstance().getTimer();
+    }
+
+    // Same functions — Without sender
+    public static Timer createTimer(String timeHHMMSS, String timerId) {
+        return createTimer(timeHHMMSS, timerId, null);
+    }
+
+    public static boolean pauseTimer() {
+        return pauseTimer(null);
+    }
+
+    public static boolean resumeTimer() {
+        return resumeTimer(null);
+    }
+
+    public static void stopTimer() {
+        stopTimer(null);
+    }
+
+    public static boolean modifyTimer(String action, String timeHHMMSS) {
+        return modifyTimer(action, timeHHMMSS, null);
     }
 
     // Helpers
