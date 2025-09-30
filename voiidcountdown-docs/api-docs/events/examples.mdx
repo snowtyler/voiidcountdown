@@ -9,42 +9,87 @@ description: "Practical examples of using VCT events in your plugin."
 
 ## Broadcast when a timer starts
 
-```java
+<CodeGroup>
+
+```java Java Example
 @EventHandler
 public void onVCTEvent(VCTEvent event) {
     if (event.getType() == VCTEventType.CREATE) {
-        Bukkit.broadcastMessage("A new timer has started: " + event.getTimerId() + " (" + event.getInitialTime() + ")");
+        String timerId = event.getTimerId();
+        String timeInitial = event.getInitialTime();
+
+        Bukkit.broadcastMessage("A new timer has started: " + timerId + " (" + timeInitial + ")");
     }
 }
 ```
+
+```yaml CE Example
+vct_create_example:
+  type: custom
+  custom_event_data:
+    event: voiidstudios.vct.api.VCTEvent
+    variables_to_capture:
+    - '%eventType%;getType()'
+    - '%timerId%;getTimerId()'
+    - '%timeInitial%;getInitialTime()'
+  conditions:
+  - '%eventType% == CREATE'
+  actions:
+    default:
+    - 'to_all: actionbar: A new timer has started: %timerId% (%timeInitial%);100'
+```
+
+</CodeGroup>
 
 - Useful for announcing timers to all players.
 - Gives context when a new timer begins.
 
 ## Send bossbar updates every second
 
-```java
+<CodeGroup>
+
+```java Java Example
 @EventHandler
 public void onVCTEvent(VCTEvent event) {
     if (event.getType() == VCTEventType.CHANGE) {
         String timeLeft = event.getTimeLeft();
+
         Bukkit.getOnlinePlayers().forEach(player -> {
-            player.sendActionBar("⏳ Time left: " + timeLeft);
+            player.sendActionBar("Time left: " + timeLeft);
         });
     }
 }
 ```
+
+```yaml CE Example
+vct_change_example:
+  type: custom
+  custom_event_data:
+    event: voiidstudios.vct.api.VCTEvent
+    variables_to_capture:
+    - '%eventType%;getType()'
+    - '%timeLeft%;getTimeLeft()'
+  conditions:
+  - '%eventType% == CHANGE'
+  actions:
+    default:
+    - 'to_all: actionbar: Time left: %timeLeft%;100'
+```
+
+</CodeGroup>
 
 - Runs every second.
 - Good for syncing custom UI or scoreboards with the timer.
 
 ## Grant rewards when timer finishes
 
-```java
+<CodeGroup>
+
+```java Java Example
 @EventHandler
 public void onVCTEvent(VCTEvent event) {
-    if (event.getType() == VCTEventType.FINISH) {
-        Bukkit.broadcastMessage("The timer " + event.getTimerId() + " has ended! 🎉");
+    if (event.getType() == VCTEventType.FINISH && event.getTimerId().equals("xp_challenge")) {
+        Bukkit.broadcastMessage("The XP Challenge has ended!");
 
         // Reward all players
         for (Player player : Bukkit.getOnlinePlayers()) {
@@ -54,30 +99,78 @@ public void onVCTEvent(VCTEvent event) {
 }
 ```
 
-- Perfect for minigames or challenges that end with rewards.
+```yaml CE Example
+vct_finish_example:
+  type: custom
+  custom_event_data:
+    event: voiidstudios.vct.api.VCTEvent
+    variables_to_capture:
+    - '%eventType%;getType()'
+    - '%timerId%;getTimerId()'
+  conditions:
+  - '%eventType% == FINISH'
+  - '%timerId% == xp_challenge'
+  actions:
+    default:
+    - 'to_all: message: The XP Challenge has ended!'
+    - 'console_command: xp add @a 5 levels' # Reward all players
+```
+
+</CodeGroup>
+
+- Perfect for minigames or challenges (`xp_challenge`) that end with rewards.
 - Trigger extra logic when the timer reaches 00:00:00.
 
 ## Pause/resume feedback
 
-```java
+<CodeGroup>
+
+```java Java Example
 @EventHandler
 public void onVCTEvent(VCTEvent event) {
     switch (event.getType()) {
         case PAUSE:
-            Bukkit.broadcastMessage("The timer " + event.getTimerId() + " has been paused ⏸️");
+            if (event.getTimerId().equals("game_round")) {
+                Bukkit.broadcastMessage("The round has been paused");
+            }
             break;
         case RESUME:
-            Bukkit.broadcastMessage("The timer " + event.getTimerId() + " has resumed ▶️");
+            if (event.getTimerId().equals("game_round")) {
+                Bukkit.broadcastMessage("The round has resumed!");
+            }
             break;
     }
 }
 ```
 
-- Simple way to keep players informed when the timer state changes.
+```yaml CE Example
+vct_pause_resume_example:
+  type: custom
+  custom_event_data:
+    event: voiidstudios.vct.api.VCTEvent
+    variables_to_capture:
+    - '%eventType%;getType()'
+    - '%timerId%;getTimerId()'
+  conditions:
+  - '%timerId% == game_round'
+  - '%eventType% == PAUSE execute paused'
+  - '%eventType% == RESUME execute resumed'
+  actions:
+    paused:
+    - 'to_all: message: The round has been paused'
+    resumed:
+    - 'to_all: message: The round has resumed!'
+```
+
+</CodeGroup>
+
+- Keeps players informed about game-round timers only.
 
 ## Log when a timer is stopped manually
 
-```java
+<CodeGroup>
+
+```java Java Example
 @EventHandler
 public void onVCTEvent(VCTEvent event) {
     if (event.getType() == VCTEventType.STOP) {
@@ -86,19 +179,75 @@ public void onVCTEvent(VCTEvent event) {
 }
 ```
 
+```yaml CE Example
+vct_stop_example:
+  type: custom
+  custom_event_data:
+    event: voiidstudios.vct.api.VCTEvent
+    variables_to_capture:
+    - '%eventType%;getType()'
+    - '%timerId%;getTimerId()'
+  conditions:
+  - '%timerId% == game_round'
+  - '%eventType% == STOP'
+  actions:
+    default:
+    - 'to_all: actionbar: Timer stopped %timerId%;100'
+```
+
+</CodeGroup>
+
 - Useful for debugging or auditing timer interruptions.
+- Logs any timer being stopped.
 
 ## Announce time modifications
 
-```java
+<CodeGroup>
+
+```java Java Example
 @EventHandler
 public void onVCTEvent(VCTEvent event) {
-    if (event.getType() == VCTEventType.MODIFY) {
-        Bukkit.broadcastMessage("Timer " + event.getTimerId() + 
-                                " was modified! New time: " + event.getTimeLeft());
+    if (event.getType() == VCTEventType.MODIFY && event.getTimerId().equals("pvp_event")) {
+        String modifier = event.getModifier();
+        String modification = event.getModification();
+
+        if (modifier.equals("ADD")) {
+            Bukkit.broadcastMessage("The PVP event has been extended by " + modification + "!");
+        } else if (modifier.equals("TAKE")) {
+            Bukkit.broadcastMessage("The PVP event has been reduced by " + modification);
+        } else if (modifier.equals("BOSSBAR_STYLE")) {
+            Bukkit.broadcastMessage("The segments of the boss bar in the PVP event have changed to " + modification);
+        }
     }
 }
 ```
 
-- Lets everyone know when the timer is adjusted.
+```yaml CE Example
+vct_modify_example:
+  type: custom
+  custom_event_data:
+    event: voiidstudios.vct.api.VCTEvent
+    variables_to_capture:
+    - '%eventType%;getType()'
+    - '%timerId%;getTimerId()'
+    - '%modifier%;getModifier()'
+    - '%modification%;getModification()'
+  conditions:
+  - '%timerId% == pvp_event'
+  - '%eventType% == MODIFY'
+  - '%modifier% == ADD execute added'
+  - '%modifier% == TAKE execute taked'
+  - '%modifier% == BOSSBAR_STYLE execute segments'
+  actions:
+    add:
+    - 'to_all: message: The PVP event has been extended by %modification%!'
+    take:
+    - 'to_all: message: The PVP event has been reduced by %modification%'
+    style:
+    - 'to_all: actionbar: The segments of the boss bar in the PVP event have changed to %modification%;100'
+```
+
+</CodeGroup>
+
+- Lets everyone know when the timer is adjusted or modified.
 - Great for competitive scenarios (adding bonus time, penalties, etc.).

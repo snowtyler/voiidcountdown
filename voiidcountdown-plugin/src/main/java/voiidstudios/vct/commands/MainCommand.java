@@ -1,8 +1,6 @@
 package voiidstudios.vct.commands;
 
 import org.bukkit.Bukkit;
-import org.bukkit.boss.BarColor;
-import org.bukkit.boss.BarStyle;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
@@ -115,7 +113,6 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         java.util.List<String> parts;
         int addHours, addMinutes, addSeconds, totalSecondsToAdd;
         Timer timer;
-        TimerConfig timerCfg;
         int setHours, setMinutes, setSeconds, totalSecondsToSet;
         int takeHours, takeMinutes, takeSeconds, totalSecondsToTake;
 
@@ -125,11 +122,18 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             sender.sendMessage(MessagesManager.getColoredMessage("&6> &eset &7- Set time to the timer."));
             sender.sendMessage(MessagesManager.getColoredMessage("&6> &etake &7- Take time to the timer."));
             sender.sendMessage(MessagesManager.getColoredMessage("&6> &ebossbar_color &7- Change the color of the bossbar."));
+            sender.sendMessage(MessagesManager.getColoredMessage("&6> &ebossbar_style &7- Change the segments style of the bossbar."));
             sender.sendMessage(MessagesManager.getColoredMessage("&6> &esound &7- Change the sound that plays each time a second is lowered."));
             sender.sendMessage(MessagesManager.getColoredMessage("&6> &esound_enable &7- Toggle whether the sound should be played or not."));
             sender.sendMessage(MessagesManager.getColoredMessage("&6> &esound_volume &7- Change the volume of the sound being played."));
             sender.sendMessage(MessagesManager.getColoredMessage("&6> &esound_pitch &7- Change the pitch of the sound being played."));
             sender.sendMessage(MessagesManager.getColoredMessage("&6> &etext &7- Change the text of the boss bar."));
+            return;
+        }
+
+        timer = TimerManager.getInstance().getTimer();
+        if (timer == null) {
+            msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
             return;
         }
 
@@ -249,35 +253,15 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 }
                 String colorName = args[2].toUpperCase();
 
-                timer = TimerManager.getInstance().getTimer();
-                if (timer == null) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
-                    return;
-                }
+                boolean bcSuccess = VCTActions.modifyTimer("bossbar_color", colorName, sender);
 
-                timerCfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(timer.getTimerId());
-                if (timerCfg == null) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerConfigNotFound", true, null);
-                    return;
-                }
-
-                try {
-                    BarColor color = BarColor.valueOf(colorName);
-                    timer.setBossBarColor(color);
-
-                    timerCfg.setColor(color);
-                    VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
-                    
-                    Timer.refreshTimerText();
-
-                    Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.MODIFY, sender));
-
+                if (bcSuccess) {
                     Map<String, String> barcolorRepl = new HashMap<>();
                     barcolorRepl.put("%TIMER%", timer.getTimerId());
                     barcolorRepl.put("%COLOR%", colorName);
 
                     msgManager.sendConfigMessage(sender, "Messages.timerModifyBarcolor", true, barcolorRepl);
-                } catch (IllegalArgumentException e) {
+                } else {
                     Map<String, String> barcolorInvRepl = new HashMap<>();
                     barcolorInvRepl.put("%COLOR%", colorName);
 
@@ -291,39 +275,19 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 }
                 String styleName = args[2].toUpperCase();
 
-                timer = TimerManager.getInstance().getTimer();
-                if (timer == null) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
-                    return;
-                }
+                boolean bsSuccess = VCTActions.modifyTimer("bossbar_style", styleName, sender);
 
-                timerCfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(timer.getTimerId());
-                if (timerCfg == null) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerConfigNotFound", true, null);
-                    return;
-                }
+                if (bsSuccess) {
+                    Map<String, String> barstyleRepl = new HashMap<>();
+                    barstyleRepl.put("%TIMER%", timer.getTimerId());
+                    barstyleRepl.put("%STYLE%", styleName);
 
-                try {
-                    BarStyle style = BarStyle.valueOf(styleName);
-                    timer.setBossBarStyle(style);
+                    msgManager.sendConfigMessage(sender, "Messages.timerModifyBarstyle", true, barstyleRepl);
+                } else {
+                    Map<String, String> barstyleInvRepl = new HashMap<>();
+                    barstyleInvRepl.put("%STYLE%", styleName);
 
-                    timerCfg.setStyle(style);
-                    VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
-                    
-                    Timer.refreshTimerText();
-
-                    Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.MODIFY, sender));
-
-                    Map<String, String> barcolorRepl = new HashMap<>();
-                    barcolorRepl.put("%TIMER%", timer.getTimerId());
-                    barcolorRepl.put("%STYLE%", styleName);
-
-                    msgManager.sendConfigMessage(sender, "Messages.timerModifyBarstyle", true, barcolorRepl);
-                } catch (IllegalArgumentException e) {
-                    Map<String, String> barcolorInvRepl = new HashMap<>();
-                    barcolorInvRepl.put("%STYLE%", styleName);
-
-                    msgManager.sendConfigMessage(sender, "Messages.timerModifyBarstyleInvalid", true, barcolorInvRepl);
+                    msgManager.sendConfigMessage(sender, "Messages.timerModifyBarstyleInvalid", true, barstyleInvRepl);
                 }
                 return;
             case "sound":
@@ -345,9 +309,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                if (rawSound.isEmpty()) {
-                    return;
-                }
+                if (rawSound.isEmpty()) return;
 
                 boolean isVanillaSound = false;
                 try {
@@ -356,31 +318,18 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     isVanillaSound = true;
                 } catch (IllegalArgumentException ignored) {}
 
-                timer = TimerManager.getInstance().getTimer();
-                if (timer == null) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
-                    return;
+                boolean soundSuccess = VCTActions.modifyTimer("sound", rawSound, sender);
+
+                if (soundSuccess) {
+                    Map<String, String> soundRepl = new HashMap<>();
+                    soundRepl.put("%TIMER%", timer.getTimerId());
+                    soundRepl.put("%SOUND%", rawSound);
+                    soundRepl.put("%TYPE%", isVanillaSound ? "vanilla" : "custom");
+
+                    msgManager.sendConfigMessage(sender, "Messages.timerModifySound", true, soundRepl);
+                } else {
+                    msgManager.sendConfigMessage(sender, "Messages.timerModifySoundError", true, null);
                 }
-
-                timerCfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(timer.getTimerId());
-                if (timerCfg == null) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerConfigNotFound", true, null);
-                    return;
-                }
-
-                timerCfg.setSound(rawSound);
-                VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
-
-                Timer.refreshTimerText();
-
-                Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.MODIFY, sender));
-
-                java.util.Map<String, String> soundRepl = new java.util.HashMap<>();
-                soundRepl.put("%TIMER%", timer.getTimerId());
-                soundRepl.put("%SOUND%", rawSound);
-                soundRepl.put("%TYPE%", isVanillaSound ? "vanilla" : "custom");
-
-                msgManager.sendConfigMessage(sender, "Messages.timerModifySound", true, soundRepl);
                 return;
             case "sound_enable":
                 if (args.length < 3) {
@@ -389,49 +338,15 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 }
 
                 String value = args[2].toLowerCase();
-            
-                timer = TimerManager.getInstance().getTimer();
-                if (timer == null) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
-                    return;
-                }
 
-                timerCfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(timer.getTimerId());
-                if (timerCfg == null) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerConfigNotFound", true, null);
-                    return;
-                }
+                boolean seSuccess = VCTActions.modifyTimer("sound_enable", value, sender);
 
-                if (value.equals("true")) {
-                    if (timerCfg != null) {
-                        timerCfg.setSoundEnabled(true);
-                        VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
-                    }
+                if (seSuccess) {
+                    Map<String, String> soundenableRepl = new HashMap<>();
+                    soundenableRepl.put("%TIMER%", timer.getTimerId());
+                    soundenableRepl.put("%SOUNDENABLE%", value);
 
-                    Timer.refreshTimerText();
-
-                    Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.MODIFY, sender));
-
-                    Map<String, String> soundenableTrueRepl = new HashMap<>();
-                    soundenableTrueRepl.put("%TIMER%", timer.getTimerId());
-                    soundenableTrueRepl.put("%SOUNDENABLE%", value);
-
-                    msgManager.sendConfigMessage(sender, "Messages.timerModifySoundenable", true, soundenableTrueRepl);
-                } else if (value.equals("false")) {
-                    if (timerCfg != null) {
-                        timerCfg.setSoundEnabled(false);
-                        VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
-                    }
-
-                    Timer.refreshTimerText();
-
-                    Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.MODIFY, sender));
-
-                    Map<String, String> soundenableFalseRepl = new HashMap<>();
-                    soundenableFalseRepl.put("%TIMER%", timer.getTimerId());
-                    soundenableFalseRepl.put("%SOUNDENABLE%", value);
-
-                    msgManager.sendConfigMessage(sender, "Messages.timerModifySoundenable", true, soundenableFalseRepl);
+                    msgManager.sendConfigMessage(sender, "Messages.timerModifySoundenable", true, soundenableRepl);
                 } else {
                     msgManager.sendConfigMessage(sender, "Messages.timerModifySoundenableInvalid", true, null);
                 }
@@ -455,28 +370,14 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                timer = TimerManager.getInstance().getTimer();
-                if (timer == null) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
-                    return;
+                boolean svSuccess = VCTActions.modifyTimer("sound_volume", String.valueOf(newVolume), sender);
+
+                if (svSuccess) {
+                    Map<String, String> repl = new HashMap<>();
+                    repl.put("%TIMER%", timer.getTimerId());
+                    repl.put("%VOLUME%", String.valueOf(newVolume));
+                    msgManager.sendConfigMessage(sender, "Messages.timerModifySoundvolume", true, repl);
                 }
-
-                timerCfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(timer.getTimerId());
-                if (timerCfg == null) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerConfigNotFound", true, null);
-                    return;
-                }
-
-                timerCfg.setSoundVolume(newVolume);
-                VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
-
-                timer.soundVolume = newVolume;
-
-                Map<String, String> replVolume = new HashMap<>();
-                replVolume.put("%TIMER%", timer.getTimerId());
-                replVolume.put("%VOLUME%", String.valueOf(newVolume));
-
-                msgManager.sendConfigMessage(sender, "Messages.timerModifySoundvolume", true, replVolume);
                 return;
             case "sound_pitch":
                 if (args.length < 3) {
@@ -497,28 +398,14 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                timer = TimerManager.getInstance().getTimer();
-                if (timer == null) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
-                    return;
+                boolean spSuccess = VCTActions.modifyTimer("sound_pitch", String.valueOf(newPitch), sender);
+
+                if (spSuccess) {
+                    Map<String, String> repl = new HashMap<>();
+                    repl.put("%TIMER%", timer.getTimerId());
+                    repl.put("%PITCH%", String.valueOf(newPitch));
+                    msgManager.sendConfigMessage(sender, "Messages.timerModifySoundpitch", true, repl);
                 }
-
-                timerCfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(timer.getTimerId());
-                if (timerCfg == null) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerConfigNotFound", true, null);
-                    return;
-                }
-
-                timerCfg.setSoundPitch(newPitch);
-                VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
-
-                timer.soundPitch = newPitch;
-
-                Map<String, String> replPitch = new HashMap<>();
-                replPitch.put("%TIMER%", timer.getTimerId());
-                replPitch.put("%PITCH%", String.valueOf(newPitch));
-
-                msgManager.sendConfigMessage(sender, "Messages.timerModifySoundpitch", true, replPitch);
                 return;
             case "text":
                 if (args.length < 3) {
@@ -539,35 +426,16 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     return;
                 }
 
-                String newText = rawText.trim();
-                if (newText.isEmpty()) {
-                    return;
+                if (rawText.isEmpty()) return;
+
+                boolean textSuccess = VCTActions.modifyTimer("text", rawText, sender);
+
+                if (textSuccess) {
+                    Map<String, String> repl = new HashMap<>();
+                    repl.put("%TIMER%", timer.getTimerId());
+                    repl.put("%TEXT%", rawText);
+                    msgManager.sendConfigMessage(sender, "Messages.timerModifyText", true, repl);
                 }
-
-                timer = TimerManager.getInstance().getTimer();
-                if (timer == null) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerDontExists", true, null);
-                    return;
-                }
-
-                timerCfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(timer.getTimerId());
-                if (timerCfg == null) {
-                    msgManager.sendConfigMessage(sender, "Messages.timerConfigNotFound", true, null);
-                    return;
-                }
-
-                timerCfg.setText(newText);
-                VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
-
-                Timer.refreshTimerText();
-
-                Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.MODIFY, sender));
-                
-                Map<String, String> timerTextRepl = new HashMap<>();
-                timerTextRepl.put("%TIMER%", timer.getTimerId());
-                timerTextRepl.put("%TEXT%", newText);
-
-                msgManager.sendConfigMessage(sender, "Messages.timerModifyText", true, timerTextRepl);
                 return;
         }
         msgManager.sendConfigMessage(sender, "Messages.timerModifyInvalid", true, null);

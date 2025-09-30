@@ -5,14 +5,35 @@ description: "Triggered when a paused timer is resumed."
 
 ## Usage Example
 
-```java
+<CodeGroup>
+
+```java Java Example
 @EventHandler
 public void onVCTEvent(VCTEvent event) {
     if (event.getType() == VCTEventType.RESUME) {
-        Bukkit.broadcastMessage("The timer " + event.getTimerId() + " has resumed!");
+        String timerId = event.getTimerId();
+
+        Bukkit.broadcastMessage("The timer " + timerId + " has resumed!");
     }
 }
 ```
+
+```yaml CE Example
+vct_resume_example:
+  type: custom
+  custom_event_data:
+    event: voiidstudios.vct.api.VCTEvent
+    variables_to_capture:
+    - '%eventType%;getType()'
+    - '%timerId%;getTimerId()'
+  conditions:
+  - '%eventType% == RESUME'
+  actions:
+    default:
+    - 'to_all: actionbar: The timer %timerId% has resumed!;100'
+```
+
+</CodeGroup>
 
 ## Behavior
 

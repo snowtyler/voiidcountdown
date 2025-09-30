@@ -8,7 +8,9 @@ This event provides all the information necessary to react appropriately in your
 
 ## The event itself
 
-```java
+<CodeGroup>
+
+```java Java Event
 import voiidstudios.vct.api.VCTEvent;
 
 // Event called when a timer action is performed
@@ -21,12 +23,32 @@ public void onVCTEvent(VCTEvent event) {
   String timerId = event.getTimerId();
   String timeInitial = event.getInitialTime();
   String timeLeft = event.getTimeLeft();
+  String modifier = event.getModifier(); // Returns null if the event is not MODIFY
+  String modification = event.getModification(); // Returns null if the event is not MODIFY
   
 }
 ```
 
+```yaml CE Event
+vct_event:
+  type: custom
+  custom_event_data:
+    event: voiidstudios.vct.api.VCTEvent
+    variables_to_capture:
+    - '%eventType%;getType()'
+    - '%sender%;getSender()' # It can be a player, the console, or null if it comes from another source, such as a plugin
+    - '%player%;getPlayer()' # Return null if not a player
+    - '%timerId%;getTimerId()'
+    - '%timeInitial%;getInitialTime()'
+    - '%timeLeft%;getTimeLeft()'
+    - '%modifier%;getModifier()' # Returns null if the event is not MODIFY
+    - '%modification%;getModification()' # Returns null if the event is not MODIFY
+```
+
+</CodeGroup>
+
 <Tip>
-  There are plugins such as [Conditional Events](https://www.spigotmc.org/resources/conditionalevents-custom-actions-for-specific-events-1-8-1-21-8.82271/) that support API listening, and you can use them to create great things!
+  There are plugins such as [Conditional Events (CE)](https://www.spigotmc.org/resources/conditionalevents-custom-actions-for-specific-events-1-8-1-21-8.82271/) that support API listening, and you can use them to create great things!
 </Tip>
 
 ## Information available in `VCTEvent`
@@ -53,6 +75,14 @@ public void onVCTEvent(VCTEvent event) {
 
 <ResponseField name="timeLeft" type="String">
   Current remaining timer time in HH:MM:SS format
+</ResponseField>
+
+<ResponseField name="modifier" type="String">
+  The modifier used via `/vct modify` or the API. Returns null if the event is not `MODIFY`.
+</ResponseField>
+
+<ResponseField name="modification" type="String">
+  The modification used via `/vct modify` or the API. Returns null if the event is not `MODIFY`.
 </ResponseField>
 
 ## Available Events

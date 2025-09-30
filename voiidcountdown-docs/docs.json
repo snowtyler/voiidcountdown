@@ -75,6 +75,19 @@
             ]
           }
         ]
+      },
+      {
+        "dropdown": "Changelog",
+        "icon": "history",
+        "groups": [
+          {
+            "group": "Changelog",
+            "pages": [
+              "changelogs/stable",
+              "changelogs/beta"
+            ]
+          }
+        ]
       }
     ]
   },

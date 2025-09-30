@@ -1,6 +1,6 @@
 main: voiidstudios.vct.VoiidCountdownTimer
 name: VoiidCountdownTimer
-version: 2.0.0
+version: 2.0.1
 codename: astro
 authors: [Voiid Studios]
 api-version: 1.13

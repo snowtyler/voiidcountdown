@@ -5,15 +5,38 @@ description: "Triggered when a new timer is created."
 
 ## Usage Example
 
-```java
+<CodeGroup>
+
+```java Java Example
 @EventHandler
 public void onVCTEvent(VCTEvent event) {
     if (event.getType() == VCTEventType.CREATE) {
-        Bukkit.getLogger().info("[MyPlugin] Timer created: " + event.getTimerId());
-        Bukkit.broadcastMessage("The timer " + event.getTimerId() + " has started (" + event.getInitialTime() + ")");
+        String timerId = event.getTimerId();
+        String timeInitial = event.getInitialTime();
+
+        Bukkit.getLogger().info("[MyPlugin] Timer created: " + timerId);
+        Bukkit.broadcastMessage("The timer " + timerId + " has started (" + timeInitial + ")");
     }
 }
 ```
+
+```yaml CE Example
+vct_create_example:
+  type: custom
+  custom_event_data:
+    event: voiidstudios.vct.api.VCTEvent
+    variables_to_capture:
+    - '%eventType%;getType()'
+    - '%timerId%;getTimerId()'
+    - '%timeInitial%;getInitialTime()'
+  conditions:
+  - '%eventType% == CREATE'
+  actions:
+    default:
+    - 'to_all: actionbar: The timer %timerId% has started (%timeInitial%);100'
+```
+
+</CodeGroup>
 
 ## Behavior
 

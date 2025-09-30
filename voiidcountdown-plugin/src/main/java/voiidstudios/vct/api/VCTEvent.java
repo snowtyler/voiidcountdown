@@ -22,12 +22,33 @@ public class VCTEvent extends Event {
     private final Timer timer;
     private final VCTEventType type;
     private final CommandSender sender;
+    private final @Nullable String modifier;
+    private final @Nullable String modification;
 
     public VCTEvent(@Nullable Timer timer, VCTEventType type, @Nullable CommandSender sender) {
         this.timer = timer;
         this.type = type;
         this.sender = sender;
+        this.modifier = null;
+        this.modification = null;
     }
+
+    public VCTEvent(@Nullable Timer timer, VCTEventType type, @Nullable CommandSender sender, @Nullable String modifier) {
+        this.timer = timer;
+        this.type = type;
+        this.sender = sender;
+        this.modifier = modifier;
+        this.modification = null;
+    }
+
+    public VCTEvent(@Nullable Timer timer, VCTEventType type, @Nullable CommandSender sender, @Nullable String modifier, @Nullable String modification) {
+        this.timer = timer;
+        this.type = type;
+        this.sender = sender;
+        this.modifier = modifier;
+        this.modification = modification;
+    }
+
 
     @Nullable
     public Timer getTimer() {
@@ -62,6 +83,16 @@ public class VCTEvent extends Event {
     @Nullable
     public String getTimeLeft() {
         return timer != null ? timer.getTimeLeft() : null;
+    }
+
+    @Nullable
+    public String getModifier() {
+        return modifier;
+    }
+
+    @Nullable
+    public String getModification() {
+        return modification;
     }
 
     @Override
