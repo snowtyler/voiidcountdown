@@ -1,9 +1,14 @@
 package voiidstudios.vct.api;
 
 import org.bukkit.Bukkit;
+import org.bukkit.boss.BarColor;
+import org.bukkit.boss.BarStyle;
 import org.bukkit.command.CommandSender;
 import org.jetbrains.annotations.Nullable;
 
+import voiidstudios.vct.VoiidCountdownTimer;
+import voiidstudios.vct.configs.model.TimerConfig;
+import voiidstudios.vct.managers.MessagesManager;
 import voiidstudios.vct.managers.TimerManager;
 import voiidstudios.vct.utils.TimerDefaults;
 
@@ -58,20 +63,104 @@ public class VCTActions {
         TimerManager.getInstance().deleteTimer(sender);
     }
 
-    public static boolean modifyTimer(String action, String timeHHMMSS, @Nullable CommandSender sender) {
-        Timer timer = TimerManager.getInstance().getTimer();
-        int seconds = helper_parseTimeToSeconds(timeHHMMSS);
-        if (timer == null || seconds <= 0) return false;
+    public static boolean modifyTimer(String action, String value, @Nullable CommandSender sender) {
+        MessagesManager msgManager = VoiidCountdownTimer.getMessagesManager();
 
-        if ("add".equalsIgnoreCase(action)) {
-            timer.add(seconds);
-        } else if ("set".equalsIgnoreCase(action)) {
-            timer.set(seconds);
-        } else if ("take".equalsIgnoreCase(action)) {
-            timer.take(seconds);
+        Timer timer = TimerManager.getInstance().getTimer();
+        if (timer == null || action == null || action.isEmpty() || value.isEmpty()) return false;
+
+        TimerConfig timerCfg = VoiidCountdownTimer.getConfigsManager().getTimerConfig(timer.getTimerId());
+        if (timerCfg == null) {
+            if(sender != null) {
+                msgManager.sendConfigMessage(sender, "Messages.timerConfigNotFound", true, null);
+            }
+            return false;
         }
 
-        Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.MODIFY, sender));
+        switch (action.toLowerCase()) {
+            case "add":
+                int addSeconds = helper_parseTimeToSeconds(value);
+                if (addSeconds <= 0) return false;
+                timer.add(addSeconds);
+                break;
+            case "set":
+                int setSeconds = helper_parseTimeToSeconds(value);
+                if (setSeconds <= 0) return false;
+                timer.set(setSeconds);
+                break;
+            case "take":
+                int takeSeconds = helper_parseTimeToSeconds(value);
+                if (takeSeconds <= 0) return false;
+                timer.take(takeSeconds);
+                break;
+            case "bossbar_color":
+                try {
+                    BarColor color = BarColor.valueOf(value.toUpperCase(java.util.Locale.ROOT));
+                    timer.setBossBarColor(color);
+                    timerCfg.setColor(color);
+                    VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
+                    Timer.refreshTimerText();
+                } catch (IllegalArgumentException e) {
+                    return false;
+                }
+                break;
+            case "bossbar_style":
+                try {
+                    BarStyle style = BarStyle.valueOf(value.toUpperCase(java.util.Locale.ROOT));
+                    timer.setBossBarStyle(style);
+                    timerCfg.setStyle(style);
+                    VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
+                    Timer.refreshTimerText();
+                } catch (IllegalArgumentException e) {
+                    return false;
+                }
+                break;
+            case "sound":
+                timerCfg.setSound(value);
+                VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
+                Timer.refreshTimerText();
+                break;
+            case "sound_enable":
+                if (!value.equalsIgnoreCase("true") && !value.equalsIgnoreCase("false")) return false;
+                boolean enabled = Boolean.parseBoolean(value);
+                timerCfg.setSoundEnabled(enabled);
+                VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
+                Timer.refreshTimerText();
+                break;
+            case "sound_volume":
+                float vol;
+                try {
+                    vol = Float.parseFloat(value);
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (vol < 0.1f || vol > 2.0f) return false;
+                timerCfg.setSoundVolume(vol);
+                VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
+                timer.soundVolume = vol;
+                break;
+            case "sound_pitch":
+                float pitch;
+                try {
+                    pitch = Float.parseFloat(value);
+                } catch (NumberFormatException e) {
+                    return false;
+                }
+                if (pitch < 0.1f || pitch > 2.0f) return false;
+                timerCfg.setSoundPitch(pitch);
+                VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
+                timer.soundPitch = pitch;
+                break;
+            case "text":
+                timerCfg.setText(value);
+                VoiidCountdownTimer.getConfigsManager().saveTimerConfig(timerCfg);
+                Timer.refreshTimerText();
+                break;
+            default:
+                return false;
+        }
+
+        Bukkit.getPluginManager().callEvent(new VCTEvent(timer, VCTEvent.VCTEventType.MODIFY, sender, action.toUpperCase(), value));
         return true;
     }
 
@@ -79,7 +168,7 @@ public class VCTActions {
         return TimerManager.getInstance().getTimer();
     }
 
-    // Same functions — Without sender
+    // Same functions — Without optionals
     public static Timer createTimer(String timeHHMMSS, String timerId) {
         return createTimer(timeHHMMSS, timerId, null);
     }
@@ -96,8 +185,8 @@ public class VCTActions {
         stopTimer(null);
     }
 
-    public static boolean modifyTimer(String action, String timeHHMMSS) {
-        return modifyTimer(action, timeHHMMSS, null);
+    public static boolean modifyTimer(String action, String value) {
+        return modifyTimer(action, value, null);
     }
 
     // Helpers

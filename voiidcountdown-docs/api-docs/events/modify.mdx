@@ -5,19 +5,44 @@ description: "Triggered when the remaining time of a timer is modified."
 
 ## Usage Example
 
-```java
+<CodeGroup>
+
+```java Java Example
 @EventHandler
 public void onVCTEvent(VCTEvent event) {
     if (event.getType() == VCTEventType.MODIFY) {
-        Bukkit.broadcastMessage("Timer " + event.getTimerId() + " was modified! New time: " + event.getTimeLeft());
+        String timerId = event.getTimerId();
+        String modifier = event.getModifier();
+        String modification = event.getModification();
+
+        Bukkit.broadcastMessage("Timer " + timerId + " was modified! | Modifier: " + modifier + " | Modification: " + modification);
     }
 }
 ```
 
+```yaml CE Example
+vct_modify_example:
+  type: custom
+  custom_event_data:
+    event: voiidstudios.vct.api.VCTEvent
+    variables_to_capture:
+    - '%eventType%;getType()'
+    - '%timerId%;getTimerId()'
+    - '%modifier%;getModifier()'
+    - '%modification%;getModification()'
+  conditions:
+  - '%eventType% == MODIFY'
+  actions:
+    default:
+    - 'to_all: actionbar: Timer %timerId% was modified! | Modifier: %modifier% | Modification: %modification%;200'
+```
+
+</CodeGroup>
+
 ## Behavior
 
 * Fired when the timer is modified with `/vct modify` or the API.
-* The event provides the **new remaining time** after the modification.
+* The event provides the modifier and the modification.
 
 ## Parameters
 

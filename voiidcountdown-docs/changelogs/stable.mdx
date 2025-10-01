@@ -1,0 +1,69 @@
+---
+title: "Stable Updates"
+description: "New stable releases and improvements for Voiid Countdown Timer plugin"
+rss: true
+noindex: true
+---
+
+As always, if any bugs come up, [open an issue](https://github.com/Voiid-Studios/voiidcountdown/issues) to let us know!
+
+❤️ Support the project on [Ko-fi](https://ko-fi.com/maxxvoiid) :)
+
+<Update label="September 30" tags={["Features", "Improvements", "Bug fixes", "Documentation", "Compatibility"]}>
+
+## Plugin v2.0.1 (Astro)
+
+**_A small patch, but you'll like it :3_**
+
+Compatible with Bukkit, Spigot, Paper & Purpur. For Minecraft Java 1.13 - 1.20.9.
+
+## Compatibility
+
+- Updated compatibility to Minecraft 1.20.9.
+
+## New Features
+
+- Added all missing modifiers for `VCTActions`:
+  - `bossbar_color`, `bossbar_style`, `sound`, `sound_enable`, `sound_volume`, `sound_pitch`, `text`
+- Added the ability to track which modification was applied via `VCTEvents` using the `MODIFY` event.
+
+## Improvements
+
+- Redesigned the VCT logo for better display on all platforms.
+- Improved API documentation with examples for the `VCTEvents` with Conditional Events plugin.
+- Refactored the main command for cleaner and easier-to-read code.
+
+## Bug fixes
+
+- Fixed the help message to correctly include `/vct modify` and all relevant modifiers.
+- Fixed the wiki by removing unnecessary pages and cleaning up outdated content.
+
+</Update>
+
+<Update label="September 27" tags={["New release", "Features", "Improvements", "Bug fixes", "Documentation", "Deprecations"]}>
+
+## Plugin v2.0.0 (Astro)
+
+**_A small update, thank you for your support... nah, just kidding, we made a LOT of changes to the wiki ;)_**
+
+Compatible with Bukkit, Spigot, Paper & Purpur. For Minecraft Java 1.13 - 1.20.8.
+
+## Major release: Bossbar upgrades & new wiki
+
+- Added multiple bossbar segment styles so you can customize countdown displays even more.
+- Migrated the entire wiki to a new service with a cleaner structure.
+
+## Improvements
+
+- Codebase polished and cleaned up for better readability and long-term maintenance.
+- Renamed `VCTAPI` to `VCTActions` for clearer differentiation.
+
+<Warning>
+  `VCTAPI` is now deprecated. Update your integrations before version 2.1.0.
+</Warning>
+
+## Bug fixes
+
+- Fixed an issue where the `FINISH` event was not triggered correctly.
+
+</Update>

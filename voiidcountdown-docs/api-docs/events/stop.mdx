@@ -5,14 +5,35 @@ description: "Triggered when a timer is stopped manually."
 
 ## Usage Example
 
-```java
+<CodeGroup>
+
+```java Java Example
 @EventHandler
 public void onVCTEvent(VCTEvent event) {
     if (event.getType() == VCTEventType.STOP) {
-        Bukkit.broadcastMessage("The timer " + event.getTimerId() + " has been stopped!");
+        String timerId = event.getTimerId();
+
+        Bukkit.broadcastMessage("The timer " + timerId + " has been stopped!");
     }
 }
 ```
+
+```yaml CE Example
+vct_stop_example:
+  type: custom
+  custom_event_data:
+    event: voiidstudios.vct.api.VCTEvent
+    variables_to_capture:
+    - '%eventType%;getType()'
+    - '%timerId%;getTimerId()'
+  conditions:
+  - '%eventType% == STOP'
+  actions:
+    default:
+    - 'to_all: actionbar: The timer %timerId% has been stopped!;100'
+```
+
+</CodeGroup>
 
 ## Behavior
 

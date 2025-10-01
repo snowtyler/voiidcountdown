@@ -5,15 +5,35 @@ description: "Triggered every second while the timer is counting down."
 
 ## Usage Example
 
-```java
+<CodeGroup>
+
+```java Java Example
 @EventHandler
 public void onVCTEvent(VCTEvent event) {
     if (event.getType() == VCTEventType.CHANGE) {
-        String left = event.getTimeLeft();
-        Bukkit.broadcastMessage("Time left: " + left);
+        String timeLeft = event.getTimeLeft();
+        
+        Bukkit.broadcastMessage("Time left: " + timeLeft);
     }
 }
 ```
+
+```yaml CE Example
+vct_change_example:
+  type: custom
+  custom_event_data:
+    event: voiidstudios.vct.api.VCTEvent
+    variables_to_capture:
+    - '%eventType%;getType()'
+    - '%timeLeft%;getTimeLeft()'
+  conditions:
+  - '%eventType% == CHANGE'
+  actions:
+    default:
+    - 'to_all: actionbar: Time left %timeLeft%;20'
+```
+
+</CodeGroup>
 
 ## Behavior
 

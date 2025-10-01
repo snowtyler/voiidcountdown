@@ -5,14 +5,35 @@ description: "Triggered when a timer reaches 00:00:00."
 
 ## Usage Example
 
-```java
+<CodeGroup>
+
+```java Java Example
 @EventHandler
 public void onVCTEvent(VCTEvent event) {
     if (event.getType() == VCTEventType.FINISH) {
-        Bukkit.getLogger().info("[MyPlugin] Timer finished: " + event.getTimerId());
+        String timerId = event.getTimerId();
+
+        Bukkit.getLogger().info("[MyPlugin] Timer finished: " + timerId);
     }
 }
 ```
+
+```yaml CE Example
+vct_finish_example:
+  type: custom
+  custom_event_data:
+    event: voiidstudios.vct.api.VCTEvent
+    variables_to_capture:
+    - '%eventType%;getType()'
+    - '%timerId%;getTimerId()'
+  conditions:
+  - '%eventType% == FINISH'
+  actions:
+    default:
+    - 'to_all: actionbar: Timer finished %timerId%;100'
+```
+
+</CodeGroup>
 
 ## Behavior
 
