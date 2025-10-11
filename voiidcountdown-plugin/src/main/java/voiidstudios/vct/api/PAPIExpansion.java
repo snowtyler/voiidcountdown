@@ -19,8 +19,14 @@ public class PAPIExpansion extends PlaceholderExpansion {
 
     // %vct_timer_hhmmss:<timer_id>% - Get the hours, minutes and seconds (00:00:00) of the timer
     // %vct_timer_hh:<timer_id>% - Get the hours (00) of the timer
+    // %vct_timer_h1:<timer_id>% - Get the first digit of the timer hours (0)
+    // %vct_timer_h2:<timer_id>% - Get the second digit of the timer hours (0)
     // %vct_timer_mm:<timer_id>% - Get the minutes (00) of the timer
+    // %vct_timer_m1:<timer_id>% - Get the first digit of the timer minutes (0)
+    // %vct_timer_m2:<timer_id>% - Get the second digit of the timer minutes (0)
     // %vct_timer_ss:<timer_id>% - Get the seconds (00) of the timer
+    // %vct_timer_s1:<timer_id>% - Get the first digit of the timer seconds (0)
+    // %vct_timer_s2:<timer_id>% - Get the second digit of the timer seconds (0)
 
     // %vct_timer_active:<timer_id>% - Return 'true' or 'false' if the timer is active (THERE IS A TIMER).
     // %vct_timer_running:<timer_id>% - Return 'true' or 'false' if the timer is running (NOT PAUSED).
@@ -57,10 +63,22 @@ public class PAPIExpansion extends PlaceholderExpansion {
                 return getTimerValueHHMMSS(id);
             case "timer_hh":
                 return getTimerValueHH(id);
+            case "timer_h1":
+                return getTimerValueH1(id);
+            case "timer_h2":
+                return getTimerValueH2(id);
             case "timer_mm":
                 return getTimerValueMM(id);
+            case "timer_m1":
+                return getTimerValueM1(id);
+            case "timer_m2":
+                return getTimerValueM2(id);
             case "timer_ss":
                 return getTimerValueSS(id);
+            case "timer_s1":
+                return getTimerValueS1(id);
+            case "timer_s2":
+                return getTimerValueS2(id);
             case "timer_active":
                 return isTimerActive(id);
             case "timer_running":
@@ -102,6 +120,22 @@ public class PAPIExpansion extends PlaceholderExpansion {
         return cfg != null ? "00" : null;
     }
 
+    private String getTimerValueH1(String id) {
+        Timer t = getActiveTimerIfMatches(id);
+        if (t != null) return t.getTimeLeftHHDigit1();
+
+        TimerConfig cfg = getConfigIfExists(id);
+        return cfg != null ? "0" : null;
+    }
+
+    private String getTimerValueH2(String id) {
+        Timer t = getActiveTimerIfMatches(id);
+        if (t != null) return t.getTimeLeftHHDigit2();
+
+        TimerConfig cfg = getConfigIfExists(id);
+        return cfg != null ? "0" : null;
+    }
+
     private String getTimerValueMM(String id) {
         Timer t = getActiveTimerIfMatches(id);
         if (t != null) return t.getTimeLeftMM();
@@ -110,12 +144,44 @@ public class PAPIExpansion extends PlaceholderExpansion {
         return cfg != null ? "00" : null;
     }
 
+    private String getTimerValueM1(String id) {
+        Timer t = getActiveTimerIfMatches(id);
+        if (t != null) return t.getTimeLeftMMDigit1();
+
+        TimerConfig cfg = getConfigIfExists(id);
+        return cfg != null ? "0" : null;
+    }
+
+    private String getTimerValueM2(String id) {
+        Timer t = getActiveTimerIfMatches(id);
+        if (t != null) return t.getTimeLeftMMDigit2();
+
+        TimerConfig cfg = getConfigIfExists(id);
+        return cfg != null ? "0" : null;
+    }
+
     private String getTimerValueSS(String id) {
         Timer t = getActiveTimerIfMatches(id);
         if (t != null) return t.getTimeLeftSS();
 
         TimerConfig cfg = getConfigIfExists(id);
         return cfg != null ? "00" : null;
+    }
+
+    private String getTimerValueS1(String id) {
+        Timer t = getActiveTimerIfMatches(id);
+        if (t != null) return t.getTimeLeftSSDigit1();
+
+        TimerConfig cfg = getConfigIfExists(id);
+        return cfg != null ? "0" : null;
+    }
+
+    private String getTimerValueS2(String id) {
+        Timer t = getActiveTimerIfMatches(id);
+        if (t != null) return t.getTimeLeftSSDigit2();
+
+        TimerConfig cfg = getConfigIfExists(id);
+        return cfg != null ? "0" : null;
     }
 
     private String isTimerActive(String id) {

@@ -8,6 +8,12 @@ The plugin has some integrations to expand its actions. The available integratio
 
 ## 1. PlaceholderAPI
 
+<Note>
+  This integration requires the PlaceholderAPI plugin to be on the server.
+
+  https://www.spigotmc.org/resources/placeholderapi.6245/
+</Note>
+
 PlaceholderAPI integration is supported to obtain timer information with placeholders.
 
 | Placeholder                      | Description                                                 |
@@ -16,6 +22,12 @@ PlaceholderAPI integration is supported to obtain timer information with placeho
 | `%vct_timer_hh:<timer_id>%`      | Get the hours (00) of the timer.                            |
 | `%vct_timer_mm:<timer_id>%`      | Get the minutes (00) of the timer.                          |
 | `%vct_timer_ss:<timer_id>%`      | Get the seconds (00) of the timer.                          |
+| `%vct_timer_h1:<timer_id>%`      | Get the first digit of the timer hours (0).                 |
+| `%vct_timer_h2:<timer_id>%`      | Get the second digit of the timer hours (0).                |
+| `%vct_timer_m1:<timer_id>%`      | Get the first digit of the timer minutes (0).               |
+| `%vct_timer_m2:<timer_id>%`      | Get the second digit of the timer minutes (0).              |
+| `%vct_timer_s1:<timer_id>%`      | Get the first digit of the timer seconds (0).               |
+| `%vct_timer_s2:<timer_id>%`      | Get the second digit of the timer seconds (0).              |
 | `%vct_timer_active:<timer_id>%`  | Return 'true' or 'false' if the timer is active.            |
 | `%vct_timer_running:<timer_id>%` | Return 'true' or 'false' if the timer is running.           |
 | `%vct_timer_paused:<timer_id>%`  | Return 'true' or 'false' if the timer is paused.            |

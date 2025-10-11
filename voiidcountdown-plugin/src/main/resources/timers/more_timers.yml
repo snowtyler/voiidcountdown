@@ -1,6 +1,6 @@
 Timers:
   timer_2:
-    text: "<blue>I'm the Timer 2 :D (%HH%:%MM%:%SS%)</blue>"
+    text: "<blue>I'm the Timer 2 :D (%M1% %M2% : %S1% %S2%)</blue>"
     sound: UI_BUTTON_CLICK
     sound_volume: 0.5
     sound_pitch: 1.5
