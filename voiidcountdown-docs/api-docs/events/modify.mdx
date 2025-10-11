@@ -1,6 +1,6 @@
 ---
 title: "MODIFY"
-description: "Triggered when the remaining time of a timer is modified."
+description: "Triggered when a timer is modified."
 ---
 
 ## Usage Example
@@ -19,6 +19,7 @@ public void onVCTEvent(VCTEvent event) {
     }
 }
 ```
+
 
 ```yaml CE Example
 vct_modify_example:
@@ -41,15 +42,15 @@ vct_modify_example:
 
 ## Behavior
 
-* Fired when the timer is modified with `/vct modify` or the API.
-* The event provides the modifier and the modification.
+- Fired when the timer is modified with `/vct modify` or the API.
+- The event provides the modifier and the modification.
 
 ## Parameters
 
 <ResponseField name="event" type="VCTEvent">
-  Represents the event. Useful getters:  
+  Represents the event. Useful getters:
 
-* `String getTimerId()` — ID of the modified timer
-* `String getTimeLeft()` — the new remaining time in HH:MM:SS
-
+  - `String getTimerId()` — ID of the modified timer
+  - `String getModifier()` — the type of modification that was made
+  - `String getModification()` — the new remaining time in HH:MM:SS
 </ResponseField>

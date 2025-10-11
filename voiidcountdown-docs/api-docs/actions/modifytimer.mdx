@@ -1,12 +1,12 @@
 ---
 title: ".modifyTimer()"
-description: "Modify an existing timer by adding, taking, or setting a specific amount of time."
+description: "Modify the currently active timer."
 ---
 
 ## Usage Example
 
-```java
-//// VCTActions.modifyTimer(modifier, timeHHMMSS, sender?) ////
+```java expandable
+//// VCTActions.modifyTimer(modifier, value, sender?) ////
 
 // Add 5 minutes to the timer
 boolean success = VCTActions.modifyTimer("add", "00:05:00");
@@ -16,6 +16,27 @@ boolean success = VCTActions.modifyTimer("take", "00:02:00");
 
 // Set the timer to 10 minutes exactly
 boolean success = VCTActions.modifyTimer("set", "00:10:00");
+
+// Change the BossBar color
+boolean success = VCTActions.modifyTimer("bossbar_color", "RED");
+
+// Change the BossBar style
+boolean success = VCTActions.modifyTimer("bossbar_style", "SEGMENTED_10");
+
+// Change the timer's display text
+boolean success = VCTActions.modifyTimer("text", "&aTime left:&f %M1% %M2% : %S1% %S2%");
+
+// Change the sound used when the timer updates
+boolean success = VCTActions.modifyTimer("sound", "ENTITY_EXPERIENCE_ORB_PICKUP");
+
+// Enable or disable sound playback
+boolean success = VCTActions.modifyTimer("sound_enable", "true");
+
+// Adjust sound volume (0.1 - 2.0)
+boolean success = VCTActions.modifyTimer("sound_volume", "1.0");
+
+// Adjust sound pitch (0.1 - 2.0)
+boolean success = VCTActions.modifyTimer("sound_pitch", "1.5");
 ```
 
 ## Behavior
@@ -23,26 +44,42 @@ boolean success = VCTActions.modifyTimer("set", "00:10:00");
 - The method requires that a **timer already exists**.
   - If no active timer is found, the method will fail and return `false`.
 - Available actions (`modifier`):
-  - `"add"` — increases the current remaining time.
-  - `"take"` — decreases the current remaining time (cannot go below `00:00:00`).
-  - `"set"` — overrides the timer with the new exact time.
+
+  | Modifier          | Description                                                                                                                        |
+  | ----------------- | ---------------------------------------------------------------------------------------------------------------------------------- |
+  | `"add"`           | Adds time to the current timer (`HH:MM:SS` format).                                                                                |
+  | `"take"`          | Subtracts time from the timer (`HH:MM:SS` format, not below `00:00:00`).                                                           |
+  | `"set"`           | Sets the timer to an exact duration.                                                                                               |
+  | `"bossbar_color"` | Changes the BossBar’s color. Must be a valid [`BarColor`](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/boss/BarColor.html). |
+  | `"bossbar_style"` | Changes the BossBar’s style. Must be a valid [`BarStyle`](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/boss/BarStyle.html). |
+  | `"text"`          | Updates the BossBar’s displayed text. Color codes (`&`) are supported.                                                             |
+  | `"sound"`         | Sets the name of the sound effect used. Must be a valid sound identifier.                                                          |
+  | `"sound_enable"`  | Enables or disables sound (`"true"` / `"false"`).                                                                                  |
+  | `"sound_volume"`  | Sets the sound volume (`float` between `0.1` and `2.0`).                                                                           |
+  | `"sound_pitch"`   | Sets the sound pitch (`float` between `0.1` and `2.0`).                                                                            |
+
 - When modified:
-  - The timer’s will automatically refresh to reflect the new value. This does NOT mean deleting and creating a new timer with the same style.
+  - The BossBar and other settings update **in real time**.
   - The `MODIFY` event is triggered.
+  - Config changes (color, style, sound, etc.) are persisted to the timer’s config file.
 
 ## Parameters
 
 <ResponseField name="modifier" type="string" required>
-  Action to apply to the timer.
+  Action to perform on the timer.
 
-  The available actions are `"add"`, `"take"`, and `"set"`
+  The available actions are `"add"`, `"take"`, `"set"`, `"bossbar_color"`, `"bossbar_style"`, `"text"`, `"sound"`, `"sound_enable"`, `"sound_volume"`, `"sound_pitch"`.
 </ResponseField>
 
-<ResponseField name="timeHHMMSS" type="string" required>
-  The time in HH:MM:SS format.
-
-  - Example: “00:05:30” (5 minutes, 30 seconds)
-  - If the value is “00:00:00” or does not comply with the format, the modify will fail.
+<ResponseField name="value" type="string" required>
+  The new value to apply for the chosen modifier.  
+  - For time modifiers: `HH:MM:SS` (e.g. `"00:05:30"`)
+  - For BossBar color: any valid [BarColor](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/boss/BarColor.html)
+  - For BossBar style: any valid [BarStyle](https://hub.spigotmc.org/javadocs/spigot/org/bukkit/boss/BarStyle.html)
+  - For sound settings: depends on the modifier
+    - `sound`: valid sound name (vanilla or custom)
+    - `sound_enable`: `"true"` or `"false"`
+    - `sound_volume` / `sound_pitch`: float between `0.1` and `2.0`
 </ResponseField>
 
 <ResponseField name="sender" type="CommandSender">
@@ -57,6 +94,6 @@ boolean success = VCTActions.modifyTimer("set", "00:10:00");
 <ResponseField name="success" type="boolean">
   Indicates whether the operation succeeded.
 
-  - `true` — a timer exists and the modification was applied successfully.
-  - `false` — no active timer exists, or the provided parameters were invalid.
+  - `true` — Timer exists and modification applied successfully.
+  - `false` — Invalid parameters or no active timer.
 </ResponseField>

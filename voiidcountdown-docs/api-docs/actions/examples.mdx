@@ -95,7 +95,7 @@ public class ResumeTimerCommand implements CommandExecutor {
 ### Example 4 — Add time dynamically (`/addtime <minutes>`)
 
 ```java expandable
-import voiidstudios.vct.api.VCTAPI;
+import voiidstudios.vct.api.VCTActions;
 
 public class AddTimeCommand implements CommandExecutor {
 
@@ -113,7 +113,7 @@ public class AddTimeCommand implements CommandExecutor {
         String minutes = args[0];
         String formatted = "00:" + (minutes.length() == 1 ? "0" + minutes : minutes) + ":00";
 
-        boolean success = VCTAPI.modifyTimer("add", formatted, sender);
+        boolean success = VCTActions.modifyTimer("add", formatted, sender);
 
         if (success) {
             sender.sendMessage("Added " + minutes + " minutes to the timer!");

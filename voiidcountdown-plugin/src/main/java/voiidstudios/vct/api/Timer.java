@@ -59,7 +59,13 @@ public class Timer implements Runnable {
         return this.timerText
                 .replace("%HH%", formatTimeHH(this.seconds))
                 .replace("%MM%", formatTimeMM(this.seconds))
-                .replace("%SS%", formatTimeSS(this.seconds));
+                .replace("%SS%", formatTimeSS(this.seconds))
+                .replace("%H1%", getTimeLeftHHDigit1())
+                .replace("%H2%", getTimeLeftHHDigit2())
+                .replace("%M1%", getTimeLeftMMDigit1())
+                .replace("%M2%", getTimeLeftMMDigit2())
+                .replace("%S1%", getTimeLeftSSDigit1())
+                .replace("%S2%", getTimeLeftSSDigit2());
     }
 
     public static void playSound(Player player, String actionLine) {
@@ -167,10 +173,7 @@ public class Timer implements Runnable {
                         if (refreshCounter >= Timer.this.refreshInterval) {
                             refreshCounter = 0;
 
-                            String rawText = Timer.this.timerText
-                                    .replace("%HH%", Timer.this.formatTimeHH(Timer.this.seconds))
-                                    .replace("%MM%", Timer.this.formatTimeMM(Timer.this.seconds))
-                                    .replace("%SS%", Timer.this.formatTimeSS(Timer.this.seconds));
+                            String rawText = Timer.this.getTimertextFormated();
 
                             String phasesText = VoiidCountdownTimer.getPhasesManager().formatPhases(rawText);
 
@@ -243,6 +246,11 @@ public class Timer implements Runnable {
         this.seconds = seconds;
     }
 
+    private String[] splitDigits(String value) {
+        if (value == null || value.length() < 2) return new String[]{"0", "0"};
+        return new String[]{String.valueOf(value.charAt(0)), String.valueOf(value.charAt(1))};
+    }
+
     private String formatTime(long time) {
         long hours = time / 3600L;
         long minutes = time % 3600L / 60L;
@@ -281,12 +289,36 @@ public class Timer implements Runnable {
         return formatTimeHH(this.seconds);
     }
 
+    public String getTimeLeftHHDigit1() {
+        return splitDigits(formatTimeHH(this.seconds))[0];
+    }
+
+    public String getTimeLeftHHDigit2() {
+        return splitDigits(formatTimeHH(this.seconds))[1];
+    }
+
     public String getTimeLeftMM() {
         return formatTimeMM(this.seconds);
     }
 
+    public String getTimeLeftMMDigit1() {
+        return splitDigits(formatTimeMM(this.seconds))[0];
+    }
+
+    public String getTimeLeftMMDigit2() {
+        return splitDigits(formatTimeMM(this.seconds))[1];
+    }
+
     public String getTimeLeftSS() {
         return formatTimeSS(this.seconds);
+    }
+
+    public String getTimeLeftSSDigit1() {
+        return splitDigits(formatTimeSS(this.seconds))[0];
+    }
+
+    public String getTimeLeftSSDigit2() {
+        return splitDigits(formatTimeSS(this.seconds))[1];
     }
 
     public boolean isActive() {
