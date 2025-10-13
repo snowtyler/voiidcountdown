@@ -130,7 +130,7 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         if(!result.isError()){
             String latestVersion = result.getLatestVersion();
             if(latestVersion != null){
-                Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage("&aAn update for Voiid Countdown Timer &e("+latestVersion+") &ais available."));
+                Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage("&aAn stable update for Voiid Countdown Timer &e("+latestVersion+") &ais available."));
                 Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage("&aYou can download it at: &fhttps://modrinth.com/datapack/voiid-countdown-timer"));
             }
         }else{
