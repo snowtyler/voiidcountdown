@@ -84,7 +84,7 @@
             "group": "Changelog",
             "pages": [
               "changelogs/stable",
-              "changelogs/beta"
+              "changelogs/experimental"
             ]
           }
         ]
@@ -92,11 +92,16 @@
     ]
   },
   "navbar": {
-    "primary": {
-      "type": "button",
-      "label": "Problems? Get help on GitHub", 
-      "href": "https://github.com/Voiid-Studios/voiidcountdown/issues"
-    }
+    "links": [
+      {
+        "label": "Sponsor this project on Ko-fi",
+        "href": "https://ko-fi.com/maxxvoiid"
+      },
+      {
+        "label": "Problems? Get help on GitHub",
+        "href": "https://github.com/Voiid-Studios/voiidcountdown/issues"
+      }
+    ]
   },
   "logo": {
     "light": "/images/logo.png",
