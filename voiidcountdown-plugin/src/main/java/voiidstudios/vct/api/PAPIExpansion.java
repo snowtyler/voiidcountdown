@@ -17,10 +17,11 @@ public class PAPIExpansion extends PlaceholderExpansion {
         this.plugin = plugin;
     }
 
-    // %vct_timer_hhmmss:<timer_id>% - Get the hours, minutes and seconds (00:00:00) of the timer
-    // %vct_timer_hh:<timer_id>% - Get the hours (00) of the timer
+    // %vct_timer_hhmmss:<timer_id>% - Get the hours, minutes and seconds (000:00:00) of the timer
+    // %vct_timer_hh:<timer_id>% - Get the hours (000) of the timer
     // %vct_timer_h1:<timer_id>% - Get the first digit of the timer hours (0)
     // %vct_timer_h2:<timer_id>% - Get the second digit of the timer hours (0)
+    // %vct_timer_h3:<timer_id>% - Get the third digit of the timer hours (0)
     // %vct_timer_mm:<timer_id>% - Get the minutes (00) of the timer
     // %vct_timer_m1:<timer_id>% - Get the first digit of the timer minutes (0)
     // %vct_timer_m2:<timer_id>% - Get the second digit of the timer minutes (0)
@@ -67,6 +68,8 @@ public class PAPIExpansion extends PlaceholderExpansion {
                 return getTimerValueH1(id);
             case "timer_h2":
                 return getTimerValueH2(id);
+            case "timer_h3":
+                return getTimerValueH3(id);
             case "timer_mm":
                 return getTimerValueMM(id);
             case "timer_m1":
@@ -131,6 +134,14 @@ public class PAPIExpansion extends PlaceholderExpansion {
     private String getTimerValueH2(String id) {
         Timer t = getActiveTimerIfMatches(id);
         if (t != null) return t.getTimeLeftHHDigit2();
+
+        TimerConfig cfg = getConfigIfExists(id);
+        return cfg != null ? "0" : null;
+    }
+
+    private String getTimerValueH3(String id) {
+        Timer t = getActiveTimerIfMatches(id);
+        if (t != null) return t.getTimeLeftHHDigit3();
 
         TimerConfig cfg = getConfigIfExists(id);
         return cfg != null ? "0" : null;

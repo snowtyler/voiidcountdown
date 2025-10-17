@@ -446,7 +446,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix +"&7Running &dVoiid Countdown Timer &ev"+VoiidCountdownTimer.getInstance().getDescription().getVersion()));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct help &7- Shows this message."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct reload &7- Reloads the config."));
-        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct set &e<HH:MM:SS> &7- Set the timer."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct set &e<HHH:MM:SS> &7- Set the timer (hours can be 1-3 digits, max 999:59:59)."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct pause &7- Pause the timer."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct resume &7- Resume the timer."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct stop &7- Stop the timer."));
@@ -479,7 +479,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     subcommands.add("sound_enable");subcommands.add("sound_volume");
                     subcommands.add("sound_pitch");subcommands.add("text");
                 }else if(args[0].equalsIgnoreCase("set")){
-                    subcommands.add("<HH:MM:SS>");
+                    subcommands.add("<HHH:MM:SS>");
                 }
 
                 for(String c : subcommands) {
@@ -511,7 +511,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     }else if(args[1].equalsIgnoreCase("text")){
                         subcommands.add("<\"text in quotes\">");
                     }else if(args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("set") || args[1].equalsIgnoreCase("take")){
-                        subcommands.add("<HH:MM:SS>");
+                        subcommands.add("<HHH:MM:SS>");
                     }
                 } else if(args[0].equalsIgnoreCase("set")){
                     return getTimersCompletions(args, 2, true);

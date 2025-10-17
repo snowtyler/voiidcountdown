@@ -23,7 +23,8 @@ public class Timer implements Runnable {
     private String timerText;
     private int initialSeconds;
     private int refreshInterval;
-    private final int maxValue = 359999;
+    // Allow up to 999:59:59 (3-digit hours)
+    private final int maxValue = 3599999;
     private final int minValue = 0;
     private final String timerId;
 
@@ -62,6 +63,7 @@ public class Timer implements Runnable {
                 .replace("%SS%", formatTimeSS(this.seconds))
                 .replace("%H1%", getTimeLeftHHDigit1())
                 .replace("%H2%", getTimeLeftHHDigit2())
+                .replace("%H3%", getTimeLeftHHDigit3())
                 .replace("%M1%", getTimeLeftMMDigit1())
                 .replace("%M2%", getTimeLeftMMDigit2())
                 .replace("%S1%", getTimeLeftSSDigit1())
@@ -247,8 +249,14 @@ public class Timer implements Runnable {
     }
 
     private String[] splitDigits(String value) {
-        if (value == null || value.length() < 2) return new String[]{"0", "0"};
-        return new String[]{String.valueOf(value.charAt(0)), String.valueOf(value.charAt(1))};
+        if (value == null || value.length() < 2) return new String[]{"0", "0", "0"};
+        if (value.length() == 2) return new String[]{String.valueOf(value.charAt(0)), String.valueOf(value.charAt(1)), "0"};
+        // For 3+ digit values, return first 3 digits
+        return new String[]{
+            String.valueOf(value.charAt(0)),
+            String.valueOf(value.charAt(1)),
+            value.length() >= 3 ? String.valueOf(value.charAt(2)) : "0"
+        };
     }
 
     private String formatTime(long time) {
@@ -295,6 +303,10 @@ public class Timer implements Runnable {
 
     public String getTimeLeftHHDigit2() {
         return splitDigits(formatTimeHH(this.seconds))[1];
+    }
+
+    public String getTimeLeftHHDigit3() {
+        return splitDigits(formatTimeHH(this.seconds))[2];
     }
 
     public String getTimeLeftMM() {

@@ -191,7 +191,8 @@ public class VCTActions {
 
     // Helpers
     public static int helper_parseTimeToSeconds(String hhmmss) {
-        if (hhmmss == null || !hhmmss.matches("\\d{1,2}:\\d{2}:\\d{2}")) return -1;
+        // Allow up to 3 digits for hours (supports 0-999 hours)
+        if (hhmmss == null || !hhmmss.matches("\\d{1,3}:\\d{2}:\\d{2}")) return -1;
         String[] parts = hhmmss.split(":");
         try {
             int h = Integer.parseInt(parts[0]);
