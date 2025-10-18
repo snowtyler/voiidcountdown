@@ -10,7 +10,8 @@ public class TimersFolderConfigManager extends DataFolderConfigManager {
 
     @Override
     public void createFiles() {
-        new CustomConfig("more_timers.yml",plugin,folderName,false).registerConfig();
+        new CustomConfig("more_timers.yml", plugin, folderName, false).registerConfig();
+        new CustomConfig("halloween.yml", plugin, folderName, false).registerConfig();
     }
 
     @Override

@@ -13,11 +13,16 @@ import voiidstudios.vct.api.VCTEvent;
 import voiidstudios.vct.configs.model.TimerConfig;
 import voiidstudios.vct.managers.MessagesManager;
 import voiidstudios.vct.managers.TimerManager;
+import voiidstudios.vct.managers.HalloweenModeManager;
+import voiidstudios.vct.managers.HalloweenOrbFinaleManager;
 
+import java.time.ZoneId;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Optional;
 
 public class MainCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
@@ -39,6 +44,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     stop(sender);
                 }else if (args[0].equalsIgnoreCase("modify")){
                     modify(sender, args, msgManager);
+                }else if (args[0].equalsIgnoreCase("halloween")){
+                    handleHalloween(sender, args);
                 }else{
                     help(sender);
                 }
@@ -54,6 +61,21 @@ public class MainCommand implements CommandExecutor, TabCompleter {
 
     public void reload(CommandSender sender, MessagesManager msgManager){
         VoiidCountdownTimer.getConfigsManager().reload();
+        HalloweenModeManager halloweenManager = VoiidCountdownTimer.getHalloweenModeManager();
+        if (halloweenManager != null) {
+            halloweenManager.reload();
+        }
+        HalloweenOrbFinaleManager orbManager = VoiidCountdownTimer.getHalloweenOrbFinaleManager();
+        if (orbManager != null) {
+            orbManager.reload();
+        }
+        if (VoiidCountdownTimer.getSpawnBookManager() != null) {
+            VoiidCountdownTimer.getSpawnBookManager().reload();
+        }
+        if (VoiidCountdownTimer.getChallengeManager() != null) {
+            VoiidCountdownTimer.getChallengeManager().reload();
+            VoiidCountdownTimer.getChallengeManager().refreshAllBooks();
+        }
         msgManager.sendConfigMessage(sender, "Messages.commandReload", true, null);
         Timer.refreshTimerText();
     }
@@ -451,6 +473,11 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct resume &7- Resume the timer."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct stop &7- Stop the timer."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct modify &e<modifier> &7- Modify the timer."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween status &7- Show Halloween mode progress."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween toggle &7- Toggle the Halloween mode override."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween force &7- Trigger the next pending threshold immediately."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween reset &7- Revert to the previously completed threshold."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween finale start &7- Trigger the Halloween finale orb."));
     }
 
     public List<String> onTabComplete(CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){
@@ -461,7 +488,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 commands.add("help");commands.add("reload");
                 commands.add("set");commands.add("pause");
                 commands.add("resume");commands.add("stop");
-                commands.add("modify");
+                commands.add("modify");commands.add("halloween");
                 for(String c : commands) {
                     if(args[0].isEmpty() || c.startsWith(args[0].toLowerCase())) {
                         completions.add(c);
@@ -478,6 +505,13 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     subcommands.add("bossbar_style");subcommands.add("sound");
                     subcommands.add("sound_enable");subcommands.add("sound_volume");
                     subcommands.add("sound_pitch");subcommands.add("text");
+                }else if(args[0].equalsIgnoreCase("halloween")){
+                    subcommands.add("status");
+                    subcommands.add("toggle");
+                    subcommands.add("force");
+                    subcommands.add("force-next");
+                    subcommands.add("reset");
+                    subcommands.add("finale");
                 }else if(args[0].equalsIgnoreCase("set")){
                     subcommands.add("<HHH:MM:SS>");
                 }
@@ -515,10 +549,14 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     }
                 } else if(args[0].equalsIgnoreCase("set")){
                     return getTimersCompletions(args, 2, true);
+                } else if(args[0].equalsIgnoreCase("halloween") && args[1].equalsIgnoreCase("finale")) {
+                    subcommands.add("start");
+                    subcommands.add("stop");
+                    subcommands.add("status");
                 }
 
                 for(String c : subcommands) {
-                    if(args[2].isEmpty() || c.startsWith(args[1].toLowerCase())) {
+                    if(args[2].isEmpty() || c.startsWith(args[2].toLowerCase())) {
                         subcompletions.add(c);
                     }
                 }
@@ -527,6 +565,219 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         }
 
         return null;
+    }
+
+    private void handleHalloween(CommandSender sender, String[] args) {
+        HalloweenModeManager halloweenManager = VoiidCountdownTimer.getHalloweenModeManager();
+        if (halloweenManager == null) {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cHalloween mode manager is not available."));
+            return;
+        }
+
+        String subcommand = args.length >= 2 ? args[1].toLowerCase() : "status";
+        switch (subcommand) {
+            case "status":
+            case "info":
+            case "show": {
+                HalloweenModeManager.HalloweenStatusSnapshot status = halloweenManager.getStatusSnapshot();
+                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&dHalloween mode status"));
+
+                sender.sendMessage(MessagesManager.getColoredMessage("&7Configured enabled: &f" + (status.isEnabled() ? "Yes" : "No")));
+                sender.sendMessage(MessagesManager.getColoredMessage("&7Effective enabled: &f" + (status.isEffectiveEnabled() ? "Yes" : "No")));
+                String manualText = status.getManualOverride()
+                        .map(value -> value ? "&aForced on" : "&cForced off")
+                        .orElse("&7None (following config)");
+                sender.sendMessage(MessagesManager.getColoredMessage("&7Manual override: " + manualText));
+                sender.sendMessage(MessagesManager.getColoredMessage("&7Window: &f" + status.formatDate(status.getStart()) + " &7→ &f" + status.formatDate(status.getEnd())));
+
+                ZoneId zone = status.getZoneId() != null ? status.getZoneId() : ZoneId.systemDefault();
+                sender.sendMessage(MessagesManager.getColoredMessage("&7Now (&f" + zone.getId() + "&7): &f" + status.formatDate(status.getNow())));
+
+                HalloweenModeManager.HalloweenThreshold last = status.getLastExecuted();
+                if (last != null) {
+                    sender.sendMessage(MessagesManager.getColoredMessage("&7Current threshold: &f" + last.getId()));
+                    sender.sendMessage(MessagesManager.getColoredMessage("&7Reached at: &f" + status.formatDate(status.getLastExecutedAt())));
+                    if (!last.getCommands().isEmpty()) {
+                        sender.sendMessage(MessagesManager.getColoredMessage("&7Commands executed:"));
+                        for (String command : last.getCommands()) {
+                            sender.sendMessage(MessagesManager.getColoredMessage("  &f- " + command));
+                        }
+                    } else {
+                        sender.sendMessage(MessagesManager.getColoredMessage("&7Commands executed: &f(none)"));
+                    }
+                } else {
+                    sender.sendMessage(MessagesManager.getColoredMessage("&7Current threshold: &fNone reached yet"));
+                }
+
+                sendNextThresholdMessage(sender, status, status.getNextThreshold(), "&7Next threshold: &f");
+
+                sender.sendMessage(MessagesManager.getColoredMessage("&7Executed thresholds: &f" + status.getExecutedThresholdIds().size() + "/" + status.getTotalThresholds()));
+                if (!status.getExecutedThresholds().isEmpty()) {
+                    sender.sendMessage(MessagesManager.getColoredMessage("&7History:"));
+                    for (HalloweenModeManager.HalloweenThreshold executed : status.getExecutedThresholds()) {
+                        String when = status.formatDate(executed.getActivationTime());
+                        sender.sendMessage(MessagesManager.getColoredMessage("  &f- " + executed.getId() + " &7(" + when + ")"));
+                    }
+                }
+
+                sender.sendMessage(MessagesManager.getColoredMessage("&7Timer auto-manage: &f" + (status.isTimerManagementEnabled() ? "Enabled" : "Disabled")));
+                if (status.isTimerManagementEnabled()) {
+                    sender.sendMessage(MessagesManager.getColoredMessage("&7Managed timer id: &f" + status.getTimerId()));
+                    sender.sendMessage(MessagesManager.getColoredMessage("&7Timer active: &f" + (status.isTimerActive() ? "Yes" : "No")));
+                    if (status.isTimerActive()) {
+                        sender.sendMessage(MessagesManager.getColoredMessage("&7Timer remaining: &f" + status.formatDuration(status.getTimerRemainingSeconds())));
+                        sender.sendMessage(MessagesManager.getColoredMessage("&7Expected remaining: &f" + status.formatDuration(status.getTimerExpectedSeconds())));
+                        if (status.isTimerOutOfSync()) {
+                            sender.sendMessage(MessagesManager.getColoredMessage("&cTimer drift exceeds tolerance (" + status.getTimerResyncToleranceSeconds() + "s); resync scheduled."));
+                        }
+                    }
+                }
+
+                sender.sendMessage(MessagesManager.getColoredMessage("&7Webhook configured: &f" + (status.isWebhookConfigured() ? "Yes" : "No")));
+                break;
+            }
+            case "finale": {
+                handleHalloweenFinale(sender, args);
+                break;
+            }
+            case "toggle": {
+                boolean enabled = halloweenManager.toggleManualEnabledOverride();
+                Optional<Boolean> manualOverride = halloweenManager.getManualEnabledOverride();
+                String stateText = enabled ? "&aenabled" : "&cdisabled";
+                String overrideText = manualOverride
+                        .map(value -> value ? "&aForced on" : "&cForced off")
+                        .orElse("&7Following config");
+                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&7Halloween mode is now " + stateText + "&7."));
+                sender.sendMessage(MessagesManager.getColoredMessage("&7Manual override: " + overrideText));
+                break;
+            }
+            case "force":
+            case "force-next":
+            case "next": {
+                Optional<HalloweenModeManager.HalloweenThreshold> forced = halloweenManager.forceNextThresholdExecution();
+                if (!forced.isPresent()) {
+                    sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cNo pending thresholds to force."));
+                    break;
+                }
+
+                HalloweenModeManager.HalloweenThreshold threshold = forced.get();
+                HalloweenModeManager.HalloweenStatusSnapshot updated = halloweenManager.getStatusSnapshot();
+                String executedAt = updated.formatDate(updated.getLastExecutedAt());
+
+                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&aForced threshold &f" + threshold.getId() + " &ato execute."));
+                sender.sendMessage(MessagesManager.getColoredMessage("&7Executed at: &f" + executedAt));
+
+                sendNextThresholdMessage(sender, updated, updated.getNextThreshold(), "&7Next threshold: &f");
+                break;
+            }
+            case "reset":
+            case "revert":
+            case "previous": {
+                Optional<String> removed = halloweenManager.resetToPreviousThreshold();
+                if (!removed.isPresent()) {
+                    sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cThere are no executed thresholds to reset."));
+                    break;
+                }
+
+                HalloweenModeManager.HalloweenStatusSnapshot snapshot = halloweenManager.getStatusSnapshot();
+                HalloweenModeManager.HalloweenThreshold current = snapshot.getLastExecuted();
+                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&aRemoved threshold &f" + removed.get() + " &afrom the execution history."));
+                if (current != null) {
+                    sender.sendMessage(MessagesManager.getColoredMessage("&7Current threshold restored to: &f" + current.getId()));
+                } else {
+                    sender.sendMessage(MessagesManager.getColoredMessage("&7No thresholds have been executed yet."));
+                }
+                sendNextThresholdMessage(sender, snapshot, snapshot.getNextThreshold(), "&7Next threshold: &f");
+                break;
+            }
+            default:
+                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&7Unknown Halloween subcommand. Use &6/vct halloween status&7, &6toggle&7, &6force&7, &6reset&7, or &6finale&7."));
+                break;
+        }
+    }
+
+    private void handleHalloweenFinale(CommandSender sender, String[] args) {
+        HalloweenOrbFinaleManager orbManager = VoiidCountdownTimer.getHalloweenOrbFinaleManager();
+        if (orbManager == null) {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cFinale manager is not available."));
+            return;
+        }
+
+        String action = args.length >= 3 ? args[2].toLowerCase() : "status";
+        switch (action) {
+            case "start": {
+                HalloweenOrbFinaleManager.FinaleActionResult result = orbManager.startFinale(sender.getName());
+                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + result.getMessage()));
+                break;
+            }
+            case "stop":
+            case "end":
+            case "cancel": {
+                HalloweenOrbFinaleManager.FinaleActionResult result = orbManager.stopFinale(sender.getName());
+                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + result.getMessage()));
+                break;
+            }
+            case "status":
+            case "info": {
+                HalloweenOrbFinaleManager.OrbStatus status = orbManager.getStatus();
+                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&dHalloween finale orb status"));
+                sender.sendMessage(MessagesManager.getColoredMessage("&7Configured enabled: &f" + (status.isEnabled() ? "Yes" : "No")));
+                sender.sendMessage(MessagesManager.getColoredMessage("&7Active: &f" + (status.isActive() ? "Yes" : "No")));
+                sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT, "&7Expansion per tick: &f%.3f", status.getExpansionPerTick())));
+                sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT, "&7Tick interval: &f%d", status.getTickInterval())));
+                if (Double.isFinite(status.getMaxRadius())) {
+                    sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT, "&7Max radius: &f%.2f", status.getMaxRadius())));
+                } else {
+                    sender.sendMessage(MessagesManager.getColoredMessage("&7Max radius: &fUnlimited"));
+                }
+
+                if (status.getWorlds().isEmpty()) {
+                    sender.sendMessage(MessagesManager.getColoredMessage("&7No finale worlds are configured."));
+                } else {
+                    for (HalloweenOrbFinaleManager.OrbWorldStatus worldStatus : status.getWorlds()) {
+                        String worldLabel = String.format(java.util.Locale.ROOT, "&f%s &7(%s)", worldStatus.getWorldName(), worldStatus.getEnvironment());
+                        if (!worldStatus.isRunning()) {
+                            sender.sendMessage(MessagesManager.getColoredMessage("  &8- " + worldLabel + " &8inactive"));
+                        } else {
+                            sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT, "  &f- %s &7radius &f%.2f", worldLabel, worldStatus.getRadius())));
+                        }
+                    }
+                }
+
+                if (status.getPunishedCount() > 0) {
+                    sender.sendMessage(MessagesManager.getColoredMessage("&7Players consumed: &f" + status.getPunishedCount()));
+                }
+                break;
+            }
+            default:
+                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&7Unknown finale action. Use &6start&7, &6stop&7, or &6status&7."));
+                break;
+        }
+    }
+
+    private void sendNextThresholdMessage(CommandSender sender,
+                                          HalloweenModeManager.HalloweenStatusSnapshot status,
+                                          HalloweenModeManager.HalloweenThreshold next,
+                                          String basePrefix) {
+        String prefix = (basePrefix == null || basePrefix.isEmpty()) ? "&7Next threshold: &f" : basePrefix;
+        if (next == null) {
+            sender.sendMessage(MessagesManager.getColoredMessage(prefix + "None pending"));
+            return;
+        }
+
+        ZonedDateTime activation = next.getActivationTime();
+        if (activation == null) {
+            sender.sendMessage(MessagesManager.getColoredMessage(prefix + next.getId() + " &7(no activation time configured)"));
+            return;
+        }
+
+        String when = status.formatDate(activation);
+        if (activation.isAfter(status.getNow())) {
+            sender.sendMessage(MessagesManager.getColoredMessage(prefix + next.getId() + " &7at &f" + when));
+        } else {
+            long overdueSeconds = Math.max(0L, java.time.Duration.between(activation, status.getNow()).getSeconds());
+            sender.sendMessage(MessagesManager.getColoredMessage(prefix + next.getId() + " &7at &f" + when + " &c(overdue by " + status.formatDuration(overdueSeconds) + ")"));
+        }
     }
 
     public List<String> getTimersCompletions(String[] args, int argTimerPos, boolean onlyEnabled) {

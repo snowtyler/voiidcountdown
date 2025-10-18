@@ -1,0 +1,7 @@
+{
+  "pack": {
+    "description": "Miscellaneous fixes and improvements for vanilla Minecraft.",
+    "min_format": [69],
+    "max_format": [88]
+  }
+}

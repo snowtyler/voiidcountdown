@@ -1,0 +1,66 @@
+formatting:
+  book:
+    # Placeholders: %name%, %description%, %current%, %required%, %remaining%, %status%
+    # Components follow the SNBT/JSON text component format described in docs/Text_component_format.md
+    incomplete:
+      - '{ "text": "%description%", "color": "dark_gray", "italic": true }'
+    complete:
+      - '{ "text": "%description%", "color": "blue", "italic": true, "bold": true }'
+
+challenges:
+  - id: dragon_slayer
+    name: "Dragon Slayer"
+    description: "THE KEEPER OF END\nCLEAVED RED BY BLADE."
+    trigger: ENTITY_KILL
+    target: ZOMBIE
+    count: 1
+
+  - id: skeleton_silencer
+    name: "Skeleton Silencer"
+    description: "THE WARDEN'S RAMPAGE\nMUST BE STOPPED."
+    trigger: ENTITY_KILL
+    target: SKELETON
+    count: 1
+
+  - id: creeper_control
+    name: "Creeper Control"
+    description: "TWO GREEN THUNDERS MUST BE UNMADE BEFORE THEIR HEARTS IGNITE."
+    trigger: ENTITY_KILL
+    target: CREEPER
+    count: 1
+
+  - id: arachnid_assault
+    name: "Arachnid Assault"
+    description: "FOUR SILKEN HUNTERS SHALL FIND STILLNESS BENEATH THE HEROES' STEP."
+    trigger: ENTITY_KILL
+    target: SPIDER
+    count: 1
+
+  - id: enderman_encounter
+    name: "Enderman Encounter"
+    description: "ONE STAR-GAZER OF THE VOID MUST BOW BEFORE THE HEROES."
+    trigger: ENTITY_KILL
+    target: ENDERMAN
+    count: 1
+
+  - id: blaze_breaker
+    name: "Blaze Breaker"
+    description: "IN THE NETHER'S FURNACE, TWO BLAZES SHALL BE DROWNED OF FLAME."
+    trigger: ENTITY_KILL
+    target: BLAZE
+    count: 1
+
+  - id: wither_warrior
+    name: "Wither Warrior"
+    description: "THE OCEAN'S WATCHER WILL DIM WHEN A SINGLE GUARDIAN IS UNDONE."
+    trigger: ENTITY_KILL
+    target: WITHER
+    count: 1
+
+  - id: banish
+    name: "banish"
+    description: "THE ANGEL, BANISHED, WILL\nFINALLY MEET WITH ITS DESIRE."
+    trigger: ENTITY_KILL
+    target: GUARDIAN
+    count: 1
+    hidden: true

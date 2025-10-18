@@ -1,9 +1,0 @@
-# Set the text of the timer, with the desired color
-bossbar set voiidtimer:bar name ["",{"score":{"name":"Hour","objective":"Timer"},"color":"dark_purple"},{"text":":","color":"dark_purple"},{"score":{"name":"Minute1","objective":"Timer"},"color":"dark_purple"},{"score":{"name":"Minute2","objective":"Timer"},"color":"dark_purple"},{"text":":","color":"dark_purple"},{"score":{"name":"Second1","objective":"Timer"},"color":"dark_purple"},{"score":{"name":"Second2","objective":"Timer"},"color":"dark_purple"}]
-bossbar set voiidtimer:bar color purple
-
-# Sets the text of the timer when paused, in the corresponding languages
-## EN
-execute if score PausedTimer Timer matches 1 if score LanguageTimer Timer matches 0 run bossbar set voiidtimer:bar name ["",{"score":{"name":"Hour","objective":"Timer"},"color":"dark_purple"},{"text":":","color":"dark_purple"},{"score":{"name":"Minute1","objective":"Timer"},"color":"dark_purple"},{"score":{"name":"Minute2","objective":"Timer"},"color":"dark_purple"},{"text":":","color":"dark_purple"},{"score":{"name":"Second1","objective":"Timer"},"color":"dark_purple"},{"score":{"name":"Second2","objective":"Timer"},"color":"dark_purple"},{"text":" (paused)","color":"dark_gray","italic":true}]
-## ES
-execute if score PausedTimer Timer matches 1 if score LanguageTimer Timer matches 1 run bossbar set voiidtimer:bar name ["",{"score":{"name":"Hour","objective":"Timer"},"color":"dark_purple"},{"text":":","color":"dark_purple"},{"score":{"name":"Minute1","objective":"Timer"},"color":"dark_purple"},{"score":{"name":"Minute2","objective":"Timer"},"color":"dark_purple"},{"text":":","color":"dark_purple"},{"score":{"name":"Second1","objective":"Timer"},"color":"dark_purple"},{"score":{"name":"Second2","objective":"Timer"},"color":"dark_purple"},{"text":" (pausado)","color":"dark_gray","italic":true}]

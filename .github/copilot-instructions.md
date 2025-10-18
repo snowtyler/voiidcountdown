@@ -59,3 +59,5 @@ This repo ships two deliverables plus docs. Keep them separate when editing:
   - Kyori Adventure: MiniMessage formatting, legacy serializer interoperability.
   - PlaceholderAPI: registering expansions, placeholder formatting.
 - Prefer stable APIs and versions matching `pom.xml` (`spigot-api 1.13.2`, `adventure 4.24.0`) and `plugin.yml` (`api-version: 1.13`). If docs conflict, follow existing code patterns here.
+
+use context7

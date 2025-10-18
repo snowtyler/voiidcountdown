@@ -7,13 +7,18 @@ import voiidstudios.vct.api.PAPIExpansion;
 import voiidstudios.vct.commands.MainCommand;
 import voiidstudios.vct.configs.ConfigsManager;
 import voiidstudios.vct.listeners.PlayerListener;
+import voiidstudios.vct.listeners.EnderDragonListener;
 import voiidstudios.vct.managers.DependencyManager;
 import voiidstudios.vct.api.UpdateCheckerResult;
 import voiidstudios.vct.managers.DynamicsManager;
 import voiidstudios.vct.managers.MessagesManager;
+import voiidstudios.vct.managers.HalloweenModeManager;
 import voiidstudios.vct.managers.TimerStateManager;
+import voiidstudios.vct.managers.SpawnBookManager;
+import voiidstudios.vct.managers.HalloweenOrbFinaleManager;
 import voiidstudios.vct.utils.ServerVersion;
 import voiidstudios.vct.utils.UpdateChecker;
+import voiidstudios.vct.challenges.ChallengeManager;
 
 public final class VoiidCountdownTimer extends JavaPlugin {
     public static String prefix = "&5[&dVCT&5] ";
@@ -31,12 +36,20 @@ public final class VoiidCountdownTimer extends JavaPlugin {
     private static MessagesManager messagesManager;
     private static TimerStateManager timerStateManager;
     private static DependencyManager dependencyManager;
+    private static HalloweenModeManager halloweenModeManager;
+    private static SpawnBookManager spawnBookManager;
+    private static HalloweenOrbFinaleManager halloweenOrbFinaleManager;
+    private static ChallengeManager challengeManager;
 
     public void onEnable() {
         instance = this;
         configsManager = new ConfigsManager(this);
         messagesManager = new MessagesManager(this);
         configsManager.configure();
+        halloweenModeManager = new HalloweenModeManager(this);
+        halloweenOrbFinaleManager = new HalloweenOrbFinaleManager(this);
+        spawnBookManager = new SpawnBookManager(this);
+        challengeManager = new ChallengeManager(this);
         setVersion();
         registerCommands();
         registerEvents();
@@ -63,9 +76,22 @@ public final class VoiidCountdownTimer extends JavaPlugin {
 
         timerStateManager = new TimerStateManager(this);
         timerStateManager.loadState();
+        halloweenModeManager.reload();
+        halloweenOrbFinaleManager.reload();
+        spawnBookManager.reload();
+        challengeManager.reload();
     }
 
     public void onDisable() {
+        if (halloweenModeManager != null) {
+            halloweenModeManager.shutdown();
+        }
+        if (halloweenOrbFinaleManager != null) {
+            halloweenOrbFinaleManager.shutdown();
+        }
+        if (challengeManager != null) {
+            challengeManager.shutdown();
+        }
         if (timerStateManager != null && configsManager.getMainConfigManager().isSave_state_timers()) {
             timerStateManager.saveState();
         }
@@ -116,6 +142,7 @@ public final class VoiidCountdownTimer extends JavaPlugin {
 
     public void registerEvents() {
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
+        getServer().getPluginManager().registerEvents(new EnderDragonListener(this), this);
     }
 
     public static VoiidCountdownTimer getInstance() {
@@ -156,5 +183,21 @@ public final class VoiidCountdownTimer extends JavaPlugin {
 
     public static TimerStateManager getTimerStateManager() {
         return timerStateManager;
+    }
+
+    public static HalloweenModeManager getHalloweenModeManager() {
+        return halloweenModeManager;
+    }
+
+    public static SpawnBookManager getSpawnBookManager() {
+        return spawnBookManager;
+    }
+
+    public static ChallengeManager getChallengeManager() {
+        return challengeManager;
+    }
+
+    public static HalloweenOrbFinaleManager getHalloweenOrbFinaleManager() {
+        return halloweenOrbFinaleManager;
     }
 }

@@ -1,0 +1,35 @@
+{
+  "minecraft:written_book_content": {
+    "title": {
+      "raw": {
+        "text": "PROPHECY"
+      }
+    },
+    "author": "???",
+    "generation": 0,
+    "pages": [
+      {
+        "raw": [
+          {"text": "\nTHE PROPHECY, WHICH WHISPERS AMONG THE SHADOWS.", "color": "black"},
+          {"text": "\n\nTHE LEGEND OF THIS REALM.", "color": "black"},
+          {"text": "\n\nA WORLD BASKED IN PUREST LIGHT.", "color": "black"},
+          {"text": "\nBENEATH IT, GREW ETERNAL NIGHT.", "color": "black"}
+        ]
+      },
+      {
+        "raw": [
+          {"text": "\nBUT LO, ON HOPES AND DREAMS THEY SEND.", "color": "black"},
+          {"text": "\n\nBRAVE HEROES APPEAR AT WORLD'S END.", "color": "black"},
+          {"text": "\n\nTHEY'LL HEAR THE ROARING CRIES", "color": "black"},
+          {"text": "\nAS TITANS SHAPE FROM BLACKENED SKIES.", "color": "black"}
+        ]
+      },
+      {
+        "raw": [
+          {"text": "\n\n\nTHE LIGHT AND DARK, BOTH BURNING DIRE.", "color": "black"},
+          {"text": "\n\n\nA COUNTDOWN TO THE WORLD'S EXPIRE", "color": "black"}
+        ]
+      }
+    ]
+  }
+}

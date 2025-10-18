@@ -12,7 +12,12 @@ import voiidstudios.vct.managers.TimerManager;
 import voiidstudios.vct.utils.Formatter;
 import voiidstudios.vct.configs.model.TimerConfig;
 
-public class Timer implements Runnable {
+import java.time.Duration;
+import java.time.Instant;
+import java.time.format.DateTimeFormatter;
+import java.util.Locale;
+
+public class Timer {
     private int seconds;
     private final BossBar bossbar;
     private BukkitTask task;
@@ -27,10 +32,76 @@ public class Timer implements Runnable {
     private final int maxValue = 3599999;
     private final int minValue = 0;
     private final String timerId;
+    private static final DateTimeFormatter INSTANT_FORMATTER = DateTimeFormatter.ISO_INSTANT;
+    private Instant targetEnd;
+    private boolean userPaused;
+    private long pausedRemainingSeconds;
+
+    private int clampSeconds(int value) {
+        return Math.max(this.minValue, Math.min(value, this.maxValue));
+    }
+
+    private int computeRemainingSeconds(boolean updateField) {
+        int result;
+        if (this.userPaused) {
+            result = (int) Math.max(0L, Math.min((long) this.maxValue, this.pausedRemainingSeconds));
+        } else if (this.targetEnd != null) {
+            long diff = Duration.between(Instant.now(), this.targetEnd).getSeconds();
+            result = (int) Math.max(0L, Math.min((long) this.maxValue, diff));
+        } else {
+            result = this.seconds;
+        }
+
+        if (updateField) {
+            this.seconds = result;
+        }
+        return result;
+    }
+
+    private Instant applyNewRemaining(int newRemaining) {
+        int clamped = clampSeconds(newRemaining);
+        Instant newTarget;
+        if (this.userPaused) {
+            this.pausedRemainingSeconds = clamped;
+            newTarget = null;
+        } else {
+            newTarget = Instant.now().plusSeconds(clamped);
+            this.pausedRemainingSeconds = 0L;
+        }
+        this.targetEnd = newTarget;
+        this.seconds = clamped;
+        applyProgress();
+        return newTarget;
+    }
+
+    private void logTargetUpdate(String reason, int previousSeconds, int newSeconds, Instant previousTarget, Instant newTarget) {
+        VoiidCountdownTimer plugin = VoiidCountdownTimer.getInstance();
+        if (plugin == null) {
+            return;
+        }
+
+        int drift = newSeconds - previousSeconds;
+        String driftText = String.format(Locale.ROOT, "%+d", drift);
+        String previousTargetText = previousTarget != null ? INSTANT_FORMATTER.format(previousTarget) : "-";
+        String newTargetText = newTarget != null ? INSTANT_FORMATTER.format(newTarget) : "-";
+
+        plugin.getLogger().info(String.format(
+                Locale.ROOT,
+                "Timer '%s' %s: %d -> %d seconds (drift %ss). Target %s -> %s",
+                this.timerId,
+                reason == null ? "update" : reason,
+                previousSeconds,
+                newSeconds,
+                driftText,
+                previousTargetText,
+                newTargetText
+        ));
+    }
 
     public Timer(int seconds, String timeText, String timeSound, BarColor barcolor, BarStyle barstyle, String timerId, boolean hasSoundd, float soundVolumee, float soundPitchh) {
-        this.seconds = seconds;
-        this.initialSeconds = seconds;
+        int clamped = clampSeconds(seconds);
+        this.seconds = clamped;
+        this.initialSeconds = clamped;
         this.timerId = timerId;
 
         this.refreshInterval = VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getRefresh_ticks();
@@ -42,6 +113,9 @@ public class Timer implements Runnable {
         this.soundPitch = soundPitchh;
 
         this.bossbar = Bukkit.createBossBar("", barcolor, barstyle, new org.bukkit.boss.BarFlag[0]);
+        this.targetEnd = null;
+        this.userPaused = false;
+        this.pausedRemainingSeconds = 0L;
     }
 
     public int getInitialSeconds() {
@@ -49,7 +123,7 @@ public class Timer implements Runnable {
     }
 
     public int getRemainingSeconds() {
-        return this.seconds;
+        return computeRemainingSeconds(true);
     }
 
     public String getTimertext() {
@@ -145,57 +219,64 @@ public class Timer implements Runnable {
         }
     }
 
-    private void startTask(int seconds) {
-        final int increment = -1;
+    private void startTask() {
+        if (this.task != null) {
+            this.task.cancel();
+        }
+
         this.task = Bukkit.getScheduler().runTaskTimer(
                 VoiidCountdownTimer.getInstance(),
                 new Runnable() {
                     private int tickCounter = 0;
                     private int refreshCounter = 0;
+                    private boolean changedSinceLastSound = false;
 
                     public void run() {
+                        int previous = Timer.this.seconds;
+                        int current = Timer.this.computeRemainingSeconds(true);
+
+                        if (!Timer.this.userPaused && current != previous) {
+                            changedSinceLastSound = true;
+                            Bukkit.getPluginManager().callEvent(new VCTEvent(Timer.this, VCTEvent.VCTEventType.CHANGE, null));
+                        }
+
                         tickCounter++;
                         refreshCounter++;
 
                         if (tickCounter >= 20) {
                             tickCounter = 0;
-                            Timer.this.seconds += increment;
-
                             for (Player player : Bukkit.getOnlinePlayers()) {
                                 Timer.this.bossbar.addPlayer(player);
-
-                                if (Timer.this.hasSound && Timer.this.soundFinalName != null) {
+                                if (!Timer.this.userPaused && changedSinceLastSound && Timer.this.hasSound && Timer.this.soundFinalName != null) {
                                     playSound(player, soundFinalName + ";" + soundVolume + ";" + soundPitch);
                                 }
                             }
-
-                            Bukkit.getPluginManager().callEvent(new VCTEvent(Timer.this, VCTEvent.VCTEventType.CHANGE, null));
+                            changedSinceLastSound = false;
                         }
 
                         if (refreshCounter >= Timer.this.refreshInterval) {
                             refreshCounter = 0;
 
                             String rawText = Timer.this.getTimertextFormated();
-
                             String phasesText = VoiidCountdownTimer.getPhasesManager().formatPhases(rawText);
 
                             updateBossBarTitle(phasesText);
-
-                            double progress = (double) Timer.this.seconds / (double) Timer.this.initialSeconds;
-                            progress = Math.max(0.0, Math.min(1.0, progress));
-                            Timer.this.bossbar.setProgress(progress);
+                            Timer.this.applyProgress();
                         }
 
-                        if (Timer.this.seconds <= 0) {
-                            if (Timer.this.task != null)
+                        if (!Timer.this.userPaused && current <= 0) {
+                            if (Timer.this.task != null) {
                                 Timer.this.task.cancel();
+                                Timer.this.task = null;
+                            }
 
-                                Bukkit.getPluginManager().callEvent(new VCTEvent(Timer.this, VCTEvent.VCTEventType.FINISH, null));
-                            
-                                Bukkit.getScheduler().runTaskLater(VoiidCountdownTimer.getInstance(), () -> {
-                                    if (Timer.this.bossbar != null)
-                                        Timer.this.bossbar.removeAll();
-                                }, VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTicks_hide_after_ending());
+                            Bukkit.getPluginManager().callEvent(new VCTEvent(Timer.this, VCTEvent.VCTEventType.FINISH, null));
+
+                            Bukkit.getScheduler().runTaskLater(VoiidCountdownTimer.getInstance(), () -> {
+                                if (Timer.this.bossbar != null) {
+                                    Timer.this.bossbar.removeAll();
+                                }
+                            }, VoiidCountdownTimer.getConfigsManager().getMainConfigManager().getTicks_hide_after_ending());
                         }
                     }
                 },
@@ -245,7 +326,40 @@ public class Timer implements Runnable {
     }
 
     public void setSeconds(int seconds) {
-        this.seconds = seconds;
+        int previous = getRemainingSeconds();
+        int clamped = clampSeconds(seconds);
+        if (clamped == previous) {
+            return;
+        }
+
+        if (clamped > this.initialSeconds) {
+            this.initialSeconds = clamped;
+        }
+
+        Instant previousTarget = this.targetEnd;
+        Instant newTarget = applyNewRemaining(clamped);
+        logTargetUpdate("resync", previous, clamped, previousTarget, newTarget);
+    }
+
+    private void applyProgress() {
+        int denominator = this.initialSeconds <= 0 ? 1 : this.initialSeconds;
+        double progress = (double) this.seconds / (double) denominator;
+        progress = Math.max(0.0, Math.min(1.0, progress));
+        this.bossbar.setProgress(progress);
+    }
+
+    public void overrideInitialSeconds(int initialSeconds) {
+        if (initialSeconds < 1) {
+            initialSeconds = 1;
+        }
+
+        if (initialSeconds < this.seconds) {
+            this.initialSeconds = this.seconds;
+        } else {
+            this.initialSeconds = initialSeconds;
+        }
+
+        applyProgress();
     }
 
     private String[] splitDigits(String value) {
@@ -309,6 +423,36 @@ public class Timer implements Runnable {
         return splitDigits(formatTimeHH(this.seconds))[2];
     }
 
+    public long getTargetEndEpochMillis() {
+        if (this.userPaused || this.targetEnd == null) {
+            return -1L;
+        }
+        return this.targetEnd.toEpochMilli();
+    }
+
+    public void restoreFromState(int remainingSeconds, boolean paused, Instant storedEnd) {
+        int previousSeconds = this.seconds;
+        Instant previousTarget = this.targetEnd;
+
+        int clamped = clampSeconds(remainingSeconds);
+        this.userPaused = paused;
+        if (paused) {
+            this.pausedRemainingSeconds = clamped;
+            this.targetEnd = null;
+        } else {
+            this.pausedRemainingSeconds = 0L;
+            this.targetEnd = storedEnd != null ? storedEnd : Instant.now().plusSeconds(clamped);
+        }
+        this.seconds = clamped;
+        applyProgress();
+
+        if (this.initialSeconds < this.seconds) {
+            this.initialSeconds = this.seconds;
+        }
+
+        logTargetUpdate("restore", previousSeconds, clamped, previousTarget, this.targetEnd);
+    }
+
     public String getTimeLeftMM() {
         return formatTimeMM(this.seconds);
     }
@@ -338,54 +482,104 @@ public class Timer implements Runnable {
     }
 
     public boolean isPaused() {
-        return this.task == null && this.seconds > 0;
+        return this.userPaused;
     }
 
     public void start() {
-        startTask(this.seconds);
+        int remaining = clampSeconds(this.seconds);
+        this.seconds = remaining;
+        if (remaining <= 0) {
+            stop();
+            return;
+        }
+
+        this.userPaused = false;
+        this.pausedRemainingSeconds = 0L;
+        Instant previousTarget = this.targetEnd;
+        if (this.targetEnd == null) {
+            this.targetEnd = Instant.now().plusSeconds(remaining);
+        }
+        applyProgress();
+        logTargetUpdate("start", remaining, remaining, previousTarget, this.targetEnd);
+        startTask();
     }
 
     public void stop() {
         if (this.task != null){
             Bukkit.getPluginManager().callEvent(new VCTEvent(Timer.this, VCTEvent.VCTEventType.STOP, null));
             this.task.cancel();
+            this.task = null;
         }
+
+        this.userPaused = false;
+        this.pausedRemainingSeconds = 0L;
+        this.targetEnd = null;
 
         if (this.bossbar != null)
             this.bossbar.removeAll();
     }
 
     public void add(int addSeconds) {
-        if (this.seconds + addSeconds > this.maxValue) {
-            this.seconds = this.maxValue;
-            this.initialSeconds = this.maxValue;
-        } else {
-            this.seconds += addSeconds;
-            this.initialSeconds += addSeconds;
+        if (addSeconds <= 0) {
+            return;
         }
+
+        int previous = getRemainingSeconds();
+        long newRemaining = Math.min((long) previous + addSeconds, (long) this.maxValue);
+        if ((int) newRemaining == previous) {
+            return;
+        }
+
+        Instant previousTarget = this.targetEnd;
+        this.initialSeconds = (int) Math.min((long) this.maxValue, (long) this.initialSeconds + addSeconds);
+        Instant newTarget = applyNewRemaining((int) newRemaining);
+        logTargetUpdate("add", previous, (int) newRemaining, previousTarget, newTarget);
     }
 
     public void set(int setSeconds) {
-        if (setSeconds > this.maxValue) {
-            this.seconds = this.maxValue;
-            this.initialSeconds = this.maxValue;
-        } else if (setSeconds < this.minValue) {
-            this.seconds = this.minValue;
-            this.initialSeconds = this.minValue;
-        } else {
-            this.seconds = setSeconds;
-            this.initialSeconds = setSeconds;
+        int previous = getRemainingSeconds();
+        int clamped = clampSeconds(setSeconds);
+        if (clamped == previous) {
+            return;
         }
+        Instant previousTarget = this.targetEnd;
+        this.initialSeconds = clamped;
+        Instant newTarget = applyNewRemaining(clamped);
+        logTargetUpdate("set", previous, clamped, previousTarget, newTarget);
     }
 
     public void take(int takeSeconds) {
-        if (this.seconds - takeSeconds >= this.minValue) {
-            this.seconds -= takeSeconds;
-            this.initialSeconds -= takeSeconds;
+        if (takeSeconds <= 0) {
+            return;
         }
+
+        int previous = getRemainingSeconds();
+        long newRemaining = Math.max((long) this.minValue, (long) previous - takeSeconds);
+        if ((int) newRemaining == previous) {
+            return;
+        }
+
+        Instant previousTarget = this.targetEnd;
+        this.initialSeconds = clampSeconds(this.initialSeconds - takeSeconds);
+        if (this.initialSeconds < newRemaining) {
+            this.initialSeconds = (int) newRemaining;
+        }
+        Instant newTarget = applyNewRemaining((int) newRemaining);
+        logTargetUpdate("take", previous, (int) newRemaining, previousTarget, newTarget);
     }
 
     public void pause() {
+        if (this.userPaused) {
+            return;
+        }
+
+        Instant previousTarget = this.targetEnd;
+        int current = computeRemainingSeconds(true);
+        this.pausedRemainingSeconds = current;
+        this.userPaused = true;
+        this.targetEnd = null;
+        logTargetUpdate("pause", current, current, previousTarget, null);
+
         if (this.task != null) {
             this.task.cancel();
             this.task = null;
@@ -393,19 +587,18 @@ public class Timer implements Runnable {
     }
 
     public void resume() {
-        if (this.task == null)
-            startTask(this.seconds);
+        if (!this.userPaused || this.seconds <= 0) {
+            return;
+        }
+
+        int previous = (int) Math.max(0L, this.pausedRemainingSeconds);
+        Instant previousTarget = this.targetEnd;
+        this.userPaused = false;
+        this.targetEnd = Instant.now().plusSeconds(this.seconds);
+        this.pausedRemainingSeconds = 0L;
+        applyProgress();
+        logTargetUpdate("resume", previous, this.seconds, previousTarget, this.targetEnd);
+        startTask();
     }
 
-    public void run() {
-        this.seconds--;
-        for (Player player : Bukkit.getOnlinePlayers())
-            this.bossbar.addPlayer(player);
-        if (this.seconds == 0) {
-            if (this.task != null)
-                Bukkit.getScheduler().cancelTask(this.task.getTaskId());
-            this.bossbar.removeAll();
-            TimerManager.getInstance().removeTimer();
-        }
-    }
 }

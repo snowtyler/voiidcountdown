@@ -1,0 +1,13 @@
+{
+  "prophecy.ripple": {
+    "category": "music",
+    "sounds": [
+      {
+        "name": "prophecy:events/ripple",
+        "volume": 1,
+        "pitch": 1,
+        "weight": 1
+      }
+    ]
+  }
+}

@@ -1,0 +1,10 @@
+Timers:
+  halloween:
+    text: "&5Halloween Countdown &8| &f%HH%:%MM%:%SS%"
+    sound: UI_BUTTON_CLICK
+    sound_volume: 1.0
+    sound_pitch: 1.0
+    bossbar_color: PURPLE
+    bossbar_style: SEGMENTED_12
+    enabled: true
+    sound_enabled: false

@@ -1,0 +1,82 @@
+# Halloween mode configuration
+#
+# Mode runs from October 25th 2025 12:00 AM New York time through
+# November 1st 2025 12:00 AM New York time. Threshold timestamps below
+# are interpreted in the configured timezone.
+halloween_mode:
+  enabled: false
+  timezone: America/New_York
+  start: 2025-10-25T00:00:00
+  end: 2025-11-01T00:00:00
+
+  webhook:
+    enabled: false
+    url: ""
+    username: "VCT Halloween"
+    avatar_url: ""
+    mention_everyone: false
+
+  timer:
+    enabled: true
+    timer_id: halloween
+    force_override: true
+    resync_tolerance_seconds: 10
+
+  finale:
+    orb:
+      enabled: true
+      start_radius: 2.5
+      expansion_per_tick: 0.35
+      max_radius: 256.0
+      tick_interval: 2
+      worlds:
+        - world
+        - world_nether
+        - world_the_end
+      origin:
+        x: 0.5
+        z: 0.5
+        y: 64.0
+        y_offset: 0.0
+        use_spawn_y: true
+      block:
+        material: SEA_LANTERN
+        blocks_per_tick: 800
+        initial_burst: 2400
+      punishment:
+        ban_message: "&cThe finale orb has consumed you."
+        kick_message: "&cEven operators cannot outrun the finale orb."
+        broadcast: true
+        broadcast_message: "&5[Halloween]&c %PLAYER% was consumed by the finale orb."
+        bypass_permission: ""
+      broadcast:
+        start_message: "&5[Halloween]&f The finale orb awakens at the origin."
+        stop_message: "&5[Halloween]&f The finale orb has faded."
+
+  thresholds:
+    - id: kickoff
+      at: 2025-10-25T00:00:00
+      commands:
+        - "say [VCT] Halloween mode has begun!"
+      broadcast_message: "&6[Halloween]&f The spooky countdown is alive!"
+      webhook_message: "Halloween countdown has begun!"
+
+    - id: midweek_reminder
+      at: 2025-10-28T12:00:00
+      commands:
+        - "say [VCT] Only a few nights remain."
+      broadcast_message: "&6[Halloween]&f Only three days left until midnight strikes!"
+      webhook:
+        enabled: true
+        content: "We are halfway through the Halloween countdown."
+
+    - id: final_hour
+      at: 2025-10-31T23:00:00
+      commands:
+        - "say [VCT] Final hour before Halloween ends!"
+        - 'title @a title {"text":"Final hour!","color":"dark_purple"}'
+      broadcast_message: "&5[Halloween]&f The final hour is here!"
+      webhook:
+        enabled: true
+        mention_everyone: true
+        content: "Final hour before Halloween mode concludes!"
