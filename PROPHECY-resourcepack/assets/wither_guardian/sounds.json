@@ -1,6 +1,6 @@
 {
-  "wither_guardian.10sec":{"category":"hostile","sounds":["wither_guardian/10sec"]},
-	"wither_guardian.death":{"category":"hostile","sounds":["wither_guardian/death"]},
-	"wither_guardian.phase1":{"category":"hostile","sounds":["wither_guardian/phase1"]},
-	"wither_guardian.phase2":{"category":"hostile","sounds":["wither_guardian/phase2"]}
+  "10sec":   { "category": "hostile", "sounds": ["10sec"] },
+  "death":   { "category": "hostile", "sounds": ["death"] },
+  "phase1":  { "category": "hostile", "sounds": ["phase1"] },
+  "phase2":  { "category": "hostile", "sounds": ["phase2"] }
 }
