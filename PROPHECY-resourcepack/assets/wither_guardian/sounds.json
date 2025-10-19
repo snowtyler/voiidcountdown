@@ -1,6 +1,49 @@
 {
-  "10sec":   { "category": "hostile", "sounds": ["10sec"] },
-  "death":   { "category": "hostile", "sounds": ["death"] },
-  "phase1":  { "category": "hostile", "sounds": ["phase1"] },
-  "phase2":  { "category": "hostile", "sounds": ["phase2"] }
+  "events.10sec": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "wither_guardian:events/10sec",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+
+  "death": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "wither_guardian:events/death",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+
+  "phase1": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "wither_guardian:events/phase1",
+        "stream": true,
+        "volume": 0.5,
+        "pitch": 1.0
+      }
+    ]
+  },
+
+  "phase2": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "wither_guardian:events/phase2",
+        "stream": true,
+        "volume": 0.5,
+        "pitch": 1.0
+      }
+    ]
+  }
 }
