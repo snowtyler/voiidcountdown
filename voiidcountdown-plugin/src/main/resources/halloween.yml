@@ -39,19 +39,27 @@ halloween_mode:
         y: 64.0
         y_offset: 0.0
         use_spawn_y: true
-      block:
-        material: SEA_LANTERN
-        blocks_per_tick: 800
-        initial_burst: 2400
+      visual:
+        mode: WORLD_BORDER # WORLD_BORDER or VIRTUAL_BLOCKS
+        material: RED_STAINED_GLASS
+        height: 3
+        density: 2
+      world_border:
+        damage_amount: 2.0
+        damage_buffer: 5.0
+        warning_distance: 10
+        warning_time: 15
       punishment:
-        ban_message: "&cThe finale orb has consumed you."
-        kick_message: "&cEven operators cannot outrun the finale orb."
+        ban_message: "&cThe finale border has consumed you."
+        kick_message: "&cEven operators cannot outrun the finale border."
         broadcast: true
-        broadcast_message: "&5[Halloween]&c %PLAYER% was consumed by the finale orb."
+        broadcast_message: "&5[Halloween]&c %PLAYER% was consumed by the finale border."
         bypass_permission: ""
       broadcast:
-        start_message: "&5[Halloween]&f The finale orb awakens at the origin."
-        stop_message: "&5[Halloween]&f The finale orb has faded."
+        start_message: "&5[Halloween]&f The finale border begins to expand."
+        stop_message: "&5[Halloween]&f The finale border has faded."
+        pause_message: "&5[Halloween]&f The finale border pauses its expansion."
+        resume_message: "&5[Halloween]&f The finale border resumes its expansion."
 
   thresholds:
     - id: kickoff

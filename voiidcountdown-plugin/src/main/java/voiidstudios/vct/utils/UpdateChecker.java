@@ -23,7 +23,9 @@ public class UpdateChecker implements Listener {
             int time_out = 2000;
             connection.setConnectTimeout(time_out);
             connection.setReadTimeout(time_out);
-            latestVersion = new BufferedReader(new InputStreamReader(connection.getInputStream())).readLine();
+            try (BufferedReader reader = new BufferedReader(new InputStreamReader(connection.getInputStream()))) {
+                latestVersion = reader.readLine();
+            }
             if (latestVersion.length() <= 12) { // The version should not be as long as “1.4.0.12-rc1”
                 if(!version.equals(latestVersion)){
                     return UpdateCheckerResult.noErrors(latestVersion);

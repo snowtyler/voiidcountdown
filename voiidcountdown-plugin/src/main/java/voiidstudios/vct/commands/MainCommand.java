@@ -477,7 +477,10 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween toggle &7- Toggle the Halloween mode override."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween force &7- Trigger the next pending threshold immediately."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween reset &7- Revert to the previously completed threshold."));
-        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween finale start &7- Trigger the Halloween finale orb."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween finale start &7- Trigger the Halloween finale border."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween finale stop &7- Stop the finale border and restore world borders."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween finale pause &7- Pause the finale border expansion."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween finale resume &7- Resume the finale border expansion."));
     }
 
     public List<String> onTabComplete(CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){
@@ -512,6 +515,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     subcommands.add("force-next");
                     subcommands.add("reset");
                     subcommands.add("finale");
+                    subcommands.add("pause");
+                    subcommands.add("resume");
                 }else if(args[0].equalsIgnoreCase("set")){
                     subcommands.add("<HHH:MM:SS>");
                 }
@@ -553,6 +558,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     subcommands.add("start");
                     subcommands.add("stop");
                     subcommands.add("status");
+                    subcommands.add("pause");
+                    subcommands.add("resume");
                 }
 
                 for(String c : subcommands) {
@@ -710,6 +717,16 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + result.getMessage()));
                 break;
             }
+                case "pause": {
+                    HalloweenOrbFinaleManager.FinaleActionResult result = orbManager.pauseFinale(sender.getName());
+                    sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + result.getMessage()));
+                    break;
+                }
+                case "resume": {
+                    HalloweenOrbFinaleManager.FinaleActionResult result = orbManager.resumeFinale(sender.getName());
+                    sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + result.getMessage()));
+                    break;
+                }
             case "stop":
             case "end":
             case "cancel": {
@@ -720,9 +737,10 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             case "status":
             case "info": {
                 HalloweenOrbFinaleManager.OrbStatus status = orbManager.getStatus();
-                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&dHalloween finale orb status"));
+                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&dHalloween finale border status"));
                 sender.sendMessage(MessagesManager.getColoredMessage("&7Configured enabled: &f" + (status.isEnabled() ? "Yes" : "No")));
                 sender.sendMessage(MessagesManager.getColoredMessage("&7Active: &f" + (status.isActive() ? "Yes" : "No")));
+                sender.sendMessage(MessagesManager.getColoredMessage("&7Paused: &f" + (status.isPaused() ? "Yes" : "No")));
                 sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT, "&7Expansion per tick: &f%.3f", status.getExpansionPerTick())));
                 sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT, "&7Tick interval: &f%d", status.getTickInterval())));
                 if (Double.isFinite(status.getMaxRadius())) {
@@ -730,6 +748,14 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 } else {
                     sender.sendMessage(MessagesManager.getColoredMessage("&7Max radius: &fUnlimited"));
                 }
+                sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT,
+                        "&7Border damage: &f%.2f &7(buffer %.2f)",
+                        status.getBorderDamageAmount(),
+                        status.getBorderDamageBuffer())));
+                sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT,
+                        "&7Border warnings: &f%d &7distance, &f%d &7seconds",
+                        status.getBorderWarningDistance(),
+                        status.getBorderWarningTime())));
 
                 if (status.getWorlds().isEmpty()) {
                     sender.sendMessage(MessagesManager.getColoredMessage("&7No finale worlds are configured."));
@@ -737,10 +763,20 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     for (HalloweenOrbFinaleManager.OrbWorldStatus worldStatus : status.getWorlds()) {
                         String worldLabel = String.format(java.util.Locale.ROOT, "&f%s &7(%s)", worldStatus.getWorldName(), worldStatus.getEnvironment());
                         if (!worldStatus.isRunning()) {
-                            sender.sendMessage(MessagesManager.getColoredMessage("  &8- " + worldLabel + " &8inactive"));
-                        } else {
-                            sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT, "  &f- %s &7radius &f%.2f", worldLabel, worldStatus.getRadius())));
+                            sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT,
+                                    "  &8- %s &8inactive &7(border %.2f)",
+                                    worldLabel,
+                                    worldStatus.getBorderRadius())));
+                            continue;
                         }
+
+                        String stateLabel = worldStatus.isPaused() ? "&ePAUSED" : "&aRUNNING";
+                        sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT,
+                                "  &f- %s &7[%s&7] tracked radius &f%.2f &7(border %.2f)",
+                                worldLabel,
+                                stateLabel,
+                                worldStatus.getTrackedRadius(),
+                                worldStatus.getBorderRadius())));
                     }
                 }
 

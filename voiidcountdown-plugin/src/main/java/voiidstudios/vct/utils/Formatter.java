@@ -10,7 +10,7 @@ public enum Formatter {
     MINIMESSAGE(
             (plugin, player, text) -> {
                 ServerVersion serverVersion = VoiidCountdownTimer.serverVersion;
-                if (plugin.getDependencyManager().isPaper() && serverVersion.serverVersionGreaterEqualThan(serverVersion, ServerVersion.v1_19_R3)) {
+                if (VoiidCountdownTimer.getDependencyManager().isPaper() && serverVersion.serverVersionGreaterEqualThan(serverVersion, ServerVersion.v1_19_R3)) {
                     try {
                         Class<?> miniMessageClass = Class.forName("net.kyori.adventure.text.minimessage.MiniMessage");
                         Object miniMessage = miniMessageClass.getMethod("miniMessage").invoke(null);
@@ -71,7 +71,7 @@ public enum Formatter {
             (plugin, player, text) -> {
                 ServerVersion serverVersion = VoiidCountdownTimer.serverVersion;
 
-                boolean miniCompatible = plugin.getDependencyManager().isPaper()
+                boolean miniCompatible = VoiidCountdownTimer.getDependencyManager().isPaper()
                         && serverVersion.serverVersionGreaterEqualThan(serverVersion, ServerVersion.v1_19_R3)
                         && hasMiniMessage();
 
@@ -172,11 +172,10 @@ public enum Formatter {
     }
 
     private final TriFunction<VoiidCountdownTimer, CommandSender, String, Object> formatter;
-    private final String name;
 
     Formatter(TriFunction<VoiidCountdownTimer, CommandSender, String, Object> formatter, String name) {
         this.formatter = formatter;
-        this.name = name;
+        // 'name' kept for possible future debugging; not currently used.
     }
 
     public Object format(@NotNull VoiidCountdownTimer plugin, @NotNull CommandSender audience, @NotNull String text) {
