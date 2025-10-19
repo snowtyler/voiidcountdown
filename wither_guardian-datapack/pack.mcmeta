@@ -1,0 +1,12 @@
+{
+   "pack": {
+	   "pack_format": 71,
+	   "description": "GUARDIAN",
+	   "supported_formats": [
+		  71,
+		  88
+		],
+		"min_format": 71,
+		"max_format": 88
+   }
+}
