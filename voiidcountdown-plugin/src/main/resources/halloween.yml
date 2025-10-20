@@ -22,45 +22,6 @@ halloween_mode:
     force_override: true
     resync_tolerance_seconds: 10
 
-  finale:
-    orb:
-      enabled: true
-      start_radius: 2.5
-      expansion_per_tick: 0.35
-      max_radius: 256.0
-      tick_interval: 2
-      worlds:
-        - world
-        - world_nether
-        - world_the_end
-      origin:
-        x: 0.5
-        z: 0.5
-        y: 64.0
-        y_offset: 0.0
-        use_spawn_y: true
-      visual:
-        mode: WORLD_BORDER # WORLD_BORDER or VIRTUAL_BLOCKS
-        material: RED_STAINED_GLASS
-        height: 3
-        density: 2
-      world_border:
-        damage_amount: 2.0
-        damage_buffer: 5.0
-        warning_distance: 10
-        warning_time: 15
-      punishment:
-        ban_message: "&cThe finale border has consumed you."
-        kick_message: "&cEven operators cannot outrun the finale border."
-        broadcast: true
-        broadcast_message: "&5[Halloween]&c %PLAYER% was consumed by the finale border."
-        bypass_permission: ""
-      broadcast:
-        start_message: "&5[Halloween]&f The finale border begins to expand."
-        stop_message: "&5[Halloween]&f The finale border has faded."
-        pause_message: "&5[Halloween]&f The finale border pauses its expansion."
-        resume_message: "&5[Halloween]&f The finale border resumes its expansion."
-
   thresholds:
     - id: kickoff
       at: 2025-10-25T00:00:00

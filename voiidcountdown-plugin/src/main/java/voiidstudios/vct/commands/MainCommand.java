@@ -14,7 +14,6 @@ import voiidstudios.vct.configs.model.TimerConfig;
 import voiidstudios.vct.managers.MessagesManager;
 import voiidstudios.vct.managers.TimerManager;
 import voiidstudios.vct.managers.HalloweenModeManager;
-import voiidstudios.vct.managers.HalloweenOrbFinaleManager;
 
 import java.time.ZoneId;
 import java.time.ZonedDateTime;
@@ -64,10 +63,6 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         HalloweenModeManager halloweenManager = VoiidCountdownTimer.getHalloweenModeManager();
         if (halloweenManager != null) {
             halloweenManager.reload();
-        }
-        HalloweenOrbFinaleManager orbManager = VoiidCountdownTimer.getHalloweenOrbFinaleManager();
-        if (orbManager != null) {
-            orbManager.reload();
         }
         if (VoiidCountdownTimer.getSpawnBookManager() != null) {
             VoiidCountdownTimer.getSpawnBookManager().reload();
@@ -477,10 +472,6 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween toggle &7- Toggle the Halloween mode override."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween force &7- Trigger the next pending threshold immediately."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween reset &7- Revert to the previously completed threshold."));
-        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween finale start &7- Trigger the Halloween finale border."));
-        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween finale stop &7- Stop the finale border and restore world borders."));
-        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween finale pause &7- Pause the finale border expansion."));
-        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween finale resume &7- Resume the finale border expansion."));
     }
 
     public List<String> onTabComplete(CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){
@@ -514,9 +505,6 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     subcommands.add("force");
                     subcommands.add("force-next");
                     subcommands.add("reset");
-                    subcommands.add("finale");
-                    subcommands.add("pause");
-                    subcommands.add("resume");
                 }else if(args[0].equalsIgnoreCase("set")){
                     subcommands.add("<HHH:MM:SS>");
                 }
@@ -554,12 +542,6 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     }
                 } else if(args[0].equalsIgnoreCase("set")){
                     return getTimersCompletions(args, 2, true);
-                } else if(args[0].equalsIgnoreCase("halloween") && args[1].equalsIgnoreCase("finale")) {
-                    subcommands.add("start");
-                    subcommands.add("stop");
-                    subcommands.add("status");
-                    subcommands.add("pause");
-                    subcommands.add("resume");
                 }
 
                 for(String c : subcommands) {
@@ -643,10 +625,6 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 sender.sendMessage(MessagesManager.getColoredMessage("&7Webhook configured: &f" + (status.isWebhookConfigured() ? "Yes" : "No")));
                 break;
             }
-            case "finale": {
-                handleHalloweenFinale(sender, args);
-                break;
-            }
             case "toggle": {
                 boolean enabled = halloweenManager.toggleManualEnabledOverride();
                 Optional<Boolean> manualOverride = halloweenManager.getManualEnabledOverride();
@@ -698,95 +676,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 break;
             }
             default:
-                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&7Unknown Halloween subcommand. Use &6/vct halloween status&7, &6toggle&7, &6force&7, &6reset&7, or &6finale&7."));
-                break;
-        }
-    }
-
-    private void handleHalloweenFinale(CommandSender sender, String[] args) {
-        HalloweenOrbFinaleManager orbManager = VoiidCountdownTimer.getHalloweenOrbFinaleManager();
-        if (orbManager == null) {
-            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cFinale manager is not available."));
-            return;
-        }
-
-        String action = args.length >= 3 ? args[2].toLowerCase() : "status";
-        switch (action) {
-            case "start": {
-                HalloweenOrbFinaleManager.FinaleActionResult result = orbManager.startFinale(sender.getName());
-                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + result.getMessage()));
-                break;
-            }
-                case "pause": {
-                    HalloweenOrbFinaleManager.FinaleActionResult result = orbManager.pauseFinale(sender.getName());
-                    sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + result.getMessage()));
-                    break;
-                }
-                case "resume": {
-                    HalloweenOrbFinaleManager.FinaleActionResult result = orbManager.resumeFinale(sender.getName());
-                    sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + result.getMessage()));
-                    break;
-                }
-            case "stop":
-            case "end":
-            case "cancel": {
-                HalloweenOrbFinaleManager.FinaleActionResult result = orbManager.stopFinale(sender.getName());
-                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + result.getMessage()));
-                break;
-            }
-            case "status":
-            case "info": {
-                HalloweenOrbFinaleManager.OrbStatus status = orbManager.getStatus();
-                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&dHalloween finale border status"));
-                sender.sendMessage(MessagesManager.getColoredMessage("&7Configured enabled: &f" + (status.isEnabled() ? "Yes" : "No")));
-                sender.sendMessage(MessagesManager.getColoredMessage("&7Active: &f" + (status.isActive() ? "Yes" : "No")));
-                sender.sendMessage(MessagesManager.getColoredMessage("&7Paused: &f" + (status.isPaused() ? "Yes" : "No")));
-                sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT, "&7Expansion per tick: &f%.3f", status.getExpansionPerTick())));
-                sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT, "&7Tick interval: &f%d", status.getTickInterval())));
-                if (Double.isFinite(status.getMaxRadius())) {
-                    sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT, "&7Max radius: &f%.2f", status.getMaxRadius())));
-                } else {
-                    sender.sendMessage(MessagesManager.getColoredMessage("&7Max radius: &fUnlimited"));
-                }
-                sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT,
-                        "&7Border damage: &f%.2f &7(buffer %.2f)",
-                        status.getBorderDamageAmount(),
-                        status.getBorderDamageBuffer())));
-                sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT,
-                        "&7Border warnings: &f%d &7distance, &f%d &7seconds",
-                        status.getBorderWarningDistance(),
-                        status.getBorderWarningTime())));
-
-                if (status.getWorlds().isEmpty()) {
-                    sender.sendMessage(MessagesManager.getColoredMessage("&7No finale worlds are configured."));
-                } else {
-                    for (HalloweenOrbFinaleManager.OrbWorldStatus worldStatus : status.getWorlds()) {
-                        String worldLabel = String.format(java.util.Locale.ROOT, "&f%s &7(%s)", worldStatus.getWorldName(), worldStatus.getEnvironment());
-                        if (!worldStatus.isRunning()) {
-                            sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT,
-                                    "  &8- %s &8inactive &7(border %.2f)",
-                                    worldLabel,
-                                    worldStatus.getBorderRadius())));
-                            continue;
-                        }
-
-                        String stateLabel = worldStatus.isPaused() ? "&ePAUSED" : "&aRUNNING";
-                        sender.sendMessage(MessagesManager.getColoredMessage(String.format(java.util.Locale.ROOT,
-                                "  &f- %s &7[%s&7] tracked radius &f%.2f &7(border %.2f)",
-                                worldLabel,
-                                stateLabel,
-                                worldStatus.getTrackedRadius(),
-                                worldStatus.getBorderRadius())));
-                    }
-                }
-
-                if (status.getPunishedCount() > 0) {
-                    sender.sendMessage(MessagesManager.getColoredMessage("&7Players consumed: &f" + status.getPunishedCount()));
-                }
-                break;
-            }
-            default:
-                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&7Unknown finale action. Use &6start&7, &6stop&7, or &6status&7."));
+                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&7Unknown Halloween subcommand. Use &6/vct halloween status&7, &6toggle&7, &6force&7, or &6reset&7."));
                 break;
         }
     }

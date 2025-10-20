@@ -16,7 +16,6 @@ import voiidstudios.vct.managers.MessagesManager;
 import voiidstudios.vct.managers.HalloweenModeManager;
 import voiidstudios.vct.managers.TimerStateManager;
 import voiidstudios.vct.managers.SpawnBookManager;
-import voiidstudios.vct.managers.HalloweenOrbFinaleManager;
 import voiidstudios.vct.utils.ServerVersion;
 import voiidstudios.vct.utils.UpdateChecker;
 import voiidstudios.vct.challenges.ChallengeManager;
@@ -39,7 +38,6 @@ public final class VoiidCountdownTimer extends JavaPlugin {
     private static DependencyManager dependencyManager;
     private static HalloweenModeManager halloweenModeManager;
     private static SpawnBookManager spawnBookManager;
-    private static HalloweenOrbFinaleManager halloweenOrbFinaleManager;
     private static ChallengeManager challengeManager;
 
     public void onEnable() {
@@ -48,7 +46,6 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         messagesManager = new MessagesManager(this);
         configsManager.configure();
         halloweenModeManager = new HalloweenModeManager(this);
-        halloweenOrbFinaleManager = new HalloweenOrbFinaleManager(this);
         spawnBookManager = new SpawnBookManager(this);
         challengeManager = new ChallengeManager(this);
         setVersion();
@@ -78,7 +75,6 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         timerStateManager = new TimerStateManager(this);
         timerStateManager.loadState();
         halloweenModeManager.reload();
-        halloweenOrbFinaleManager.reload();
         spawnBookManager.reload();
         challengeManager.reload();
     }
@@ -86,9 +82,6 @@ public final class VoiidCountdownTimer extends JavaPlugin {
     public void onDisable() {
         if (halloweenModeManager != null) {
             halloweenModeManager.shutdown();
-        }
-        if (halloweenOrbFinaleManager != null) {
-            halloweenOrbFinaleManager.shutdown();
         }
         if (challengeManager != null) {
             challengeManager.shutdown();
@@ -197,9 +190,5 @@ public final class VoiidCountdownTimer extends JavaPlugin {
 
     public static ChallengeManager getChallengeManager() {
         return challengeManager;
-    }
-
-    public static HalloweenOrbFinaleManager getHalloweenOrbFinaleManager() {
-        return halloweenOrbFinaleManager;
     }
 }
