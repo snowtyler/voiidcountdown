@@ -8,6 +8,7 @@ import voiidstudios.vct.commands.MainCommand;
 import voiidstudios.vct.configs.ConfigsManager;
 import voiidstudios.vct.listeners.PlayerListener;
 import voiidstudios.vct.listeners.EnderDragonListener;
+import voiidstudios.vct.listeners.CustomSummonListener;
 import voiidstudios.vct.managers.DependencyManager;
 import voiidstudios.vct.api.UpdateCheckerResult;
 import voiidstudios.vct.managers.DynamicsManager;
@@ -143,6 +144,7 @@ public final class VoiidCountdownTimer extends JavaPlugin {
     public void registerEvents() {
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new EnderDragonListener(this), this);
+        getServer().getPluginManager().registerEvents(new CustomSummonListener(), this);
     }
 
     public static VoiidCountdownTimer getInstance() {

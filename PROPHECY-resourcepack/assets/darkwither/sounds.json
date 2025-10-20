@@ -1,0 +1,49 @@
+{
+  "events.10sec": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "darkwither:events/10sec",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+
+  "events.death": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "darkwither:events/death",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+
+  "events.phase1": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "darkwither:events/phase1",
+        "stream": true,
+        "volume": 0.5,
+        "pitch": 1.0
+      }
+    ]
+  },
+
+  "events.phase2": {
+    "category": "hostile",
+    "sounds": [
+      {
+        "name": "darkwither:events/phase2",
+        "stream": true,
+        "volume": 0.5,
+        "pitch": 1.0
+      }
+    ]
+  }
+}
