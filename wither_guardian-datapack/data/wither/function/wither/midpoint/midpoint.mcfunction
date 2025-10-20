@@ -39,7 +39,7 @@ execute if data storage wither:options {toggleanimation:Default} run schedule fu
 # SPECIAL FX
 execute if data storage wither:options {toggleanimation:Default} at @e[type=minecraft:wither,tag=WitherGuardian,limit=1,sort=nearest] at @s run playsound minecraft:entity.wither.spawn hostile @a[distance=..30] ~ ~ ~ 2 .8
 schedule clear wither:wither/musicphase1
-execute as @a run stopsound @a record wither_guardian:phase1
+execute as @a run stopsound @a record wither_guardian:events.phase1
 function wither:wither/musicphase2
 effect give @e[type=wither_skeleton,distance=..20] resistance 3 10
 execute if data storage wither:options {toggleanimation:Default} run data merge entity @e[type=minecraft:wither,tag=WitherGuardian,limit=1,sort=nearest] {Invulnerable:1b,NoAI:1b,NoGravity:1b,active_effects:[{id:"minecraft:resistance",amplifier:255,duration:5}]}

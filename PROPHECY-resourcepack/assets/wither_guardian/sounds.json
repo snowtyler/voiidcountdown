@@ -11,7 +11,7 @@
     ]
   },
 
-  "death": {
+  "events.death": {
     "category": "hostile",
     "sounds": [
       {
@@ -23,8 +23,8 @@
     ]
   },
 
-  "phase1": {
-    "category": "hostile",
+  "events.phase1": {
+    "category": "music",
     "sounds": [
       {
         "name": "wither_guardian:events/phase1",
@@ -35,8 +35,8 @@
     ]
   },
 
-  "phase2": {
-    "category": "hostile",
+  "events.phase2": {
+    "category": "music",
     "sounds": [
       {
         "name": "wither_guardian:events/phase2",

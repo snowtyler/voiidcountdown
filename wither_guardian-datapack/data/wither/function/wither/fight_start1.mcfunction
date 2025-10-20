@@ -46,7 +46,7 @@ execute if data storage wither:options {toggleweather:Enabled} if score wticktim
 
 
 stopsound @a music
-execute as @e[type=minecraft:wither,tag=WitherGuardian,limit=1,sort=nearest] at @s run playsound wither_guardian:10sec record @a[distance=..100] ~ ~ ~ 1 1
+execute as @e[type=minecraft:wither,tag=WitherGuardian,limit=1,sort=nearest] at @s run playsound wither_guardian:events.10sec music @a[distance=..100] ~ ~ ~ 1 1
 execute as @e[type=minecraft:wither,tag=WitherGuardian,limit=1,sort=nearest] at @s run playsound minecraft:music.nether.basalt_deltas music @a[distance=..100] ~ ~-2 ~ 2
 execute as @e[type=minecraft:wither,tag=WitherGuardian,limit=1,sort=nearest] at @e[type=player,distance=..100] run playsound minecraft:entity.parrot.imitate.wither hostile @a ~ ~ ~ 2 0.1
 

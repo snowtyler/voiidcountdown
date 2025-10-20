@@ -15,7 +15,7 @@ execute at @s run tellraw @p ["",{"text":"[ᴡɪᴛʜᴇʀ'ꜱ ᴡʀᴀᴛʜ] ",
 
 kill @s
 
-stopsound @a hostile wither_guardian:death 
+stopsound @a hostile wither_guardian:events.death 
 
 kill @e[type=item,sort=nearest,nbt={Item:{id:"minecraft:nether_star"}}]
 
