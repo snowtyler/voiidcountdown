@@ -18,8 +18,8 @@ scoreboard players set enraged wenraged 0
 
 # MUSIC
     schedule clear wither:wither/musicphase2
-    execute as @a run stopsound @a record minecraft:wither.phase2
-    execute at @e[type=item,sort=nearest,tag=nether_star,limit=1] run playsound minecraft:wither.death hostile @a ~ ~ ~ 1 1
+    execute as @a run stopsound @a record darkwither:events.phase2
+    execute at @e[type=item,sort=nearest,tag=nether_star,limit=1] run playsound darkwither:events.death hostile @a ~ ~ ~ 1 1
     execute at @e[type=item,sort=nearest,tag=nether_star,limit=1] run playsound minecraft:ui.toast.challenge_complete player @a ~ ~ ~ 1 0.9
     execute at @e[type=item,sort=nearest,tag=nether_star,limit=1] run playsound minecraft:music.creative music @a
     execute at @e[type=item,sort=nearest,tag=nether_star,limit=1] run playsound minecraft:entity.player.levelup master @s ~ ~ ~ 100 .85
