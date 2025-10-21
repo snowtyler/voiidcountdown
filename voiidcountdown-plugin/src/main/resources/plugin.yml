@@ -3,7 +3,7 @@ name: VoiidCountdownTimer
 version: 2.0.2
 codename: astro
 authors: [Voiid Studios]
-api-version: 1.13
+api-version: 1.19
 softdepend: [PlaceholderAPI]
 
 commands:
