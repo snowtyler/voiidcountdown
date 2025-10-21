@@ -1,1 +1,1 @@
-data merge entity @e[type=wither,limit=1] {NoGravity:1b,Invulnerable:1b}
+data merge entity @e[type=wither,tag=DarkWither,limit=1] {NoGravity:1b,Invulnerable:1b}

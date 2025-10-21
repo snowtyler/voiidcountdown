@@ -6,6 +6,7 @@ import voiidstudios.vct.api.UpdateCheckerResult;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
+import java.net.URI;
 import java.net.URL;
 
 public class UpdateChecker implements Listener {
@@ -19,7 +20,9 @@ public class UpdateChecker implements Listener {
 
     public UpdateCheckerResult check(){
         try {
-            HttpURLConnection connection = (HttpURLConnection) new URL("https://api.spigotmc.org/legacy/update.php?resource=" + RESOURCE_ID).openConnection();
+            URI requestUri = URI.create("https://api.spigotmc.org/legacy/update.php?resource=" + RESOURCE_ID);
+            URL requestUrl = requestUri.toURL();
+            HttpURLConnection connection = (HttpURLConnection) requestUrl.openConnection();
             int time_out = 2000;
             connection.setConnectTimeout(time_out);
             connection.setReadTimeout(time_out);

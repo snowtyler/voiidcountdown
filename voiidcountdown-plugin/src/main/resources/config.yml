@@ -13,6 +13,31 @@ Config:
   refresh_ticks: 10
   # Should the plugin save and load the timer states when the server is closed and opened?
   save_state_timers: true
+  # Enable the custom Dark Wither summon ritual
+  enable_custom_dark_wither_summon: true
+
+# TestPillar - visual test pillar parameters
+TestPillar:
+  # Center of the pillar (X and Z coordinates)
+  x: 0
+  z: 0
+  # Optional starting Y. If null or absent, the world min height will be used.
+  start_y: null
+  # Height in blocks. 0 = full height from minY to maxY
+  height: 0
+  # Whether the ring blocks are unbreakable (protected by the plugin)
+  unbreakable: true
+  # Ring geometry: radius (distance from center) and thickness (ring width)
+  radius: 3.0
+  thickness: 1.0
+  # Block type used for the ring (END_PORTAL, END_GATEWAY, END_PORTAL_FRAME, BEDROCK, etc.)
+  block_type: END_PORTAL
+  # Chance (0.0-1.0) for special behaviour (ignored for most blocks):
+  #   - END_GATEWAY: probability a spot becomes a gateway instead of bedrock
+  #   - END_PORTAL_FRAME: probability the frame spawns with an eye inserted
+  gateway_chance: 0.15
+  # How many ring layers are placed per animation tick while the pillar "falls"
+  layers_per_tick: 4
 
 Messages:
   commandReload: '&aConfig Reloaded.'

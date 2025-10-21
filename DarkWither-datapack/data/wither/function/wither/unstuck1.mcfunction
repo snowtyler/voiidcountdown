@@ -1,5 +1,5 @@
-execute rotated ~ 0 if block ~ ~-0.5 ~ water run data merge entity @e[type=minecraft:wither,limit=1,sort=nearest] {Motion:[0.0,8.0,0.0]}
-execute rotated ~ 0 if block ~ ~0.5 ~ water run data merge entity @e[type=minecraft:wither,limit=1,sort=nearest] {Motion:[0.0,8.0,0.0]}
+execute rotated ~ 0 if block ~ ~-0.5 ~ water run data merge entity @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] {Motion:[0.0,8.0,0.0]}
+execute rotated ~ 0 if block ~ ~0.5 ~ water run data merge entity @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] {Motion:[0.0,8.0,0.0]}
 
 # Check 1 block radius in all directions (including corners)
     execute if block ~1 ~1 ~ bedrock run function wither:wither/motiondown

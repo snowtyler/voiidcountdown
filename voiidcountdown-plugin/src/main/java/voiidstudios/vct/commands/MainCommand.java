@@ -1,15 +1,18 @@
 package voiidstudios.vct.commands;
 
 import org.bukkit.Bukkit;
+import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
 import org.bukkit.command.TabCompleter;
+import org.bukkit.entity.Player;
 import org.jetbrains.annotations.NotNull;
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.api.Timer;
 import voiidstudios.vct.api.VCTActions;
 import voiidstudios.vct.api.VCTEvent;
+import voiidstudios.vct.configs.MainConfigManager;
 import voiidstudios.vct.configs.model.TimerConfig;
 import voiidstudios.vct.managers.MessagesManager;
 import voiidstudios.vct.managers.TimerManager;
@@ -45,6 +48,10 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     modify(sender, args, msgManager);
                 }else if (args[0].equalsIgnoreCase("halloween")){
                     handleHalloween(sender, args);
+                }else if (args[0].equalsIgnoreCase("testpillar")) {
+                    spawnEndGatewayPillar(sender);
+                } else if (args[0].equalsIgnoreCase("testpillarclear")) {
+                    clearEndGatewayPillar(sender);
                 }else{
                     help(sender);
                 }
@@ -472,6 +479,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween toggle &7- Toggle the Halloween mode override."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween force &7- Trigger the next pending threshold immediately."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween reset &7- Revert to the previously completed threshold."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct testpillar &7- Spawn an End Gateway pillar at the world origin."));
     }
 
     public List<String> onTabComplete(CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){
@@ -483,6 +491,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 commands.add("set");commands.add("pause");
                 commands.add("resume");commands.add("stop");
                 commands.add("modify");commands.add("halloween");
+                commands.add("testpillar");
+                commands.add("testpillarclear");
                 for(String c : commands) {
                     if(args[0].isEmpty() || c.startsWith(args[0].toLowerCase())) {
                         completions.add(c);
@@ -678,6 +688,96 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             default:
                 sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&7Unknown Halloween subcommand. Use &6/vct halloween status&7, &6toggle&7, &6force&7, or &6reset&7."));
                 break;
+        }
+    }
+
+    private void spawnEndGatewayPillar(CommandSender sender) {
+        World world = null;
+        if (sender instanceof Player) {
+            world = ((Player) sender).getWorld();
+        }
+
+        if (world == null && !Bukkit.getWorlds().isEmpty()) {
+            world = Bukkit.getWorlds().get(0);
+        }
+
+        if (world == null) {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cUnable to determine a world to spawn the test pillar."));
+            return;
+        }
+
+        MainConfigManager config = VoiidCountdownTimer.getConfigsManager().getMainConfigManager();
+        int centerX = config.getTestPillarX();
+        int centerZ = config.getTestPillarZ();
+        String blockType = config.getTestPillarBlockType();
+        if (blockType == null || blockType.trim().isEmpty()) {
+            blockType = "END_PORTAL_FRAME";
+        }
+        String descentMessage;
+        if (blockType.equalsIgnoreCase("END_PORTAL_FRAME")) {
+            descentMessage = "&7It will descend in layers—rotated End Portal frames settling into place.";
+        } else if (blockType.equalsIgnoreCase("END_PORTAL")) {
+            descentMessage = "&7It will descend in layers—raw portal energy filling the ring.";
+        } else {
+            descentMessage = "&7It will descend in layers—give it a moment to settle.";
+        }
+
+        int worldMinY = 0;
+        try {
+            java.lang.reflect.Method method = world.getClass().getMethod("getMinHeight");
+            Object value = method.invoke(world);
+            if (value instanceof Integer) {
+                worldMinY = (Integer) value;
+            }
+        } catch (ReflectiveOperationException ignored) {
+        }
+
+        Integer configuredStartY = config.getTestPillarStartY();
+        int minY = configuredStartY != null ? Math.max(worldMinY, configuredStartY) : worldMinY;
+        int worldMaxY = world.getMaxHeight();
+        int configuredHeight = config.getTestPillarHeight();
+        int maxY = configuredHeight <= 0 ? worldMaxY : Math.min(worldMaxY, minY + configuredHeight);
+        if (maxY <= minY) {
+            maxY = Math.min(worldMaxY, minY + 1);
+        }
+
+        world.getChunkAt(centerX >> 4, centerZ >> 4).load();
+
+        voiidstudios.vct.managers.VisualBlockManager vbm = VoiidCountdownTimer.getVisualBlockManager();
+        vbm.addPillar(world, centerX, centerZ, minY, maxY);
+
+        sender.sendMessage(MessagesManager.getColoredMessage(
+            VoiidCountdownTimer.prefix + "&aSummoning the " + blockType + " ring at &f(" + centerX + "," + minY + "," + centerZ + ") &7→ &f(" + centerX + "," + (maxY - 1) + "," + centerZ + ")&a."
+        ));
+        sender.sendMessage(MessagesManager.getColoredMessage(
+            VoiidCountdownTimer.prefix + descentMessage
+        ));
+    }
+
+    private void clearEndGatewayPillar(CommandSender sender) {
+        World world = null;
+        if (sender instanceof Player) {
+            world = ((Player) sender).getWorld();
+        }
+
+        if (world == null && !Bukkit.getWorlds().isEmpty()) {
+            world = Bukkit.getWorlds().get(0);
+        }
+
+        if (world == null) {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cUnable to determine a world to clear the test pillar."));
+            return;
+        }
+
+        MainConfigManager config = VoiidCountdownTimer.getConfigsManager().getMainConfigManager();
+        int centerX = config.getTestPillarX();
+        int centerZ = config.getTestPillarZ();
+
+        boolean removed = VoiidCountdownTimer.getVisualBlockManager().removePillar(world, centerX, centerZ);
+        if (removed) {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&aRestored original blocks for the test pillar ring."));
+        } else {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&eNo test pillar was active to clear."));
         }
     }
 

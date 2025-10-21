@@ -18,6 +18,18 @@ public class MainConfigManager {
     private String text_format;
     private int refresh_ticks;
     private boolean save_state_timers;
+    private boolean custom_dark_wither_summon_enabled;
+    // Test pillar configuration
+    private int testpillar_x;
+    private int testpillar_z;
+    private Integer testpillar_start_y; // nullable; if null use world minHeight
+    private int testpillar_height; // 0 means full height (min->max)
+    private boolean testpillar_unbreakable;
+    private double testpillar_radius;
+    private double testpillar_thickness;
+    private int testpillar_layers_per_tick;
+    private double testpillar_gateway_chance; // Default value will be set in configure method
+    private String testpillar_block_type;
 
     public MainConfigManager(VoiidCountdownTimer plugin){
         configFile = new CustomConfig("config.yml", plugin, null, false);
@@ -33,6 +45,31 @@ public class MainConfigManager {
         text_format = config.getString("Config.text_format");
         refresh_ticks = config.getInt("Config.refresh_ticks");
         save_state_timers = config.getBoolean("Config.save_state_timers");
+        custom_dark_wither_summon_enabled = config.getBoolean("Config.enable_custom_dark_wither_summon", false);
+
+        // Test pillar defaults
+        if (config.contains("TestPillar.x")) {
+            testpillar_x = config.getInt("TestPillar.x", 0);
+        } else {
+            testpillar_x = 0;
+        }
+        if (config.contains("TestPillar.z")) {
+            testpillar_z = config.getInt("TestPillar.z", 0);
+        } else {
+            testpillar_z = 0;
+        }
+        if (config.contains("TestPillar.start_y")) {
+            testpillar_start_y = config.getInt("TestPillar.start_y");
+        } else {
+            testpillar_start_y = null;
+        }
+        testpillar_height = config.getInt("TestPillar.height", 0);
+        testpillar_unbreakable = config.getBoolean("TestPillar.unbreakable", true);
+        testpillar_radius = config.getDouble("TestPillar.radius", 3.0);
+        testpillar_thickness = config.getDouble("TestPillar.thickness", 1.0);
+        testpillar_layers_per_tick = config.getInt("TestPillar.layers_per_tick", 4);
+        testpillar_gateway_chance = config.getDouble("TestPillar.gateway_chance", 0.15);
+        testpillar_block_type = config.getString("TestPillar.block_type", "END_PORTAL");
     }
 
     public void reloadConfig(){
@@ -76,6 +113,41 @@ public class MainConfigManager {
             if(!text.contains("save_state_timers:")){
                 getConfig().set("Config.save_state_timers", true);
                 saveConfig();
+            }
+            if(!text.contains("enable_custom_dark_wither_summon:")){
+                getConfig().set("Config.enable_custom_dark_wither_summon", false);
+                saveConfig();
+            }
+
+            if(!text.contains("TestPillar:")){
+                getConfig().set("TestPillar.x", 0);
+                getConfig().set("TestPillar.z", 0);
+                // leave start_y absent to mean world min height
+                getConfig().set("TestPillar.height", 0);
+                getConfig().set("TestPillar.unbreakable", true);
+                getConfig().set("TestPillar.radius", 3.0);
+                getConfig().set("TestPillar.thickness", 1.0);
+                getConfig().set("TestPillar.layers_per_tick", 4);
+                getConfig().set("TestPillar.gateway_chance", 0.15);
+                getConfig().set("TestPillar.block_type", "END_PORTAL");
+                saveConfig();
+            } else {
+                boolean updated = false;
+                if(!text.contains("layers_per_tick")) {
+                    getConfig().set("TestPillar.layers_per_tick", 4);
+                    updated = true;
+                }
+                if(!text.contains("gateway_chance")) {
+                    getConfig().set("TestPillar.gateway_chance", 0.15);
+                    updated = true;
+                }
+                if(!text.contains("block_type")) {
+                    getConfig().set("TestPillar.block_type", "END_PORTAL");
+                    updated = true;
+                }
+                if(updated) {
+                    saveConfig();
+                }
             }
 
             if(!text.contains("timerSetError:")){
@@ -231,5 +303,21 @@ public class MainConfigManager {
 
     public int getRefresh_ticks() {
         return refresh_ticks;
+    }
+
+    // Test pillar getters
+    public int getTestPillarX() { return testpillar_x; }
+    public int getTestPillarZ() { return testpillar_z; }
+    public Integer getTestPillarStartY() { return testpillar_start_y; }
+    public int getTestPillarHeight() { return testpillar_height; }
+    public boolean isTestPillarUnbreakable() { return testpillar_unbreakable; }
+    public double getTestPillarRadius() { return testpillar_radius; }
+    public double getTestPillarThickness() { return testpillar_thickness; }
+    public int getTestPillarLayersPerTick() { return testpillar_layers_per_tick; }
+    public double getTestPillarGatewayChance() { return testpillar_gateway_chance; }
+    public String getTestPillarBlockType() { return testpillar_block_type; }
+
+    public boolean isCustomDarkWitherSummonEnabled() {
+        return custom_dark_wither_summon_enabled;
     }
 }

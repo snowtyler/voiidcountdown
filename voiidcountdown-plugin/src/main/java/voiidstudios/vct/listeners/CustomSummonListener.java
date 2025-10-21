@@ -23,14 +23,14 @@ import voiidstudios.vct.managers.MessagesManager;
  */
 public class CustomSummonListener implements Listener {
 
-    private static final Material SUMMON_BLOCK = Material.SOUL_SAND;
-    private static final String WITHER_TAG = "WitherGuardian";
+    private static final Material SUMMON_BLOCK = Material.EMERALD_BLOCK;
+    private static final String WITHER_TAG = "DarkWither";
 
     @EventHandler(priority = EventPriority.NORMAL, ignoreCancelled = true)
     public void onBlockPlace(BlockPlaceEvent event) {
         Block placed = event.getBlockPlaced();
-        // Accept skull placement types
-        if (!isSkull(placed)) return;
+        // Only react to Wither skeleton skull placement
+        if (!isWitherSkull(placed)) return;
 
         // The skull sits above some soul sand block; candidate centers are that block and its 4 cardinal neighbors
         Block base = placed.getRelative(BlockFace.DOWN);
@@ -67,13 +67,13 @@ public class CustomSummonListener implements Listener {
             List<Block> skullBlocks = new ArrayList<>();
             Block skullCenter = center.getRelative(BlockFace.UP);
             // Require the center skull to be present for the ritual to be valid
-            if (!isSkull(skullCenter)) continue;
+            if (!isWitherSkull(skullCenter)) continue;
             skullBlocks.add(skullCenter);
 
             if (ew) {
                 Block skullE = e.getRelative(BlockFace.UP);
                 Block skullW = w.getRelative(BlockFace.UP);
-                if (!isSkull(skullE) || !isSkull(skullW)) continue;
+                if (!isWitherSkull(skullE) || !isWitherSkull(skullW)) continue;
                 skullBlocks.add(skullE);
                 skullBlocks.add(skullW);
                 patternBlocks.add(e);
@@ -81,7 +81,7 @@ public class CustomSummonListener implements Listener {
             } else {
                 Block skullN = n.getRelative(BlockFace.UP);
                 Block skullS = s.getRelative(BlockFace.UP);
-                if (!isSkull(skullN) || !isSkull(skullS)) continue;
+                if (!isWitherSkull(skullN) || !isWitherSkull(skullS)) continue;
                 skullBlocks.add(skullN);
                 skullBlocks.add(skullS);
                 patternBlocks.add(n);
@@ -108,21 +108,21 @@ public class CustomSummonListener implements Listener {
             if (wither != null) {
                 wither.addScoreboardTag(WITHER_TAG);
                 wither.setRemoveWhenFarAway(false);
-                wither.setCustomName("WitherGuardian");
+                wither.setCustomName("DARK WITHER");
                 wither.setCustomNameVisible(false);
             }
 
             if (player != null) {
-                player.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cA Wither has been summoned and marked as WitherGuardian!"));
+                player.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cA Dark Wither has been summoned!"));
             }
 
             return; // only trigger once
         }
     }
 
-    private boolean isSkull(Block b) {
+    private boolean isWitherSkull(Block b) {
         if (b == null) return false;
         Material t = b.getType();
-        return t == Material.SKELETON_SKULL || t == Material.WITHER_SKELETON_SKULL || t == Material.PLAYER_HEAD;
+        return t == Material.WITHER_SKELETON_SKULL;
     }
 }

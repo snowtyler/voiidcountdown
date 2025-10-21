@@ -1,7 +1,7 @@
 
-execute as @e[type=minecraft:wither,limit=1] at @s run rotate @s facing entity @p eyes
-execute as @e[type=minecraft:wither] at @s run playsound minecraft:entity.wither.shoot player @e[type=player,distance=..50] ~ ~ ~ 0.3 1.2
-execute as @e[type=minecraft:wither,limit=1,sort=nearest] at @s run summon minecraft:wither_skull ^ ^3 ^ {Tags:["skulllaunch"],Motion:[0.05,0.09,0.05],Fire:200,CustomName:"Wither Missile"}
+execute as @e[type=minecraft:wither,tag=DarkWither,limit=1] at @s run rotate @s facing entity @p eyes
+execute as @e[type=minecraft:wither,tag=DarkWither] at @s run playsound minecraft:entity.wither.shoot player @e[type=player,distance=..50] ~ ~ ~ 0.3 1.2
+execute as @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] at @s run summon minecraft:wither_skull ^ ^3 ^ {Tags:["skulllaunch"],Motion:[0.05,0.09,0.05],Fire:200,CustomName:"Wither Missile"}
 
 # Store the Target's position in storage
 execute as @e[type=minecraft:wither_skull,tag=skulllaunch] at @s store result score @s skullposX run data get entity @s Pos[0] 1000

@@ -16,6 +16,7 @@ import voiidstudios.vct.managers.MessagesManager;
 import voiidstudios.vct.managers.HalloweenModeManager;
 import voiidstudios.vct.managers.TimerStateManager;
 import voiidstudios.vct.managers.SpawnBookManager;
+import voiidstudios.vct.managers.VisualBlockManager;
 import voiidstudios.vct.utils.ServerVersion;
 import voiidstudios.vct.utils.UpdateChecker;
 import voiidstudios.vct.challenges.ChallengeManager;
@@ -39,6 +40,7 @@ public final class VoiidCountdownTimer extends JavaPlugin {
     private static HalloweenModeManager halloweenModeManager;
     private static SpawnBookManager spawnBookManager;
     private static ChallengeManager challengeManager;
+    private static VisualBlockManager visualBlockManager;
 
     public void onEnable() {
         instance = this;
@@ -48,6 +50,7 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         halloweenModeManager = new HalloweenModeManager(this);
         spawnBookManager = new SpawnBookManager(this);
         challengeManager = new ChallengeManager(this);
+        visualBlockManager = new VisualBlockManager(this);
         setVersion();
         registerCommands();
         registerEvents();
@@ -85,6 +88,9 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         }
         if (challengeManager != null) {
             challengeManager.shutdown();
+        }
+        if (visualBlockManager != null) {
+            visualBlockManager.restoreAll();
         }
         if (timerStateManager != null && configsManager.getMainConfigManager().isSave_state_timers()) {
             timerStateManager.saveState();
@@ -137,7 +143,14 @@ public final class VoiidCountdownTimer extends JavaPlugin {
     public void registerEvents() {
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new EnderDragonListener(this), this);
-        getServer().getPluginManager().registerEvents(new CustomSummonListener(), this);
+        getServer().getPluginManager().registerEvents(new voiidstudios.vct.listeners.BreakingProtectionListener(visualBlockManager), this);
+        if (configsManager.getMainConfigManager().isCustomDarkWitherSummonEnabled()) {
+            getServer().getPluginManager().registerEvents(new CustomSummonListener(), this);
+            Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage(prefix + "&aCustom Dark Wither summon listener enabled."));
+        }
+        else {
+            Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage(prefix + "&eCustom Dark Wither summon listener is disabled in config."));
+        }
     }
 
     public static VoiidCountdownTimer getInstance() {
@@ -190,5 +203,9 @@ public final class VoiidCountdownTimer extends JavaPlugin {
 
     public static ChallengeManager getChallengeManager() {
         return challengeManager;
+    }
+
+    public static VisualBlockManager getVisualBlockManager() {
+        return visualBlockManager;
     }
 }

@@ -1,8 +1,8 @@
 # Removes Tag
 
-execute as @e[type=minecraft:wither,tag=justSummoned] at @s run tag @s add theWither
-execute as @e[type=minecraft:wither,tag=justSummoned] at @s run data merge entity @s {Invul:220}
-execute as @e[type=minecraft:wither,tag=justSummoned] at @s run tag @s remove justSummoned
+execute as @e[type=minecraft:wither,tag=DarkWither,tag=justSummoned] at @s run tag @s add theWither
+execute as @e[type=minecraft:wither,tag=DarkWither,tag=justSummoned] at @s run data merge entity @s {Invul:220}
+execute as @e[type=minecraft:wither,tag=DarkWither,tag=justSummoned] at @s run tag @s remove justSummoned
 
 
 

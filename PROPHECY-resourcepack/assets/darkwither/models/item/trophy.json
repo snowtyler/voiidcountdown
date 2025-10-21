@@ -2,8 +2,8 @@
 	"parent": "item/generated",
 	"texture_size": [64, 64],
 	"textures": {
-		"1": "wither:item/trophy",
-		"particle": "wither:item/trophy"
+		"1": "darkwither:item/trophy",
+		"particle": "darkwither:item/trophy"
 	},
 	"elements": [
 		{

@@ -41,8 +41,8 @@ stopsound @a record
 
 kill @e[type=armor_stand,tag=wither_spin]
 kill @e[type=armor_stand,tag=wither_stasis]
-tp @e[type=wither] ~ -200 ~
-kill @e[type=wither]
+tp @e[type=wither,tag=DarkWither] ~ -200 ~
+kill @e[type=wither,tag=DarkWither]
 kill @e[type=wither_skull]
 kill @e[type=item_display,tag=nether_star]
 kill @e[tag=wither_dash]
