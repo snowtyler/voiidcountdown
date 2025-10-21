@@ -30,6 +30,11 @@ public class MainConfigManager {
     private int testpillar_layers_per_tick;
     private double testpillar_gateway_chance; // Default value will be set in configure method
     private String testpillar_block_type;
+    private boolean testpillar_start_sound_enabled;
+    private String testpillar_start_sound;
+    private double testpillar_start_sound_volume;
+    private double testpillar_start_sound_pitch;
+    private boolean testpillar_start_from_bottom;
 
     public MainConfigManager(VoiidCountdownTimer plugin){
         configFile = new CustomConfig("config.yml", plugin, null, false);
@@ -70,6 +75,11 @@ public class MainConfigManager {
         testpillar_layers_per_tick = config.getInt("TestPillar.layers_per_tick", 4);
         testpillar_gateway_chance = config.getDouble("TestPillar.gateway_chance", 0.15);
         testpillar_block_type = config.getString("TestPillar.block_type", "END_GATEWAY");
+        testpillar_start_sound_enabled = config.getBoolean("TestPillar.start_sound_enabled", true);
+        testpillar_start_sound = config.getString("TestPillar.start_sound", "minecraft:block.beacon.activate");
+        testpillar_start_sound_volume = config.getDouble("TestPillar.start_sound_volume", 1.0D);
+        testpillar_start_sound_pitch = config.getDouble("TestPillar.start_sound_pitch", 1.0D);
+        testpillar_start_from_bottom = config.getBoolean("TestPillar.start_from_bottom", false);
     }
 
     public void reloadConfig(){
@@ -130,6 +140,11 @@ public class MainConfigManager {
                 getConfig().set("TestPillar.layers_per_tick", 4);
                 getConfig().set("TestPillar.gateway_chance", 0.15);
                 getConfig().set("TestPillar.block_type", "END_GATEWAY");
+                getConfig().set("TestPillar.start_sound_enabled", true);
+                getConfig().set("TestPillar.start_sound", "minecraft:block.beacon.activate");
+                getConfig().set("TestPillar.start_sound_volume", 1.0D);
+                getConfig().set("TestPillar.start_sound_pitch", 1.0D);
+                getConfig().set("TestPillar.start_from_bottom", false);
                 saveConfig();
             } else {
                 boolean updated = false;
@@ -143,6 +158,26 @@ public class MainConfigManager {
                 }
                 if(!text.contains("block_type")) {
                     getConfig().set("TestPillar.block_type", "END_GATEWAY");
+                    updated = true;
+                }
+                if(!text.contains("start_sound_enabled:")) {
+                    getConfig().set("TestPillar.start_sound_enabled", true);
+                    updated = true;
+                }
+                if(!text.contains("start_sound_volume:")) {
+                    getConfig().set("TestPillar.start_sound_volume", 1.0D);
+                    updated = true;
+                }
+                if(!text.contains("start_sound_pitch:")) {
+                    getConfig().set("TestPillar.start_sound_pitch", 1.0D);
+                    updated = true;
+                }
+                if(!text.contains("start_sound:")) {
+                    getConfig().set("TestPillar.start_sound", "minecraft:block.beacon.activate");
+                    updated = true;
+                }
+                if(!text.contains("start_from_bottom:")) {
+                    getConfig().set("TestPillar.start_from_bottom", false);
                     updated = true;
                 }
                 if(updated) {
@@ -316,6 +351,11 @@ public class MainConfigManager {
     public int getTestPillarLayersPerTick() { return testpillar_layers_per_tick; }
     public double getTestPillarGatewayChance() { return testpillar_gateway_chance; }
     public String getTestPillarBlockType() { return testpillar_block_type; }
+    public boolean isTestPillarStartSoundEnabled() { return testpillar_start_sound_enabled; }
+    public String getTestPillarStartSound() { return testpillar_start_sound; }
+    public float getTestPillarStartSoundVolume() { return (float) testpillar_start_sound_volume; }
+    public float getTestPillarStartSoundPitch() { return (float) testpillar_start_sound_pitch; }
+    public boolean isTestPillarStartFromBottom() { return testpillar_start_from_bottom; }
 
     public boolean isCustomDarkWitherSummonEnabled() {
         return custom_dark_wither_summon_enabled;

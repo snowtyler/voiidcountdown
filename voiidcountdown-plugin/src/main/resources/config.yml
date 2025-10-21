@@ -38,6 +38,12 @@ TestPillar:
   gateway_chance: 0.15
   # How many ring layers are placed per animation tick while the pillar "falls"
   layers_per_tick: 4
+  # Sound that plays once when the pillar creation sequence begins.
+  # Accepts vanilla sound enums (e.g., ENTITY_WITHER_SPAWN) or namespaced IDs (e.g., minecraft:block.beacon.activate).
+  start_sound_enabled: true
+  start_sound: minecraft:block.beacon.activate
+  start_sound_volume: 1.0
+  start_sound_pitch: 1.0
 
 Messages:
   commandReload: '&aConfig Reloaded.'

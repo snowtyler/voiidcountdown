@@ -9,5 +9,16 @@
         "pitch": 1.0
       }
     ]
+  },
+  "events.fountain_make": {
+    "category": "music",
+    "sounds": [
+      {
+        "name": "prophecy:events/fountain_make",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
   }
 }

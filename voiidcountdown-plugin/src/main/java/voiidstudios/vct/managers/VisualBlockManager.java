@@ -16,6 +16,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 import org.bukkit.scheduler.BukkitTask;
 
 import voiidstudios.vct.VoiidCountdownTimer;
+import voiidstudios.vct.api.Timer;
 import voiidstudios.vct.configs.MainConfigManager;
 
 import java.util.ArrayList;
@@ -148,6 +149,10 @@ public class VisualBlockManager {
         int layersPerTick = 4;
         double configuredChance = 0.15D;
         Material pillarMaterial = Material.END_GATEWAY;
+        boolean startSoundEnabled = true;
+        String startSoundName = null;
+        float startSoundVolume = 1.0F;
+        float startSoundPitch = 1.0F;
         try {
             MainConfigManager mainConfig = VoiidCountdownTimer.getConfigsManager().getMainConfigManager();
             unbreakable = mainConfig.isTestPillarUnbreakable();
@@ -156,30 +161,64 @@ public class VisualBlockManager {
             layersPerTick = Math.max(1, mainConfig.getTestPillarLayersPerTick());
             configuredChance = mainConfig.getTestPillarGatewayChance();
             pillarMaterial = resolveMaterial(mainConfig.getTestPillarBlockType(), pillarMaterial);
+            startSoundEnabled = mainConfig.isTestPillarStartSoundEnabled();
+            startSoundName = mainConfig.getTestPillarStartSound();
+            startSoundVolume = Math.max(0.0F, mainConfig.getTestPillarStartSoundVolume());
+            startSoundPitch = mainConfig.getTestPillarStartSoundPitch();
         } catch (Throwable ignored) {}
 
         configuredChance = Math.max(0.0D, Math.min(1.0D, configuredChance));
 
         int maxRange = (int) Math.ceil(radius + thickness / 2.0);
         List<List<BlockPosition>> layers = new ArrayList<>();
-        for (int y = maxY - 1; y >= minY; y--) {
-            List<BlockPosition> layer = new ArrayList<>();
-            for (int dx = -maxRange; dx <= maxRange; dx++) {
-                for (int dz = -maxRange; dz <= maxRange; dz++) {
-                    int wx = x + dx;
-                    int wz = z + dz;
-                    double dxOffset = wx - x;
-                    double dzOffset = wz - z;
-                    double dist = Math.sqrt(dxOffset * dxOffset + dzOffset * dzOffset);
-                    double outer = radius + (thickness / 2.0);
-                    double inner = Math.max(0.0, radius - (thickness / 2.0));
-                    if (dist >= inner && dist <= outer) {
-                        layer.add(new BlockPosition(wx, y, wz));
+        MainConfigManager mainConfigCheck = null;
+        boolean startFromBottom = false;
+        try {
+            mainConfigCheck = VoiidCountdownTimer.getConfigsManager().getMainConfigManager();
+            startFromBottom = mainConfigCheck.isTestPillarStartFromBottom();
+        } catch (Throwable ignored) {}
+
+        if (startFromBottom) {
+            for (int y = minY; y < maxY; y++) {
+                List<BlockPosition> layer = new ArrayList<>();
+                for (int dx = -maxRange; dx <= maxRange; dx++) {
+                    for (int dz = -maxRange; dz <= maxRange; dz++) {
+                        int wx = x + dx;
+                        int wz = z + dz;
+                        double dxOffset = wx - x;
+                        double dzOffset = wz - z;
+                        double dist = Math.sqrt(dxOffset * dxOffset + dzOffset * dzOffset);
+                        double outer = radius + (thickness / 2.0);
+                        double inner = Math.max(0.0, radius - (thickness / 2.0));
+                        if (dist >= inner && dist <= outer) {
+                            layer.add(new BlockPosition(wx, y, wz));
+                        }
                     }
                 }
+                if (!layer.isEmpty()) {
+                    layers.add(layer);
+                }
             }
-            if (!layer.isEmpty()) {
-                layers.add(layer);
+        } else {
+            for (int y = maxY - 1; y >= minY; y--) {
+            List<BlockPosition> layer = new ArrayList<>();
+                for (int dx = -maxRange; dx <= maxRange; dx++) {
+                    for (int dz = -maxRange; dz <= maxRange; dz++) {
+                        int wx = x + dx;
+                        int wz = z + dz;
+                        double dxOffset = wx - x;
+                        double dzOffset = wz - z;
+                        double dist = Math.sqrt(dxOffset * dxOffset + dzOffset * dzOffset);
+                        double outer = radius + (thickness / 2.0);
+                        double inner = Math.max(0.0, radius - (thickness / 2.0));
+                        if (dist >= inner && dist <= outer) {
+                            layer.add(new BlockPosition(wx, y, wz));
+                        }
+                    }
+                }
+                if (!layer.isEmpty()) {
+                    layers.add(layer);
+                }
             }
         }
 
@@ -189,6 +228,11 @@ public class VisualBlockManager {
         }
 
         pillars.put(spec.key(), spec);
+
+        if (startSoundEnabled && startSoundName != null && !startSoundName.trim().isEmpty()) {
+            int anchorY = startFromBottom ? minY : Math.max(minY, maxY - 1);
+            playStartSound(world, x, anchorY, z, startSoundName, startSoundVolume, startSoundPitch);
+        }
 
         final int finalLayersPerTick = layersPerTick;
         final Material finalPillarMaterial = pillarMaterial;
@@ -322,6 +366,33 @@ public class VisualBlockManager {
             return dx >= 0 ? BlockFace.EAST : BlockFace.WEST;
         }
         return dz >= 0 ? BlockFace.SOUTH : BlockFace.NORTH;
+    }
+
+    private void playStartSound(World world, int x, int y, int z, String soundName, float volume, float pitch) {
+        if (world == null) {
+            return;
+        }
+
+        String trimmedName = soundName != null ? soundName.trim() : "";
+        if (trimmedName.isEmpty()) {
+            return;
+        }
+
+        double safeVolume = Math.max(0.0D, volume);
+        float useVolume = (float) Math.min(safeVolume, Float.MAX_VALUE);
+        float usePitch = pitch;
+
+        // Play the configured sound individually for every player in the same world so
+        // each player hears it regardless of server-side positional issues or cross-world listeners.
+        String actionLine = trimmedName + ";" + useVolume + ";" + usePitch;
+        try {
+            for (Player p : world.getPlayers()) {
+                Timer.playSound(p, actionLine);
+            }
+        } catch (Throwable t) {
+            // Fallback to logging the failure
+            plugin.getLogger().warning("Unable to play configured test pillar start sound to players: " + trimmedName);
+        }
     }
 
     private Material resolveMaterial(String name, Material fallback) {
