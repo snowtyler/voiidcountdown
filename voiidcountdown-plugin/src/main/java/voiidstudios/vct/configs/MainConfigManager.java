@@ -69,7 +69,7 @@ public class MainConfigManager {
         testpillar_thickness = config.getDouble("TestPillar.thickness", 1.0);
         testpillar_layers_per_tick = config.getInt("TestPillar.layers_per_tick", 4);
         testpillar_gateway_chance = config.getDouble("TestPillar.gateway_chance", 0.15);
-        testpillar_block_type = config.getString("TestPillar.block_type", "END_PORTAL");
+        testpillar_block_type = config.getString("TestPillar.block_type", "END_GATEWAY");
     }
 
     public void reloadConfig(){
@@ -129,7 +129,7 @@ public class MainConfigManager {
                 getConfig().set("TestPillar.thickness", 1.0);
                 getConfig().set("TestPillar.layers_per_tick", 4);
                 getConfig().set("TestPillar.gateway_chance", 0.15);
-                getConfig().set("TestPillar.block_type", "END_PORTAL");
+                getConfig().set("TestPillar.block_type", "END_GATEWAY");
                 saveConfig();
             } else {
                 boolean updated = false;
@@ -142,7 +142,7 @@ public class MainConfigManager {
                     updated = true;
                 }
                 if(!text.contains("block_type")) {
-                    getConfig().set("TestPillar.block_type", "END_PORTAL");
+                    getConfig().set("TestPillar.block_type", "END_GATEWAY");
                     updated = true;
                 }
                 if(updated) {

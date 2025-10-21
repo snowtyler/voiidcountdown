@@ -8,12 +8,12 @@ import org.bukkit.block.Block;
 import org.bukkit.block.BlockState;
 import org.bukkit.block.BlockFace;
 import org.bukkit.block.EndGateway;
-import org.bukkit.entity.Player;
-import org.bukkit.plugin.java.JavaPlugin;
-import org.bukkit.scheduler.BukkitTask;
 import org.bukkit.block.data.BlockData;
 import org.bukkit.block.data.Directional;
 import org.bukkit.block.data.type.EndPortalFrame;
+import org.bukkit.entity.Player;
+import org.bukkit.plugin.java.JavaPlugin;
+import org.bukkit.scheduler.BukkitTask;
 
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.configs.MainConfigManager;
@@ -147,7 +147,7 @@ public class VisualBlockManager {
         double thickness = 1.0;
         int layersPerTick = 4;
         double configuredChance = 0.15D;
-        Material pillarMaterial = Material.END_PORTAL;
+        Material pillarMaterial = Material.END_GATEWAY;
         try {
             MainConfigManager mainConfig = VoiidCountdownTimer.getConfigsManager().getMainConfigManager();
             unbreakable = mainConfig.isTestPillarUnbreakable();
@@ -299,7 +299,7 @@ public class VisualBlockManager {
         if (material == Material.END_GATEWAY) {
             BlockState state = block.getState();
             if (state instanceof EndGateway) {
-                ((EndGateway) state).setAge(Long.MIN_VALUE);
+                ((EndGateway) state).setAge(180L);
                 state.update(true, false);
             }
         } else if (material == Material.END_PORTAL_FRAME) {

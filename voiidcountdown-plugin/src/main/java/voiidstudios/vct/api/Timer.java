@@ -10,6 +10,7 @@ import org.bukkit.scheduler.BukkitTask;
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.managers.TimerManager;
 import voiidstudios.vct.utils.Formatter;
+import voiidstudios.vct.utils.SoundResolver;
 import voiidstudios.vct.configs.model.TimerConfig;
 
 import java.time.Duration;
@@ -153,19 +154,41 @@ public class Timer {
 
         boolean success = false;
 
-        try {
-            Sound sound = Sound.valueOf(soundName.toUpperCase());
-            player.playSound(player.getLocation(), sound, volume, pitch);
-            success = true;
-        } catch (IllegalArgumentException ignored) {
+        Sound resolved = SoundResolver.find(soundName);
+        if (resolved != null) {
             try {
-                player.playSound(player.getLocation(), soundName, volume, pitch);
+                player.playSound(player.getLocation(), resolved, volume, pitch);
                 success = true;
-            } catch (Exception e) { /* ignore */ }
+            } catch (Exception ignored) {
+                success = false;
+            }
         }
 
         if (!success) {
-            Bukkit.getLogger().warning("[TuPlugin] No se pudo reproducir el sonido: " + soundName);
+            String namespacedId = SoundResolver.toNamespacedId(soundName);
+            if (namespacedId != null && !namespacedId.isEmpty()) {
+                try {
+                    player.playSound(player.getLocation(), namespacedId, volume, pitch);
+                    success = true;
+                } catch (Exception ignored) {
+                    success = false;
+                }
+            }
+        }
+
+        if (!success) {
+            try {
+                player.playSound(player.getLocation(), soundName, volume, pitch);
+                success = true;
+            } catch (Exception ignored) {
+                success = false;
+            }
+        }
+
+        if (!success) {
+            VoiidCountdownTimer plugin = VoiidCountdownTimer.getInstance();
+            (plugin != null ? plugin.getLogger() : Bukkit.getLogger())
+                    .warning("Unable to play configured sound: " + soundName);
         }
     }
 

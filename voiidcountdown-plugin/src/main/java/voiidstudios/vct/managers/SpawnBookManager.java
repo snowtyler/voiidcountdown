@@ -117,7 +117,7 @@ public class SpawnBookManager {
         }
 
         try (Reader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
-            JsonElement root = new JsonParser().parse(reader);
+            JsonElement root = JsonParser.parseReader(reader);
             if (!parseTemplate(root)) {
                 plugin.getLogger().warning("Failed to create spawn book from spawn_book.json; feature disabled until reload.");
             }
@@ -303,7 +303,7 @@ public class SpawnBookManager {
         try {
             if (element.isJsonPrimitive() && element.getAsJsonPrimitive().isString()) {
                 String text = element.getAsString();
-                return TextComponent.fromLegacyText(text);
+                return deserializeLegacy(text);
             }
 
             if (element.isJsonObject() || element.isJsonArray()) {
@@ -320,6 +320,50 @@ public class SpawnBookManager {
         }
 
         return new BaseComponent[0];
+    }
+
+    private BaseComponent[] deserializeLegacy(String text) {
+        try {
+            Class<?> componentClass = Class.forName("net.kyori.adventure.text.Component");
+            Class<?> legacySerializerClass = Class.forName("net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer");
+
+            Object serializer;
+            try {
+                serializer = legacySerializerClass.getMethod("legacySection").invoke(null);
+            } catch (NoSuchMethodException nsme) {
+                Class<?> builderClass = Class.forName("net.kyori.adventure.text.serializer.legacy.LegacyComponentSerializer$Builder");
+                Object builder = legacySerializerClass.getMethod("builder").invoke(null);
+                builderClass.getMethod("character", char.class).invoke(builder, '&');
+                try {
+                    builderClass.getMethod("hexColors").invoke(builder);
+                } catch (NoSuchMethodException ignored) {
+                }
+                serializer = builderClass.getMethod("build").invoke(builder);
+            }
+
+            Object component = legacySerializerClass.getMethod("deserialize", String.class).invoke(serializer, text);
+            Class<?> bungeeSerializerClass = Class.forName("net.kyori.adventure.text.serializer.bungeecord.BungeeComponentSerializer");
+            Object bungeeSerializer = bungeeSerializerClass.getMethod("get").invoke(null);
+            Object serialized = bungeeSerializerClass.getMethod("serialize", componentClass).invoke(bungeeSerializer, component);
+            if (serialized instanceof BaseComponent[]) {
+                return (BaseComponent[]) serialized;
+            }
+        } catch (ClassNotFoundException ignored) {
+        } catch (Exception ex) {
+            plugin.getLogger().log(Level.FINEST, "Falling back to TextComponent legacy parsing", ex);
+        }
+
+        try {
+            Method legacyMethod = TextComponent.class.getDeclaredMethod("fromLegacyText", String.class);
+            Object result = legacyMethod.invoke(null, text);
+            if (result instanceof BaseComponent[]) {
+                return (BaseComponent[]) result;
+            }
+        } catch (Exception ex) {
+            plugin.getLogger().log(Level.WARNING, "Failed to parse legacy text; returning literal component.", ex);
+        }
+
+        return new BaseComponent[]{ new TextComponent(text) };
     }
 
     private JsonObject asObject(JsonElement element) {
@@ -585,7 +629,7 @@ public class SpawnBookManager {
 
     private BaseComponent[] parseComponentTemplate(String template, Map<String, String> replacements) {
         try {
-            JsonElement element = new JsonParser().parse(template);
+            JsonElement element = JsonParser.parseString(template);
             JsonElement populated = applyPlaceholders(element, replacements);
             String json = GSON.toJson(populated);
             return ComponentSerializer.parse(json);
