@@ -1,7 +1,8 @@
 # Copilot instructions for Voiid Countdown Timer
 
-This repo ships two deliverables plus docs. Keep them separate when editing:
-- Datapack: `voiidcountdown-datapack/` (Minecraft functions + tags)
+This repo ships three deliverables plus docs. Keep them separate when editing:
+- Datapack: `DarkWither-datapack/` (Minecraft functions + tags)
+- Resource pack: `PROPHECY-resourcepack\` (assets for the datapack; downloaded by players upon joining the server)
 - Bukkit/Paper plugin: `voiidcountdown-plugin/` (Java, Maven)
 - Docs: `voiidcountdown-docs/` (MDX content; built/published externally)
 
