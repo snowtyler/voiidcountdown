@@ -12,6 +12,7 @@ scoreboard objectives add playerposZ dummy
 scoreboard objectives add skulllaunchmotX dummy
 scoreboard objectives add skulllaunchmotY dummy
 scoreboard objectives add skulllaunchmotZ dummy
+scoreboard objectives add finale_timer dummy
 scoreboard objectives add rules dummy
 scoreboard objectives add stages dummy
 function wither:wither/safemode
