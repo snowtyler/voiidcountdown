@@ -86,5 +86,16 @@
         "pitch": 1.0
       }
     ]
+  },
+  "events.me": {
+    "category": "music",
+    "sounds": [
+      {
+        "name": "prophecy:events/me",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
   }
 }
