@@ -4,6 +4,7 @@ version: 2.0.2
 codename: astro
 authors: [Voiid Studios]
 api-version: 1.21
+depend: [FastAsyncWorldEdit]
 softdepend: [PlaceholderAPI]
 
 commands:
@@ -11,3 +12,8 @@ commands:
     description: Main command of Voiid Countdown Timer
     aliases:
       - vct
+
+permissions:
+  voiidcountdowntimer.freeze.bypass:
+    description: Allows a player to bypass global freeze restrictions
+    default: false

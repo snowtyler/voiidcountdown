@@ -1,0 +1,26 @@
+# Interaction entity triggers configuration
+# Entities of type INTERACTION with matching scoreboard tags will trigger commands when a player interacts with them.
+#
+# Notes:
+# - Keys under rules are scoreboard tags applied to the INTERACTION entity (Entity#getScoreboardTags())
+# - If your tag contains a colon or special characters, wrap the key in quotes.
+# - Supported placeholders in commands: %player% (player name)
+# - run_as: CONSOLE or PLAYER
+# - cancel_event: whether to cancel the interaction event after handling
+
+Interaction:
+  enabled: true
+  on_player_interact:
+    example_open_shop:
+      run_as: CONSOLE
+      cancel_event: true
+      commands:
+        - "say Opening shop for %player%"
+        # - "shop open %player%"   # Example for an external shop plugin
+
+    example_start_timer_5m:
+      run_as: CONSOLE
+      cancel_event: false
+      commands:
+        - "vct set 00:05:00"
+        - "vct resume"

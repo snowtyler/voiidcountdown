@@ -63,4 +63,4 @@ challenges:
     trigger: ENTITY_KILL
     target: GUARDIAN
     count: 1
-    hidden: true
+    obfuscate_until_unlock: true

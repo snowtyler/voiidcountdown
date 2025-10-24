@@ -16,34 +16,59 @@ Config:
   # Enable the custom Dark Wither summon ritual
   enable_custom_dark_wither_summon: true
 
-# TestPillar - visual test pillar parameters
+# TestPillar - builds a configurable hollow pillar at the origin of a world
 TestPillar:
-  # Center of the pillar (X and Z coordinates)
-  x: 0
-  z: 0
-  # Optional starting Y. If null or absent, the world min height will be used.
-  start_y: null
-  # Height in blocks. 0 = full height from minY to maxY
-  height: 0
-  # Whether the ring blocks are unbreakable (protected by the plugin)
+  # Prevent players, pistons, or explosions from modifying the pillar while it runs
   unbreakable: true
-  # Ring geometry: radius (distance from center) and thickness (ring width)
-  radius: 3.0
-  thickness: 1.0
-  # Block type used for the ring (END_PORTAL, END_GATEWAY, END_PORTAL_FRAME, BEDROCK, etc.)
-  block_type: END_PORTAL
-  # Chance (0.0-1.0) for special behaviour (ignored for most blocks):
-  #   - END_GATEWAY: probability a spot becomes a gateway instead of bedrock
-  #   - END_PORTAL_FRAME: probability the frame spawns with an eye inserted
-  gateway_chance: 0.15
-  # How many ring layers are placed per animation tick while the pillar "falls"
-  layers_per_tick: 4
-  # Sound that plays once when the pillar creation sequence begins.
-  # Accepts vanilla sound enums (e.g., ENTITY_WITHER_SPAWN) or namespaced IDs (e.g., minecraft:block.beacon.activate).
-  start_sound_enabled: true
-  start_sound: minecraft:block.beacon.activate
-  start_sound_volume: 1.0
-  start_sound_pitch: 1.0
+  # Radius in blocks around the origin (0,0). Radius 0 = single block, 1.5 = 3x3 column, etc.
+  radius: 1.5
+  # Blocks the pillar is first built with
+  initial_material: END_GATEWAY
+  # Blocks that chase the initial material from the bottom up
+  final_material: BEDROCK
+  # Number of Y layers built per tick using the initial material
+  initial_layers_per_tick: 4
+  # Delay (in ticks) before the final material begins replacing the initial column
+  replacement_delay_ticks: 40
+  # Interval (in ticks) between pillar updates (1 = every tick)
+  tick_interval_ticks: 1
+  # Optional sound cue played immediately when /vct testpillar runs
+  activation_sound:
+    enabled: true
+    sound: minecraft:block.beacon.activate
+    volume: 1.0
+    pitch: 1.0
+
+Freeze:
+  default_freeze_mobs: false
+  title:
+    text: '&cServer Frozen'
+    subtitle: '&7Please wait'
+    fade_in: 10
+    stay: 60
+    fade_out: 20
+    keepalive_ticks: 40
+  blindness:
+    enabled: true
+    amplifier: 0
+    ambient: false
+    particles: false
+  notifications:
+    cooldown_ms: 1500
+    # When true, suppresses all plugin notifications and public chat messages while frozen
+    silent: false
+  mobs:
+    prevent_spawn: true
+    kill_on_freeze: true
+  time:
+    lock_midnight: true
+    keepalive_ticks: 100
+  music:
+    enabled: false
+    sound: prophecy:events.audio_darkness
+    volume: 1.0
+    pitch: 1.0
+    loop_seconds: 20
 
 Messages:
   commandReload: '&aConfig Reloaded.'
@@ -88,6 +113,17 @@ Messages:
   timerStop: '&6Timer stopped!'
   timerDontExists: '&cThe timer does not exist.'
   timerConfigNotFound: '&cThe timer configuration could not be found.'
+  freezeUsage: '&cUse: /vct freeze <on|off|toggle|status> [mobs|nomobs]'
+  freezeEnabled: '&cServer freeze enabled. &7Mob freeze: &f%MOBS%'
+  freezeUpdated: '&aServer freeze updated. &7Mob freeze: &f%MOBS%'
+  freezeAlreadyEnabled: '&eServer is already frozen. &7Mob freeze: &f%MOBS%'
+  freezeDisabled: '&aServer freeze disabled.'
+  freezeAlreadyDisabled: '&eServer is not currently frozen.'
+  freezeStatus: '&7Freeze state: &f%STATE% &7| Mob freeze: &f%MOBS%'
+  freezeMobArgInvalid: '&cUnknown mobs argument. Use MOBS or NOMOBS.'
+  freezeBlockedAction: '&cYou cannot do that while the server is frozen.'
+  freezeBlockedInventory: '&cYou cannot access inventories while the server is frozen.'
+  freezeBlockedChat: '&cYou cannot chat while the server is frozen.'
 
 Timers:
   default:
