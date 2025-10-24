@@ -1,6 +1,8 @@
 package voiidstudios.vct.commands;
 
 import org.bukkit.Bukkit;
+import org.bukkit.Location;
+import org.bukkit.Material;
 import org.bukkit.World;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
@@ -16,6 +18,7 @@ import voiidstudios.vct.configs.model.TimerConfig;
 import voiidstudios.vct.managers.MessagesManager;
 import voiidstudios.vct.managers.TimerManager;
 import voiidstudios.vct.managers.HalloweenModeManager;
+import voiidstudios.vct.managers.FreezeManager;
 import voiidstudios.vct.api.Timer;
 import voiidstudios.vct.utils.SoundResolver;
 
@@ -26,6 +29,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Locale;
 
 public class MainCommand implements CommandExecutor, TabCompleter {
     public boolean onCommand(CommandSender sender, @NotNull Command command, @NotNull String alias, String[] args) {
@@ -49,8 +53,10 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     modify(sender, args, msgManager);
                 }else if (args[0].equalsIgnoreCase("halloween")){
                     handleHalloween(sender, args);
+                }else if (args[0].equalsIgnoreCase("freeze")){
+                    handleFreeze(sender, args);
                 }else if (args[0].equalsIgnoreCase("testpillar")) {
-                    spawnEndGatewayPillar(sender, args);
+                    spawnTestPillar(sender, args);
                 } else if (args[0].equalsIgnoreCase("testpillarclear")) {
                     clearEndGatewayPillar(sender, args);
                 }else{
@@ -75,9 +81,16 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         if (VoiidCountdownTimer.getSpawnBookManager() != null) {
             VoiidCountdownTimer.getSpawnBookManager().reload();
         }
+        if (VoiidCountdownTimer.getInteractionActionManager() != null) {
+            VoiidCountdownTimer.getInteractionActionManager().reload();
+        }
         if (VoiidCountdownTimer.getChallengeManager() != null) {
             VoiidCountdownTimer.getChallengeManager().reload();
             VoiidCountdownTimer.getChallengeManager().refreshAllBooks();
+        }
+        FreezeManager freezeManager = VoiidCountdownTimer.getFreezeManager();
+        if (freezeManager != null) {
+            freezeManager.reload();
         }
         msgManager.sendConfigMessage(sender, "Messages.commandReload", true, null);
         Timer.refreshTimerText();
@@ -475,7 +488,8 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween toggle &7- Toggle the Halloween mode override."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween force &7- Trigger the next pending threshold immediately."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween reset &7- Revert to the previously completed threshold."));
-        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct testpillar &7[world] - Spawn the configured pillar in a world (use &f~ &7for your current world)."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct freeze &e<on|off|toggle|status> [mobs|nomobs] &7- Control the global freeze state."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct testpillar &7[world] - Spawn the configured pillar at the origin (use &f~ &7for your current world)."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct testpillarclear &7[world] - Restore blocks from the test pillar in a world."));
     }
 
@@ -488,6 +502,7 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 commands.add("set");commands.add("pause");
                 commands.add("resume");commands.add("stop");
                 commands.add("modify");commands.add("halloween");
+                commands.add("freeze");
                 commands.add("testpillar");
                 commands.add("testpillarclear");
                 for(String c : commands) {
@@ -512,6 +527,11 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     subcommands.add("force");
                     subcommands.add("force-next");
                     subcommands.add("reset");
+                }else if(args[0].equalsIgnoreCase("freeze")){
+                    subcommands.add("on");
+                    subcommands.add("off");
+                    subcommands.add("toggle");
+                    subcommands.add("status");
                 }else if(args[0].equalsIgnoreCase("set")){
                     subcommands.add("<HHH:MM:SS>");
                 }else if(args[0].equalsIgnoreCase("testpillar") || args[0].equalsIgnoreCase("testpillarclear")) {
@@ -552,6 +572,11 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     }else if(args[1].equalsIgnoreCase("add") || args[1].equalsIgnoreCase("set") || args[1].equalsIgnoreCase("take")){
                         subcommands.add("<HHH:MM:SS>");
                     }
+                } else if(args[0].equalsIgnoreCase("freeze")){
+                    subcommands.add("mobs");
+                    subcommands.add("nomobs");
+                    subcommands.add("true");
+                    subcommands.add("false");
                 } else if(args[0].equalsIgnoreCase("set")){
                     return getTimersCompletions(args, 2, true);
                 }
@@ -693,7 +718,113 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         }
     }
 
-    private void spawnEndGatewayPillar(CommandSender sender, String[] args) {
+    private void handleFreeze(CommandSender sender, String[] args) {
+        FreezeManager freezeManager = VoiidCountdownTimer.getFreezeManager();
+        MessagesManager msgManager = VoiidCountdownTimer.getMessagesManager();
+
+        if (freezeManager == null) {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cFreeze manager is not available."));
+            return;
+        }
+
+        String subcommand = (args.length >= 2) ? args[1].toLowerCase(Locale.ROOT) : "toggle";
+        Boolean mobArg = null;
+        if (args.length >= 3) {
+            mobArg = parseFreezeMobArgument(args[2]);
+            if (mobArg == null) {
+                msgManager.sendConfigMessage(sender, "Messages.freezeMobArgInvalid", true, null);
+                return;
+            }
+        }
+
+        boolean targetMobFreeze = mobArg != null ? mobArg : freezeManager.getDefaultFreezeMobs();
+
+        switch (subcommand) {
+            case "on":
+            case "enable":
+            case "start": {
+                boolean wasFrozen = freezeManager.isFrozen();
+                boolean previousMobState = freezeManager.isMobsFrozen();
+                freezeManager.freeze(targetMobFreeze);
+
+                if (!wasFrozen) {
+                    msgManager.sendConfigMessage(sender, "Messages.freezeEnabled", true, buildFreezeReplacements(targetMobFreeze, true));
+                } else if (previousMobState != targetMobFreeze) {
+                    msgManager.sendConfigMessage(sender, "Messages.freezeUpdated", true, buildFreezeReplacements(targetMobFreeze, true));
+                } else {
+                    msgManager.sendConfigMessage(sender, "Messages.freezeAlreadyEnabled", true, buildFreezeReplacements(targetMobFreeze, true));
+                }
+                break;
+            }
+            case "off":
+            case "disable":
+            case "stop": {
+                if (!freezeManager.isFrozen()) {
+                    msgManager.sendConfigMessage(sender, "Messages.freezeAlreadyDisabled", true, buildFreezeReplacements(false, false));
+                    return;
+                }
+                freezeManager.unfreeze();
+                msgManager.sendConfigMessage(sender, "Messages.freezeDisabled", true, buildFreezeReplacements(false, false));
+                break;
+            }
+            case "toggle": {
+                if (freezeManager.isFrozen()) {
+                    freezeManager.unfreeze();
+                    msgManager.sendConfigMessage(sender, "Messages.freezeDisabled", true, buildFreezeReplacements(false, false));
+                } else {
+                    freezeManager.freeze(targetMobFreeze);
+                    msgManager.sendConfigMessage(sender, "Messages.freezeEnabled", true, buildFreezeReplacements(targetMobFreeze, true));
+                }
+                break;
+            }
+            case "status":
+            case "info":
+            case "state": {
+                boolean frozen = freezeManager.isFrozen();
+                boolean mobs = frozen && freezeManager.isMobsFrozen();
+                msgManager.sendConfigMessage(sender, "Messages.freezeStatus", true, buildFreezeReplacements(mobs, frozen));
+                break;
+            }
+            default:
+                msgManager.sendConfigMessage(sender, "Messages.freezeUsage", true, null);
+                break;
+        }
+    }
+
+    private Boolean parseFreezeMobArgument(String raw) {
+        if (raw == null) {
+            return null;
+        }
+
+        switch (raw.toLowerCase(Locale.ROOT)) {
+            case "mobs":
+            case "mob":
+            case "entities":
+            case "all":
+            case "true":
+            case "yes":
+            case "on":
+                return Boolean.TRUE;
+            case "nomobs":
+            case "players":
+            case "false":
+            case "no":
+            case "off":
+            case "none":
+                return Boolean.FALSE;
+            default:
+                return null;
+        }
+    }
+
+    private Map<String, String> buildFreezeReplacements(boolean mobsFrozen, boolean frozen) {
+        Map<String, String> replacements = new HashMap<>();
+        replacements.put("%MOBS%", mobsFrozen ? "enabled" : "disabled");
+        replacements.put("%STATE%", frozen ? "Frozen" : "Inactive");
+        return replacements;
+    }
+
+    private void spawnTestPillar(CommandSender sender, String[] args) {
         World world = resolveTargetWorld(sender, args, 1);
         if (world == null) {
             if (args.length <= 1) {
@@ -703,52 +834,42 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         }
 
         MainConfigManager config = VoiidCountdownTimer.getConfigsManager().getMainConfigManager();
-        int centerX = config.getTestPillarX();
-        int centerZ = config.getTestPillarZ();
-        String blockType = config.getTestPillarBlockType();
-        if (blockType == null || blockType.trim().isEmpty()) {
-            blockType = "END_GATEWAY";
-        }
-        String descentMessage;
-        if (blockType.equalsIgnoreCase("END_PORTAL_FRAME")) {
-            descentMessage = "&7It will descend in layers—rotated End Portal frames settling into place.";
-        } else if (blockType.equalsIgnoreCase("END_PORTAL")) {
-            descentMessage = "&7It will descend in layers—raw portal energy filling the ring.";
-        } else if (blockType.equalsIgnoreCase("END_GATEWAY")) {
-            descentMessage = "&7It will descend in layers—stabilizing gateway energy as each tier lands.";
-        } else {
-            descentMessage = "&7It will descend in layers—give it a moment to settle.";
-        }
+        double radius = Math.max(0.0D, config.getTestPillarRadius());
+        int layersPerTick = Math.max(1, config.getTestPillarInitialLayersPerTick());
+        int replacementDelay = Math.max(0, config.getTestPillarReplacementDelayTicks());
+        int tickInterval = Math.max(1, config.getTestPillarTickIntervalTicks());
+        Material initialMaterial = resolveMaterial(sender, config.getTestPillarInitialMaterial(), Material.END_GATEWAY, "initial material");
+        Material finalMaterial = resolveMaterial(sender, config.getTestPillarFinalMaterial(), Material.BEDROCK, "final material");
+        boolean unbreakable = config.isTestPillarUnbreakable();
+        int minY = resolveWorldMinY(world);
+        int maxY = world.getMaxHeight();
+        String radiusText = String.format(Locale.ROOT, "%.2f", radius);
 
-        int worldMinY = 0;
-        try {
-            java.lang.reflect.Method method = world.getClass().getMethod("getMinHeight");
-            Object value = method.invoke(world);
-            if (value instanceof Integer) {
-                worldMinY = (Integer) value;
+        VoiidCountdownTimer.getVisualBlockManager()
+            .startTestPillar(world, 0, 0, radius, initialMaterial, finalMaterial, layersPerTick, replacementDelay, tickInterval, unbreakable);
+
+        if (config.isTestPillarSoundEnabled()) {
+            float volume = Math.max(0.0F, config.getTestPillarSoundVolume());
+            float pitch = config.getTestPillarSoundPitch();
+            Location soundLocation = new Location(world, 0.5D, minY + 0.5D, 0.5D);
+            double maxDistance = 256.0D;
+            double maxDistanceSq = maxDistance * maxDistance;
+            for (Player player : world.getPlayers()) {
+                if (player.getLocation().distanceSquared(soundLocation) <= maxDistanceSq) {
+                    player.playSound(soundLocation, config.getTestPillarSound(), volume, pitch);
+                }
             }
-        } catch (ReflectiveOperationException ignored) {
         }
-
-        Integer configuredStartY = config.getTestPillarStartY();
-        int minY = configuredStartY != null ? Math.max(worldMinY, configuredStartY) : worldMinY;
-        int worldMaxY = world.getMaxHeight();
-        int configuredHeight = config.getTestPillarHeight();
-        int maxY = configuredHeight <= 0 ? worldMaxY : Math.min(worldMaxY, minY + configuredHeight);
-        if (maxY <= minY) {
-            maxY = Math.min(worldMaxY, minY + 1);
-        }
-
-        world.getChunkAt(centerX >> 4, centerZ >> 4).load();
-
-        voiidstudios.vct.managers.VisualBlockManager vbm = VoiidCountdownTimer.getVisualBlockManager();
-        vbm.addPillar(world, centerX, centerZ, minY, maxY);
 
         sender.sendMessage(MessagesManager.getColoredMessage(
-            VoiidCountdownTimer.prefix + "&aSummoning the " + blockType + " ring in &f" + world.getName() + " &aat &f(" + centerX + "," + minY + "," + centerZ + ") &7→ &f(" + centerX + "," + (maxY - 1) + "," + centerZ + ")&a."
+                VoiidCountdownTimer.prefix + "&aBuilding a test pillar in &f" + world.getName() + " &aat &f(0," + minY + ",0) -> (0," + (maxY - 1) + ",0)&a."
         ));
         sender.sendMessage(MessagesManager.getColoredMessage(
-            VoiidCountdownTimer.prefix + descentMessage
+                "&7Initial: &f" + initialMaterial.name() + " &7Final: &f" + finalMaterial.name() + " &7Radius: &f" + radiusText
+        ));
+        String tail = unbreakable ? " &7(Protected)" : "";
+        sender.sendMessage(MessagesManager.getColoredMessage(
+            "&7Layers/tick: &f" + layersPerTick + " &7Replacement delay: &f" + replacementDelay + " ticks &7Interval: &f" + tickInterval + " tick(s)." + tail
         ));
     }
 
@@ -761,13 +882,9 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             return;
         }
 
-        MainConfigManager config = VoiidCountdownTimer.getConfigsManager().getMainConfigManager();
-        int centerX = config.getTestPillarX();
-        int centerZ = config.getTestPillarZ();
-
-        boolean removed = VoiidCountdownTimer.getVisualBlockManager().removePillar(world, centerX, centerZ);
+        boolean removed = VoiidCountdownTimer.getVisualBlockManager().removePillar(world);
         if (removed) {
-            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&aRestored original blocks for the test pillar ring in &f" + world.getName() + "&a."));
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&aRestored original blocks for the test pillar in &f" + world.getName() + "&a."));
         } else {
             sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&eNo test pillar was active to clear in &f" + world.getName() + "&e."));
         }
@@ -814,6 +931,34 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         }
 
         return null;
+    }
+
+    private Material resolveMaterial(CommandSender sender, String configuredName, Material fallback, String label) {
+        String name = configuredName != null ? configuredName.trim() : "";
+        if (name.isEmpty()) {
+            return fallback;
+        }
+
+        Material resolved = Material.matchMaterial(name.toUpperCase(Locale.ROOT));
+        if (resolved == null) {
+            sender.sendMessage(MessagesManager.getColoredMessage(
+                    VoiidCountdownTimer.prefix + "&eUnknown " + label + " '&f" + name + "&e'. Using &f" + fallback.name() + "&e instead."
+            ));
+            return fallback;
+        }
+        return resolved;
+    }
+
+    private int resolveWorldMinY(World world) {
+        try {
+            java.lang.reflect.Method method = world.getClass().getMethod("getMinHeight");
+            Object value = method.invoke(world);
+            if (value instanceof Integer) {
+                return (Integer) value;
+            }
+        } catch (ReflectiveOperationException ignored) {
+        }
+        return 0;
     }
 
     private void sendNextThresholdMessage(CommandSender sender,

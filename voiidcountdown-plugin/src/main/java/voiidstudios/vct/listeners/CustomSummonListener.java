@@ -71,16 +71,16 @@ public class CustomSummonListener implements Listener {
             skullBlocks.add(skullCenter);
 
             if (ew) {
-                Block skullE = e.getRelative(BlockFace.UP);
-                Block skullW = w.getRelative(BlockFace.UP);
+                Block skullE = e != null ? e.getRelative(BlockFace.UP) : null;
+                Block skullW = w != null ? w.getRelative(BlockFace.UP) : null;
                 if (!isWitherSkull(skullE) || !isWitherSkull(skullW)) continue;
                 skullBlocks.add(skullE);
                 skullBlocks.add(skullW);
                 patternBlocks.add(e);
                 patternBlocks.add(w);
             } else {
-                Block skullN = n.getRelative(BlockFace.UP);
-                Block skullS = s.getRelative(BlockFace.UP);
+                Block skullN = n != null ? n.getRelative(BlockFace.UP) : null;
+                Block skullS = s != null ? s.getRelative(BlockFace.UP) : null;
                 if (!isWitherSkull(skullN) || !isWitherSkull(skullS)) continue;
                 skullBlocks.add(skullN);
                 skullBlocks.add(skullS);

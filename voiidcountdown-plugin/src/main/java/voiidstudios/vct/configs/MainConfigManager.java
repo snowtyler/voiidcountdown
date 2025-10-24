@@ -5,6 +5,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import org.bukkit.configuration.ConfigurationSection;
 import org.bukkit.configuration.file.FileConfiguration;
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.configs.model.CustomConfig;
@@ -20,21 +21,17 @@ public class MainConfigManager {
     private boolean save_state_timers;
     private boolean custom_dark_wither_summon_enabled;
     // Test pillar configuration
-    private int testpillar_x;
-    private int testpillar_z;
-    private Integer testpillar_start_y; // nullable; if null use world minHeight
-    private int testpillar_height; // 0 means full height (min->max)
     private boolean testpillar_unbreakable;
     private double testpillar_radius;
-    private double testpillar_thickness;
-    private int testpillar_layers_per_tick;
-    private double testpillar_gateway_chance; // Default value will be set in configure method
-    private String testpillar_block_type;
-    private boolean testpillar_start_sound_enabled;
-    private String testpillar_start_sound;
-    private double testpillar_start_sound_volume;
-    private double testpillar_start_sound_pitch;
-    private boolean testpillar_start_from_bottom;
+    private String testpillar_initial_material;
+    private String testpillar_final_material;
+    private int testpillar_initial_layers_per_tick;
+    private int testpillar_replacement_delay_ticks;
+    private boolean testpillar_sound_enabled;
+    private String testpillar_sound_name;
+    private float testpillar_sound_volume;
+    private float testpillar_sound_pitch;
+    private int testpillar_tick_interval_ticks;
 
     public MainConfigManager(VoiidCountdownTimer plugin){
         configFile = new CustomConfig("config.yml", plugin, null, false);
@@ -53,33 +50,26 @@ public class MainConfigManager {
         custom_dark_wither_summon_enabled = config.getBoolean("Config.enable_custom_dark_wither_summon", false);
 
         // Test pillar defaults
-        if (config.contains("TestPillar.x")) {
-            testpillar_x = config.getInt("TestPillar.x", 0);
-        } else {
-            testpillar_x = 0;
-        }
-        if (config.contains("TestPillar.z")) {
-            testpillar_z = config.getInt("TestPillar.z", 0);
-        } else {
-            testpillar_z = 0;
-        }
-        if (config.contains("TestPillar.start_y")) {
-            testpillar_start_y = config.getInt("TestPillar.start_y");
-        } else {
-            testpillar_start_y = null;
-        }
-        testpillar_height = config.getInt("TestPillar.height", 0);
         testpillar_unbreakable = config.getBoolean("TestPillar.unbreakable", true);
-        testpillar_radius = config.getDouble("TestPillar.radius", 3.0);
-        testpillar_thickness = config.getDouble("TestPillar.thickness", 1.0);
-        testpillar_layers_per_tick = config.getInt("TestPillar.layers_per_tick", 4);
-        testpillar_gateway_chance = config.getDouble("TestPillar.gateway_chance", 0.15);
-        testpillar_block_type = config.getString("TestPillar.block_type", "END_GATEWAY");
-        testpillar_start_sound_enabled = config.getBoolean("TestPillar.start_sound_enabled", true);
-        testpillar_start_sound = config.getString("TestPillar.start_sound", "minecraft:block.beacon.activate");
-        testpillar_start_sound_volume = config.getDouble("TestPillar.start_sound_volume", 1.0D);
-        testpillar_start_sound_pitch = config.getDouble("TestPillar.start_sound_pitch", 1.0D);
-        testpillar_start_from_bottom = config.getBoolean("TestPillar.start_from_bottom", false);
+        testpillar_radius = config.getDouble("TestPillar.radius", 1.5D);
+        testpillar_initial_material = config.getString("TestPillar.initial_material", "END_GATEWAY");
+        testpillar_final_material = config.getString("TestPillar.final_material", "BEDROCK");
+        testpillar_initial_layers_per_tick = Math.max(1, config.getInt("TestPillar.initial_layers_per_tick", 4));
+        testpillar_replacement_delay_ticks = Math.max(0, config.getInt("TestPillar.replacement_delay_ticks", 40));
+        testpillar_tick_interval_ticks = Math.max(1, config.getInt("TestPillar.tick_interval_ticks", 1));
+
+        ConfigurationSection soundSection = config.getConfigurationSection("TestPillar.activation_sound");
+        if (soundSection == null) {
+            testpillar_sound_enabled = config.getBoolean("TestPillar.activation_sound.enabled", true);
+            testpillar_sound_name = config.getString("TestPillar.activation_sound.sound", "minecraft:block.beacon.activate");
+            testpillar_sound_volume = Math.max(0.0F, (float) config.getDouble("TestPillar.activation_sound.volume", 1.0D));
+            testpillar_sound_pitch = (float) config.getDouble("TestPillar.activation_sound.pitch", 1.0D);
+        } else {
+            testpillar_sound_enabled = soundSection.getBoolean("enabled", true);
+            testpillar_sound_name = soundSection.getString("sound", "minecraft:block.beacon.activate");
+            testpillar_sound_volume = Math.max(0.0F, (float) soundSection.getDouble("volume", 1.0D));
+            testpillar_sound_pitch = (float) soundSection.getDouble("pitch", 1.0D);
+        }
     }
 
     public void reloadConfig(){
@@ -130,59 +120,118 @@ public class MainConfigManager {
             }
 
             if(!text.contains("TestPillar:")){
-                getConfig().set("TestPillar.x", 0);
-                getConfig().set("TestPillar.z", 0);
-                // leave start_y absent to mean world min height
-                getConfig().set("TestPillar.height", 0);
                 getConfig().set("TestPillar.unbreakable", true);
-                getConfig().set("TestPillar.radius", 3.0);
-                getConfig().set("TestPillar.thickness", 1.0);
-                getConfig().set("TestPillar.layers_per_tick", 4);
-                getConfig().set("TestPillar.gateway_chance", 0.15);
-                getConfig().set("TestPillar.block_type", "END_GATEWAY");
-                getConfig().set("TestPillar.start_sound_enabled", true);
-                getConfig().set("TestPillar.start_sound", "minecraft:block.beacon.activate");
-                getConfig().set("TestPillar.start_sound_volume", 1.0D);
-                getConfig().set("TestPillar.start_sound_pitch", 1.0D);
-                getConfig().set("TestPillar.start_from_bottom", false);
+                getConfig().set("TestPillar.radius", 1.5D);
+                getConfig().set("TestPillar.initial_material", "END_GATEWAY");
+                getConfig().set("TestPillar.final_material", "BEDROCK");
+                getConfig().set("TestPillar.initial_layers_per_tick", 4);
+                getConfig().set("TestPillar.replacement_delay_ticks", 40);
+                getConfig().set("TestPillar.tick_interval_ticks", 1);
+                getConfig().set("TestPillar.activation_sound.enabled", true);
+                getConfig().set("TestPillar.activation_sound.sound", "minecraft:block.beacon.activate");
+                getConfig().set("TestPillar.activation_sound.volume", 1.0D);
+                getConfig().set("TestPillar.activation_sound.pitch", 1.0D);
                 saveConfig();
             } else {
                 boolean updated = false;
-                if(!text.contains("layers_per_tick")) {
-                    getConfig().set("TestPillar.layers_per_tick", 4);
+                if(!text.contains("initial_material")) {
+                    getConfig().set("TestPillar.initial_material", "END_GATEWAY");
                     updated = true;
                 }
-                if(!text.contains("gateway_chance")) {
-                    getConfig().set("TestPillar.gateway_chance", 0.15);
+                if(!text.contains("final_material")) {
+                    getConfig().set("TestPillar.final_material", "BEDROCK");
                     updated = true;
                 }
-                if(!text.contains("block_type")) {
-                    getConfig().set("TestPillar.block_type", "END_GATEWAY");
+                if(!text.contains("initial_layers_per_tick")) {
+                    getConfig().set("TestPillar.initial_layers_per_tick", 4);
                     updated = true;
                 }
-                if(!text.contains("start_sound_enabled:")) {
-                    getConfig().set("TestPillar.start_sound_enabled", true);
+                if(!text.contains("replacement_delay_ticks")) {
+                    getConfig().set("TestPillar.replacement_delay_ticks", 40);
                     updated = true;
                 }
-                if(!text.contains("start_sound_volume:")) {
-                    getConfig().set("TestPillar.start_sound_volume", 1.0D);
+                if(!text.contains("radius:")) {
+                    getConfig().set("TestPillar.radius", 1.5D);
                     updated = true;
                 }
-                if(!text.contains("start_sound_pitch:")) {
-                    getConfig().set("TestPillar.start_sound_pitch", 1.0D);
+                if(!text.contains("unbreakable:")) {
+                    getConfig().set("TestPillar.unbreakable", true);
                     updated = true;
                 }
-                if(!text.contains("start_sound:")) {
-                    getConfig().set("TestPillar.start_sound", "minecraft:block.beacon.activate");
+                if(!text.contains("tick_interval_ticks")) {
+                    getConfig().set("TestPillar.tick_interval_ticks", 1);
                     updated = true;
                 }
-                if(!text.contains("start_from_bottom:")) {
-                    getConfig().set("TestPillar.start_from_bottom", false);
+                ConfigurationSection activationSoundSection = getConfig().getConfigurationSection("TestPillar.activation_sound");
+                if (activationSoundSection == null) {
+                    getConfig().set("TestPillar.activation_sound.enabled", true);
+                    getConfig().set("TestPillar.activation_sound.sound", "minecraft:block.beacon.activate");
+                    getConfig().set("TestPillar.activation_sound.volume", 1.0D);
+                    getConfig().set("TestPillar.activation_sound.pitch", 1.0D);
                     updated = true;
+                } else {
+                    if (!activationSoundSection.contains("enabled")) {
+                        getConfig().set("TestPillar.activation_sound.enabled", true);
+                        updated = true;
+                    }
+                    if (!activationSoundSection.contains("sound") || activationSoundSection.getString("sound") == null) {
+                        getConfig().set("TestPillar.activation_sound.sound", "minecraft:block.beacon.activate");
+                        updated = true;
+                    }
+                    if (!activationSoundSection.contains("volume")) {
+                        getConfig().set("TestPillar.activation_sound.volume", 1.0D);
+                        updated = true;
+                    }
+                    if (!activationSoundSection.contains("pitch")) {
+                        getConfig().set("TestPillar.activation_sound.pitch", 1.0D);
+                        updated = true;
+                    }
                 }
                 if(updated) {
                     saveConfig();
                 }
+            }
+
+            // Ensure Freeze defaults exist
+            if(!text.contains("Freeze:")){
+                getConfig().set("Freeze.default_freeze_mobs", false);
+                getConfig().set("Freeze.title.text", "&cServer Frozen");
+                getConfig().set("Freeze.title.subtitle", "&7Please wait");
+                getConfig().set("Freeze.title.fade_in", 10);
+                getConfig().set("Freeze.title.stay", 60);
+                getConfig().set("Freeze.title.fade_out", 20);
+                getConfig().set("Freeze.blindness.enabled", true);
+                getConfig().set("Freeze.blindness.amplifier", 0);
+                getConfig().set("Freeze.blindness.ambient", false);
+                getConfig().set("Freeze.blindness.particles", false);
+                getConfig().set("Freeze.notifications.cooldown_ms", 1500L);
+                getConfig().set("Freeze.notifications.silent", false);
+                getConfig().set("Freeze.title.keepalive_ticks", 40);
+                getConfig().set("Freeze.mobs.prevent_spawn", true);
+                getConfig().set("Freeze.mobs.kill_on_freeze", true);
+                getConfig().set("Freeze.time.lock_midnight", true);
+                getConfig().set("Freeze.time.keepalive_ticks", 100);
+                getConfig().set("Freeze.music.enabled", false);
+                getConfig().set("Freeze.music.sound", "minecraft:music.menu");
+                getConfig().set("Freeze.music.volume", 1.0D);
+                getConfig().set("Freeze.music.pitch", 1.0D);
+                getConfig().set("Freeze.music.loop_seconds", 20D);
+                saveConfig();
+            }
+            else {
+                boolean updated = false;
+                // Use config.contains() for nested keys instead of raw text search to avoid false negatives
+                if (!getConfig().contains("Freeze.notifications.silent")) {
+                    getConfig().set("Freeze.notifications.silent", false);
+                    updated = true;
+                }
+                if (!getConfig().contains("Freeze.music.loop_seconds")) {
+                    int legacyTicks = getConfig().getInt("Freeze.music.loop_ticks", 400);
+                    double secs = Math.max(1D, legacyTicks / 20D);
+                    getConfig().set("Freeze.music.loop_seconds", secs);
+                    updated = true;
+                }
+                if (updated) saveConfig();
             }
 
             if(!text.contains("timerSetError:")){
@@ -280,6 +329,52 @@ public class MainConfigManager {
                 saveConfig();
             }
 
+            // Ensure Freeze messages exist
+            if(!text.contains("freezeUsage:")){
+                getConfig().set("Messages.freezeUsage", "&cUse: /vct freeze <on|off|toggle|status> [mobs|nomobs]");
+                saveConfig();
+            }
+            if(!text.contains("freezeEnabled:")){
+                getConfig().set("Messages.freezeEnabled", "&cServer freeze enabled. &7Mob freeze: &f%MOBS%");
+                saveConfig();
+            }
+            if(!text.contains("freezeUpdated:")){
+                getConfig().set("Messages.freezeUpdated", "&aServer freeze updated. &7Mob freeze: &f%MOBS%");
+                saveConfig();
+            }
+            if(!text.contains("freezeAlreadyEnabled:")){
+                getConfig().set("Messages.freezeAlreadyEnabled", "&eServer is already frozen. &7Mob freeze: &f%MOBS%");
+                saveConfig();
+            }
+            if(!text.contains("freezeDisabled:")){
+                getConfig().set("Messages.freezeDisabled", "&aServer freeze disabled.");
+                saveConfig();
+            }
+            if(!text.contains("freezeAlreadyDisabled:")){
+                getConfig().set("Messages.freezeAlreadyDisabled", "&eServer is not currently frozen.");
+                saveConfig();
+            }
+            if(!text.contains("freezeStatus:")){
+                getConfig().set("Messages.freezeStatus", "&7Freeze state: &f%STATE% &7| Mob freeze: &f%MOBS%");
+                saveConfig();
+            }
+            if(!text.contains("freezeMobArgInvalid:")){
+                getConfig().set("Messages.freezeMobArgInvalid", "&cUnknown mobs argument. Use MOBS or NOMOBS.");
+                saveConfig();
+            }
+            if(!text.contains("freezeBlockedAction:")){
+                getConfig().set("Messages.freezeBlockedAction", "&cYou cannot do that while the server is frozen.");
+                saveConfig();
+            }
+            if(!text.contains("freezeBlockedInventory:")){
+                getConfig().set("Messages.freezeBlockedInventory", "&cYou cannot access inventories while the server is frozen.");
+                saveConfig();
+            }
+            if(!text.contains("freezeBlockedChat:")){
+                getConfig().set("Messages.freezeBlockedChat", "&cYou cannot chat while the server is frozen.");
+                saveConfig();
+            }
+
             if (getConfig().contains("Timers")) {
                 for (String timerKey : getConfig().getConfigurationSection("Timers").getKeys(false)) {
                     String base = "Timers." + timerKey + ".";
@@ -341,21 +436,17 @@ public class MainConfigManager {
     }
 
     // Test pillar getters
-    public int getTestPillarX() { return testpillar_x; }
-    public int getTestPillarZ() { return testpillar_z; }
-    public Integer getTestPillarStartY() { return testpillar_start_y; }
-    public int getTestPillarHeight() { return testpillar_height; }
     public boolean isTestPillarUnbreakable() { return testpillar_unbreakable; }
     public double getTestPillarRadius() { return testpillar_radius; }
-    public double getTestPillarThickness() { return testpillar_thickness; }
-    public int getTestPillarLayersPerTick() { return testpillar_layers_per_tick; }
-    public double getTestPillarGatewayChance() { return testpillar_gateway_chance; }
-    public String getTestPillarBlockType() { return testpillar_block_type; }
-    public boolean isTestPillarStartSoundEnabled() { return testpillar_start_sound_enabled; }
-    public String getTestPillarStartSound() { return testpillar_start_sound; }
-    public float getTestPillarStartSoundVolume() { return (float) testpillar_start_sound_volume; }
-    public float getTestPillarStartSoundPitch() { return (float) testpillar_start_sound_pitch; }
-    public boolean isTestPillarStartFromBottom() { return testpillar_start_from_bottom; }
+    public String getTestPillarInitialMaterial() { return testpillar_initial_material; }
+    public String getTestPillarFinalMaterial() { return testpillar_final_material; }
+    public int getTestPillarInitialLayersPerTick() { return testpillar_initial_layers_per_tick; }
+    public int getTestPillarReplacementDelayTicks() { return testpillar_replacement_delay_ticks; }
+    public int getTestPillarTickIntervalTicks() { return testpillar_tick_interval_ticks; }
+    public boolean isTestPillarSoundEnabled() { return testpillar_sound_enabled; }
+    public String getTestPillarSound() { return testpillar_sound_name; }
+    public float getTestPillarSoundVolume() { return testpillar_sound_volume; }
+    public float getTestPillarSoundPitch() { return testpillar_sound_pitch; }
 
     public boolean isCustomDarkWitherSummonEnabled() {
         return custom_dark_wither_summon_enabled;

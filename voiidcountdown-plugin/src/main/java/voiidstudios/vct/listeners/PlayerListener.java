@@ -30,7 +30,7 @@ public class PlayerListener implements Listener {
             player.sendMessage(MessagesManager.getColoredMessage("&bYou can download it at: &ahttps://modrinth.com/datapack/voiid-countdown-timer"));
         }
 
-        if (spawnBookManager != null) {
+        if (spawnBookManager != null && !VoiidCountdownTimer.getFreezeManager().isFrozen()) {
             spawnBookManager.scheduleGive(player);
         }
     }
@@ -38,7 +38,7 @@ public class PlayerListener implements Listener {
     @EventHandler(priority = EventPriority.MONITOR)
     public void onRespawn(PlayerRespawnEvent event) {
         Player player = event.getPlayer();
-        if (spawnBookManager != null) {
+        if (spawnBookManager != null && !VoiidCountdownTimer.getFreezeManager().isFrozen()) {
             spawnBookManager.scheduleGive(player);
         }
     }

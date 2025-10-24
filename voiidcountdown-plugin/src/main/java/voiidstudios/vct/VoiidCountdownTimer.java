@@ -17,9 +17,11 @@ import voiidstudios.vct.managers.HalloweenModeManager;
 import voiidstudios.vct.managers.TimerStateManager;
 import voiidstudios.vct.managers.SpawnBookManager;
 import voiidstudios.vct.managers.VisualBlockManager;
+import voiidstudios.vct.managers.FreezeManager;
 import voiidstudios.vct.utils.ServerVersion;
 import voiidstudios.vct.utils.UpdateChecker;
 import voiidstudios.vct.challenges.ChallengeManager;
+import voiidstudios.vct.listeners.FreezeListener;
 
 public final class VoiidCountdownTimer extends JavaPlugin {
     public static String prefix = "&5[&dVCT&5] ";
@@ -41,6 +43,8 @@ public final class VoiidCountdownTimer extends JavaPlugin {
     private static SpawnBookManager spawnBookManager;
     private static ChallengeManager challengeManager;
     private static VisualBlockManager visualBlockManager;
+    private static FreezeManager freezeManager;
+    private static voiidstudios.vct.managers.InteractionActionManager interactionActionManager;
 
     public void onEnable() {
         instance = this;
@@ -51,6 +55,8 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         spawnBookManager = new SpawnBookManager(this);
         challengeManager = new ChallengeManager(this);
         visualBlockManager = new VisualBlockManager(this);
+        freezeManager = new FreezeManager(this);
+        interactionActionManager = new voiidstudios.vct.managers.InteractionActionManager(this);
         setVersion();
         registerCommands();
         registerEvents();
@@ -80,6 +86,10 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         halloweenModeManager.reload();
         spawnBookManager.reload();
         challengeManager.reload();
+        // Restore freeze state if it was active before shutdown
+        try {
+            freezeManager.loadAndApplyPersistentState();
+        } catch (Throwable ignored) {}
     }
 
     public void onDisable() {
@@ -88,6 +98,10 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         }
         if (challengeManager != null) {
             challengeManager.shutdown();
+        }
+        if (freezeManager != null) {
+            // Clean up effects but preserve state for restoration on next startup
+            freezeManager.shutdownForDisable();
         }
         if (visualBlockManager != null) {
             visualBlockManager.restoreAll();
@@ -144,6 +158,8 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new PlayerListener(this), this);
         getServer().getPluginManager().registerEvents(new EnderDragonListener(this), this);
         getServer().getPluginManager().registerEvents(new voiidstudios.vct.listeners.BreakingProtectionListener(visualBlockManager), this);
+        getServer().getPluginManager().registerEvents(new FreezeListener(this), this);
+        getServer().getPluginManager().registerEvents(new voiidstudios.vct.listeners.InteractionListener(this), this);
         if (configsManager.getMainConfigManager().isCustomDarkWitherSummonEnabled()) {
             getServer().getPluginManager().registerEvents(new CustomSummonListener(), this);
             Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage(prefix + "&aCustom Dark Wither summon listener enabled."));
@@ -207,5 +223,13 @@ public final class VoiidCountdownTimer extends JavaPlugin {
 
     public static VisualBlockManager getVisualBlockManager() {
         return visualBlockManager;
+    }
+
+    public static FreezeManager getFreezeManager() {
+        return freezeManager;
+    }
+
+    public static voiidstudios.vct.managers.InteractionActionManager getInteractionActionManager() {
+        return interactionActionManager;
     }
 }

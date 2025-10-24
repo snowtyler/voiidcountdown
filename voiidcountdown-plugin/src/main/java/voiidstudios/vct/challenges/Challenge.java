@@ -19,30 +19,30 @@ public class Challenge {
     private final int requiredCount;
     private final List<String> bookIncompleteComponents;
     private final List<String> bookCompleteComponents;
-    private final boolean hidden;
+    private final boolean obfuscateUntilUnlock;
 
     public Challenge(String id,
                      String name,
                      String description,
                      TriggerType triggerType,
                      EntityType targetEntity,
-                         int requiredCount,
-                         List<String> bookIncompleteComponents,
-                             List<String> bookCompleteComponents,
-                             boolean hidden) {
+                     int requiredCount,
+                     List<String> bookIncompleteComponents,
+                     List<String> bookCompleteComponents,
+                     boolean obfuscateUntilUnlock) {
         this.id = id;
         this.name = name;
         this.description = description;
         this.triggerType = triggerType;
         this.targetEntity = targetEntity;
         this.requiredCount = requiredCount;
-                this.bookIncompleteComponents = bookIncompleteComponents == null
-                    ? Collections.emptyList()
-                    : Collections.unmodifiableList(new ArrayList<>(bookIncompleteComponents));
-                this.bookCompleteComponents = bookCompleteComponents == null
-                    ? Collections.emptyList()
-                    : Collections.unmodifiableList(new ArrayList<>(bookCompleteComponents));
-                    this.hidden = hidden;
+        this.bookIncompleteComponents = bookIncompleteComponents == null
+            ? Collections.emptyList()
+            : Collections.unmodifiableList(new ArrayList<>(bookIncompleteComponents));
+        this.bookCompleteComponents = bookCompleteComponents == null
+            ? Collections.emptyList()
+            : Collections.unmodifiableList(new ArrayList<>(bookCompleteComponents));
+        this.obfuscateUntilUnlock = obfuscateUntilUnlock;
     }
 
     public String getId() {
@@ -77,7 +77,7 @@ public class Challenge {
         return bookCompleteComponents;
     }
 
-    public boolean isHidden() {
-        return hidden;
+    public boolean isObfuscateUntilUnlock() {
+        return obfuscateUntilUnlock;
     }
 }

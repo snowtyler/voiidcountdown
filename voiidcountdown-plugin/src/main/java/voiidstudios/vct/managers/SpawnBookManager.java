@@ -43,24 +43,36 @@ public class SpawnBookManager {
     private static final int MAX_CHARACTERS_PER_PAGE = 255;
     private static final int APPROX_CHARS_PER_LINE = 18;
 
+    private static final String DEFAULT_BOOK_FILENAME = "spawn_book.json";
+
     private final VoiidCountdownTimer plugin;
-    private List<BaseComponent[]> basePages = Collections.emptyList();
-    private String templateTitle;
-    private String templateAuthor;
-    private BookMeta.Generation templateGeneration;
-    private Boolean templateResolved;
+
+    /**
+     * Template data holder for a spawn book variant.
+     */
+    private static class Template {
+        List<BaseComponent[]> basePages = Collections.emptyList();
+        String templateTitle;
+        String templateAuthor;
+        BookMeta.Generation templateGeneration;
+        Boolean templateResolved;
+
+        boolean hasTemplate() {
+            return (basePages != null && !basePages.isEmpty())
+                    || templateTitle != null
+                    || templateAuthor != null;
+        }
+    }
+
+    private Template normalTemplate = new Template();
 
     public SpawnBookManager(VoiidCountdownTimer plugin) {
         this.plugin = plugin;
     }
 
     public void reload() {
-        basePages = Collections.emptyList();
-        templateTitle = null;
-        templateAuthor = null;
-        templateGeneration = null;
-        templateResolved = null;
-        loadBook();
+        normalTemplate = new Template();
+        loadBooks();
 
         ChallengeManager challengeManager = VoiidCountdownTimer.getChallengeManager();
         if (challengeManager != null) {
@@ -105,29 +117,40 @@ public class SpawnBookManager {
         }
     }
 
-    private void loadBook() {
+    private void loadBooks() {
         if (!plugin.getDataFolder().exists() && !plugin.getDataFolder().mkdirs()) {
             plugin.getLogger().warning("Could not create plugin data folder; spawn book will be disabled.");
             return;
         }
 
-        File file = new File(plugin.getDataFolder(), "spawn_book.json");
-        if (!file.exists()) {
-            plugin.saveResource("spawn_book.json", false);
+        // Default template
+        File defaultFile = new File(plugin.getDataFolder(), DEFAULT_BOOK_FILENAME);
+        if (!defaultFile.exists()) {
+            try { plugin.saveResource(DEFAULT_BOOK_FILENAME, false); } catch (IllegalArgumentException ignored) {}
         }
+        normalTemplate = loadTemplateFromFile(defaultFile, DEFAULT_BOOK_FILENAME);
 
-        try (Reader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
-            JsonElement root = JsonParser.parseReader(reader);
-            if (!parseTemplate(root)) {
-                plugin.getLogger().warning("Failed to create spawn book from spawn_book.json; feature disabled until reload.");
-            }
-        } catch (IOException | JsonSyntaxException ex) {
-            plugin.getLogger().log(Level.WARNING, "Could not load spawn_book.json; spawn book feature disabled.", ex);
-            basePages = Collections.emptyList();
-        }
+        // Frozen template (optional)
+        // Frozen variant removed
     }
 
-    private boolean parseTemplate(JsonElement element) {
+    private Template loadTemplateFromFile(File file, String displayName) {
+        Template template = new Template();
+        if (file == null || !file.exists()) {
+            return template;
+        }
+        try (Reader reader = new InputStreamReader(new FileInputStream(file), StandardCharsets.UTF_8)) {
+            JsonElement root = JsonParser.parseReader(reader);
+            if (!populateTemplate(root, template)) {
+                plugin.getLogger().warning("Failed to create spawn book from " + displayName + "; template disabled until reload.");
+            }
+        } catch (IOException | JsonSyntaxException ex) {
+            plugin.getLogger().log(Level.WARNING, "Could not load " + displayName + "; template disabled.", ex);
+        }
+        return template;
+    }
+
+    private boolean populateTemplate(JsonElement element, Template target) {
         if (element == null || element.isJsonNull()) {
             plugin.getLogger().warning("spawn_book.json is empty; spawn book feature disabled.");
             return false;
@@ -155,16 +178,16 @@ public class SpawnBookManager {
             return false;
         }
 
-        configureTitle(bookData, meta);
-        configureAuthor(bookData, meta);
-        configureGeneration(bookData, meta);
-        configureResolved(bookData, meta);
-        configurePages(bookData, meta);
+        configureTitle(bookData, meta, target);
+        configureAuthor(bookData, meta, target);
+        configureGeneration(bookData, meta, target);
+        configureResolved(bookData, meta, target);
+        configurePages(bookData, meta, target);
 
         return true;
     }
 
-    private void configureTitle(JsonObject bookData, BookMeta meta) {
+    private void configureTitle(JsonObject bookData, BookMeta meta, Template target) {
         if (!bookData.has("title")) {
             return;
         }
@@ -192,10 +215,10 @@ public class SpawnBookManager {
         }
 
         meta.setTitle(title);
-        templateTitle = title;
+        target.templateTitle = title;
     }
 
-    private void configureAuthor(JsonObject bookData, BookMeta meta) {
+    private void configureAuthor(JsonObject bookData, BookMeta meta, Template target) {
         if (!bookData.has("author")) {
             return;
         }
@@ -203,13 +226,13 @@ public class SpawnBookManager {
         try {
             String author = bookData.get("author").getAsString();
             meta.setAuthor(author);
-            templateAuthor = author;
+            target.templateAuthor = author;
         } catch (Exception ex) {
             plugin.getLogger().warning("Spawn book author must be a string.");
         }
     }
 
-    private void configureGeneration(JsonObject bookData, BookMeta meta) {
+    private void configureGeneration(JsonObject bookData, BookMeta meta, Template target) {
         if (!bookData.has("generation")) {
             return;
         }
@@ -219,7 +242,7 @@ public class SpawnBookManager {
             BookMeta.Generation generation = mapGeneration(value);
             if (generation != null) {
                 meta.setGeneration(generation);
-                templateGeneration = generation;
+                target.templateGeneration = generation;
             } else {
                 plugin.getLogger().warning("Spawn book generation must be between 0 and 3.");
             }
@@ -228,7 +251,7 @@ public class SpawnBookManager {
         }
     }
 
-    private void configureResolved(JsonObject bookData, BookMeta meta) {
+    private void configureResolved(JsonObject bookData, BookMeta meta, Template target) {
         if (!bookData.has("resolved")) {
             return;
         }
@@ -237,7 +260,7 @@ public class SpawnBookManager {
             boolean resolved = bookData.get("resolved").getAsBoolean();
             Method setResolved = meta.getClass().getMethod("setResolved", boolean.class);
             setResolved.invoke(meta, resolved);
-            templateResolved = resolved;
+            target.templateResolved = resolved;
         } catch (NoSuchMethodException ignored) {
             // Older server versions do not expose setResolved; ignore silently.
         } catch (Exception ex) {
@@ -245,7 +268,7 @@ public class SpawnBookManager {
         }
     }
 
-    private void configurePages(JsonObject bookData, BookMeta meta) {
+    private void configurePages(JsonObject bookData, BookMeta meta, Template target) {
         if (!bookData.has("pages")) {
             return;
         }
@@ -277,7 +300,7 @@ public class SpawnBookManager {
             spigotMeta.setPage(i + 1, pages.get(i));
         }
 
-        basePages = pages;
+        target.basePages = pages;
     }
 
     private JsonElement extractRawElement(JsonElement element) {
@@ -455,26 +478,28 @@ public class SpawnBookManager {
             return null;
         }
 
-        if (templateTitle != null) {
-            meta.setTitle(templateTitle);
+        Template active = getActiveTemplate();
+
+        if (active.templateTitle != null) {
+            meta.setTitle(active.templateTitle);
         }
-        if (templateAuthor != null) {
-            meta.setAuthor(templateAuthor);
+        if (active.templateAuthor != null) {
+            meta.setAuthor(active.templateAuthor);
         }
-        if (templateGeneration != null) {
-            meta.setGeneration(templateGeneration);
+        if (active.templateGeneration != null) {
+            meta.setGeneration(active.templateGeneration);
         }
-        if (templateResolved != null) {
+        if (active.templateResolved != null) {
             try {
                 Method setResolved = meta.getClass().getMethod("setResolved", boolean.class);
-                setResolved.invoke(meta, templateResolved);
+                setResolved.invoke(meta, active.templateResolved);
             } catch (Exception ignored) {
                 // Ignored; not available on older versions.
             }
         }
 
         List<BaseComponent[]> challengePages = buildChallengePages();
-        int totalPages = basePages.size() + challengePages.size();
+        int totalPages = (active.basePages != null ? active.basePages.size() : 0) + challengePages.size();
         if (totalPages <= 0) {
             totalPages = 1;
         }
@@ -483,12 +508,13 @@ public class SpawnBookManager {
         meta.setPages(blankPages);
 
         BookMeta.Spigot spigotMeta = meta.spigot();
-        for (int i = 0; i < basePages.size(); i++) {
-            spigotMeta.setPage(i + 1, cloneComponents(basePages.get(i)));
+        int baseCount = active.basePages != null ? active.basePages.size() : 0;
+        for (int i = 0; i < baseCount; i++) {
+            spigotMeta.setPage(i + 1, cloneComponents(active.basePages.get(i)));
         }
 
         for (int i = 0; i < challengePages.size(); i++) {
-            spigotMeta.setPage(basePages.size() + i + 1, challengePages.get(i));
+            spigotMeta.setPage(baseCount + i + 1, challengePages.get(i));
         }
 
         item.setItemMeta(meta);
@@ -514,12 +540,7 @@ public class SpawnBookManager {
         int charactersUsed = 0;
 
         List<Challenge> orderedChallenges = new ArrayList<>(challengeList);
-        List<Challenge> visibleChallenges = new ArrayList<>();
-        for (Challenge challenge : orderedChallenges) {
-            if (challengeManager.isChallengeUnlocked(challenge)) {
-                visibleChallenges.add(challenge);
-            }
-        }
+        List<Challenge> visibleChallenges = new ArrayList<>(orderedChallenges);
 
         for (int index = 0; index < visibleChallenges.size(); index++) {
             Challenge challenge = visibleChallenges.get(index);
@@ -530,7 +551,9 @@ public class SpawnBookManager {
                 current = required;
             }
 
-            List<BaseComponent[]> renderedLines = renderChallengeLines(challenge, current, required, completed);
+            boolean allOthersCompleted = challengeManager.areAllOtherChallengesCompleted(challenge);
+
+            List<BaseComponent[]> renderedLines = renderChallengeLines(challenge, current, required, completed, allOthersCompleted);
             List<BaseComponent[]> challengeLines = new ArrayList<>(renderedLines.size());
             int challengeCharacters = 0;
             int challengeLineUsage = 0;
@@ -594,7 +617,7 @@ public class SpawnBookManager {
         return pages;
     }
 
-    private List<BaseComponent[]> renderChallengeLines(Challenge challenge, int current, int required, boolean completed) {
+    private List<BaseComponent[]> renderChallengeLines(Challenge challenge, int current, int required, boolean completed, boolean allOthersCompleted) {
         List<String> templates = completed ? challenge.getBookCompleteComponents() : challenge.getBookIncompleteComponents();
         if (templates == null || templates.isEmpty()) {
             templates = Collections.singletonList("{\"text\":\"\"}");
@@ -609,7 +632,12 @@ public class SpawnBookManager {
         replacements.put("%current%", String.valueOf(cappedCurrent));
         replacements.put("%required%", String.valueOf(required));
         replacements.put("%remaining%", String.valueOf(remaining));
-        replacements.put("%status%", completed ? "completed" : "incomplete");
+        boolean locked = challenge.isObfuscateUntilUnlock() && !allOthersCompleted;
+        if (locked) {
+            replacements.put("%status%", "locked");
+        } else {
+            replacements.put("%status%", completed ? "completed" : "incomplete");
+        }
 
         List<BaseComponent[]> lines = new ArrayList<>();
         for (String template : templates) {
@@ -617,6 +645,9 @@ public class SpawnBookManager {
                 continue;
             }
             BaseComponent[] components = parseComponentTemplate(template, replacements);
+            if (locked && template.contains("%description%")) {
+                components = applyObfuscation(components);
+            }
             lines.add(components);
         }
 
@@ -625,6 +656,14 @@ public class SpawnBookManager {
         }
 
         return lines;
+    }
+
+    private BaseComponent[] applyObfuscation(BaseComponent[] components) {
+        BaseComponent[] clone = cloneComponents(components);
+        for (BaseComponent component : clone) {
+            component.setObfuscated(true);
+        }
+        return clone;
     }
 
     private BaseComponent[] parseComponentTemplate(String template, Map<String, String> replacements) {
@@ -721,27 +760,48 @@ public class SpawnBookManager {
         }
         BookMeta meta = (BookMeta) item.getItemMeta();
 
-        if (templateTitle != null) {
-            if (!meta.hasTitle() || !templateTitle.equals(meta.getTitle())) {
+        // Match normal template only
+        return matchesTemplate(meta, normalTemplate);
+    }
+
+    /**
+     * Public wrapper so other classes can ask whether an ItemStack is a managed spawn book.
+     */
+    public boolean isSpawnBookItem(ItemStack item) {
+        return isSpawnBook(item);
+    }
+
+    private boolean matchesTemplate(BookMeta meta, Template t) {
+        if (t == null) return false;
+        if (t.templateTitle != null) {
+            if (!meta.hasTitle() || !t.templateTitle.equals(meta.getTitle())) {
                 return false;
             }
         } else if (meta.hasTitle()) {
             return false;
         }
-
-        if (templateAuthor != null) {
-            if (!meta.hasAuthor() || !templateAuthor.equals(meta.getAuthor())) {
+        if (t.templateAuthor != null) {
+            if (!meta.hasAuthor() || !t.templateAuthor.equals(meta.getAuthor())) {
                 return false;
             }
         } else if (meta.hasAuthor()) {
             return false;
         }
-
         return true;
     }
 
     private boolean hasTemplate() {
-        return !basePages.isEmpty() || templateTitle != null || templateAuthor != null;
+        return (normalTemplate != null && normalTemplate.hasTemplate());
+    }
+
+    private Template getActiveTemplate() {
+        return normalTemplate != null ? normalTemplate : new Template();
+    }
+
+    public void refreshAllPlayerBooks() {
+        for (org.bukkit.entity.Player player : org.bukkit.Bukkit.getOnlinePlayers()) {
+            updatePlayerBook(player);
+        }
     }
 
     private BaseComponent[] cloneComponents(BaseComponent[] source) {

@@ -114,7 +114,7 @@ public class ChallengeManager {
         String triggerRaw = trimToNull(asString(data.get("trigger")));
         String targetRaw = trimToNull(asString(data.get("target")));
         int count = parseInt(data.get("count"), 1);
-        boolean hidden = parseBoolean(data.get("hidden"), false);
+        boolean obfuscateUntilUnlock = parseBoolean(data.get("obfuscate_until_unlock"), false);
 
         if (id == null || name == null || triggerRaw == null) {
             plugin.getLogger().warning("Skipping challenge with missing id, name, or trigger.");
@@ -156,14 +156,14 @@ public class ChallengeManager {
         }
 
         return new Challenge(id,
-                name,
-                description == null ? "" : description,
-                trigger,
-                entityType,
-                count,
+            name,
+            description == null ? "" : description,
+            trigger,
+            entityType,
+            count,
             bookIncompleteComponents,
             bookCompleteComponents,
-            hidden);
+            obfuscateUntilUnlock);
     }
 
     private List<String> parseBookComponentSection(Object raw, List<String> fallback) {
@@ -220,17 +220,7 @@ public class ChallengeManager {
         return defaultValue;
     }
 
-    public boolean isChallengeUnlocked(Challenge challenge) {
-        if (challenge == null) {
-            return false;
-        }
-        if (!challenge.isHidden()) {
-            return true;
-        }
-        return areAllOtherChallengesCompleted(challenge);
-    }
-
-    private boolean areAllOtherChallengesCompleted(Challenge challenge) {
+    public boolean areAllOtherChallengesCompleted(Challenge challenge) {
         if (challenge == null) {
             return false;
         }
@@ -269,9 +259,6 @@ public class ChallengeManager {
         }
         boolean updated = false;
         for (Challenge challenge : relevant) {
-            if (!isChallengeUnlocked(challenge)) {
-                continue;
-            }
             int before = progressStore.getProgress(challenge.getId());
             if (before >= challenge.getRequiredCount()) {
                 continue;
