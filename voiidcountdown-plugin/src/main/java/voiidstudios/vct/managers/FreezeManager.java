@@ -61,14 +61,13 @@ import org.bukkit.scheduler.BukkitTask;
 import org.jetbrains.annotations.NotNull;
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.configs.MainConfigManager;
-import voiidstudios.vct.managers.MessagesManager;
-import voiidstudios.vct.managers.SpawnBookManager;
+// Note: avoid import warnings in some environments by qualifying types where used
 import voiidstudios.vct.utils.SoundResolver;
 
 public class FreezeManager {
     private final VoiidCountdownTimer plugin;
     private final MainConfigManager configManager;
-    private final MessagesManager messagesManager;
+    private final voiidstudios.vct.managers.MessagesManager messagesManager;
     private boolean frozen;
     private boolean mobsFrozen;
     private final Map<UUID, Boolean> mobAiSnapshot = new HashMap<UUID, Boolean>();
@@ -496,7 +495,7 @@ public class FreezeManager {
                 this.prevWorldTime.put(world, world.getTime());
             }
             try {
-                world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, (Object)false);
+                world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
             }
             catch (Throwable throwable) {
                 // empty catch block
@@ -512,7 +511,7 @@ public class FreezeManager {
             Boolean prev = this.prevDaylight.remove(world);
             if (prev != null) {
                 try {
-                    world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, (Object)prev);
+                    world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, prev);
                 }
                 catch (Throwable throwable) {
                     // empty catch block
@@ -532,7 +531,7 @@ public class FreezeManager {
             }
             for (World world : Bukkit.getWorlds()) {
                 try {
-                    world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, (Object)false);
+                    world.setGameRule(GameRule.DO_DAYLIGHT_CYCLE, false);
                 }
                 catch (Throwable throwable) {
                     // empty catch block
@@ -652,7 +651,7 @@ public class FreezeManager {
 
     private void purgeProphecyBooks(Player player) {
         try {
-            SpawnBookManager sbm = VoiidCountdownTimer.getSpawnBookManager();
+            voiidstudios.vct.managers.SpawnBookManager sbm = VoiidCountdownTimer.getSpawnBookManager();
             if (sbm == null || player == null) {
                 return;
             }

@@ -61,7 +61,6 @@ import org.bukkit.event.player.PlayerInteractEntityEvent;
 import org.bukkit.event.player.PlayerInteractEvent;
 import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.event.player.PlayerMoveEvent;
-import org.bukkit.event.player.PlayerPickupItemEvent;
 import org.bukkit.event.player.PlayerQuitEvent;
 import org.bukkit.event.player.PlayerRespawnEvent;
 import org.bukkit.event.player.PlayerSwapHandItemsEvent;
@@ -267,15 +266,7 @@ implements Listener {
         this.freezeManager.notifyBlocked(player, "Messages.freezeBlockedAction");
     }
 
-    @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
-    public void onPlayerPickup(PlayerPickupItemEvent event) {
-        Player player = event.getPlayer();
-        if (!this.freezeManager.shouldCancelPlayer(player)) {
-            return;
-        }
-        event.setCancelled(true);
-        this.freezeManager.notifyBlocked(player, "Messages.freezeBlockedAction");
-    }
+    // Removed deprecated PlayerPickupItemEvent in favor of EntityPickupItemEvent above
 
     @EventHandler(priority=EventPriority.HIGHEST, ignoreCancelled=true)
     public void onChat(AsyncPlayerChatEvent event) {
