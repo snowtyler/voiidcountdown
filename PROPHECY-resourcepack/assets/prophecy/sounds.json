@@ -20,5 +20,71 @@
         "pitch": 1.0
       }
     ]
+  },
+  "events.wind_highplace": {
+    "category": "music",
+    "sounds": [
+      {
+        "name": "prophecy:events/wind_highplace",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "events.wind": {
+    "category": "music",
+    "sounds": [
+      {
+        "name": "prophecy:events/wind",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "events.rain": {
+    "category": "music",
+    "sounds": [
+      {
+        "name": "prophecy:events/rain",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "events.pianpian": {
+    "category": "music",
+    "sounds": [
+      {
+        "name": "prophecy:events/pianpian",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "events.audio_drone": {
+    "category": "music",
+    "sounds": [
+      {
+        "name": "prophecy:events/audio_drone",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "events.audio_darkness": {
+    "category": "music",
+    "sounds": [
+      {
+        "name": "prophecy:events/audio_darkness",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
   }
 }
