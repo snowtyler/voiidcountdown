@@ -70,6 +70,21 @@ Freeze:
     pitch: 1.0
     loop_seconds: 20
 
+# LootTweaks - globally adjust chance and quantity of a specific item
+LootTweaks:
+  enabled: false
+  # Bukkit material name of the item to tweak (e.g., DIAMOND, ANCIENT_DEBRIS, ROTTEN_FLESH)
+  item: DIAMOND
+  # Multiplier for how often the item appears in generated loot (>= 0). 0 removes it when it appears; 1 keeps original; 2 roughly doubles occurrences.
+  chance_multiplier: 1.0
+  # Multiplier for stack size of the item when it appears (>= 0). Applied after chance logic; clamped to min/max.
+  quantity_multiplier: 1.0
+  # Optional clamps for the resulting stack size
+  min_stack: 1
+  max_stack: 64
+  # Apply to sources using the game's loot tables. Valid values: CHESTS, ENTITIES, FISHING, BLOCKS, ALL
+  apply_to: ALL
+
 Messages:
   commandReload: '&aConfig Reloaded.'
   commandNoPermissions: '&cYou don''t have permissions to use this command.'

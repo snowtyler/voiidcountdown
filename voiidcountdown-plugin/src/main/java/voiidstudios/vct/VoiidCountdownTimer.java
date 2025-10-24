@@ -45,6 +45,7 @@ public final class VoiidCountdownTimer extends JavaPlugin {
     private static VisualBlockManager visualBlockManager;
     private static FreezeManager freezeManager;
     private static voiidstudios.vct.managers.InteractionActionManager interactionActionManager;
+    private static voiidstudios.vct.managers.LootModifierManager lootModifierManager;
 
     public void onEnable() {
         instance = this;
@@ -57,6 +58,7 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         visualBlockManager = new VisualBlockManager(this);
         freezeManager = new FreezeManager(this);
         interactionActionManager = new voiidstudios.vct.managers.InteractionActionManager(this);
+        lootModifierManager = new voiidstudios.vct.managers.LootModifierManager(this);
         setVersion();
         registerCommands();
         registerEvents();
@@ -160,6 +162,10 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new voiidstudios.vct.listeners.BreakingProtectionListener(visualBlockManager), this);
         getServer().getPluginManager().registerEvents(new FreezeListener(this), this);
         getServer().getPluginManager().registerEvents(new voiidstudios.vct.listeners.InteractionListener(this), this);
+        if (lootModifierManager != null && lootModifierManager.isEnabled()) {
+            getServer().getPluginManager().registerEvents(new voiidstudios.vct.listeners.LootModifierListener(lootModifierManager), this);
+            Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage(prefix + "&aLootTweaks listener enabled for item &f" + lootModifierManager.getTargetItem()));
+        }
         if (configsManager.getMainConfigManager().isCustomDarkWitherSummonEnabled()) {
             getServer().getPluginManager().registerEvents(new CustomSummonListener(), this);
             Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage(prefix + "&aCustom Dark Wither summon listener enabled."));
@@ -231,5 +237,9 @@ public final class VoiidCountdownTimer extends JavaPlugin {
 
     public static voiidstudios.vct.managers.InteractionActionManager getInteractionActionManager() {
         return interactionActionManager;
+    }
+
+    public static voiidstudios.vct.managers.LootModifierManager getLootModifierManager() {
+        return lootModifierManager;
     }
 }

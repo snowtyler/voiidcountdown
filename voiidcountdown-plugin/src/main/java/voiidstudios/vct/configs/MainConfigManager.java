@@ -33,6 +33,15 @@ public class MainConfigManager {
     private float testpillar_sound_pitch;
     private int testpillar_tick_interval_ticks;
 
+    // Loot tweaks
+    private boolean lootTweaksEnabled;
+    private String lootTweaksItem;
+    private double lootTweaksChanceMultiplier;
+    private double lootTweaksQuantityMultiplier;
+    private int lootTweaksMinStack;
+    private int lootTweaksMaxStack;
+    private String lootTweaksApplyTo;
+
     public MainConfigManager(VoiidCountdownTimer plugin){
         configFile = new CustomConfig("config.yml", plugin, null, false);
         configFile.registerConfig();
@@ -70,6 +79,15 @@ public class MainConfigManager {
             testpillar_sound_volume = Math.max(0.0F, (float) soundSection.getDouble("volume", 1.0D));
             testpillar_sound_pitch = (float) soundSection.getDouble("pitch", 1.0D);
         }
+
+        // LootTweaks
+        lootTweaksEnabled = config.getBoolean("LootTweaks.enabled", false);
+        lootTweaksItem = config.getString("LootTweaks.item", "DIAMOND");
+        lootTweaksChanceMultiplier = Math.max(0.0D, config.getDouble("LootTweaks.chance_multiplier", 1.0D));
+        lootTweaksQuantityMultiplier = Math.max(0.0D, config.getDouble("LootTweaks.quantity_multiplier", 1.0D));
+        lootTweaksMinStack = Math.max(0, config.getInt("LootTweaks.min_stack", 1));
+        lootTweaksMaxStack = Math.max(lootTweaksMinStack, config.getInt("LootTweaks.max_stack", 64));
+        lootTweaksApplyTo = String.valueOf(config.getString("LootTweaks.apply_to", "ALL"));
     }
 
     public void reloadConfig(){
@@ -232,6 +250,18 @@ public class MainConfigManager {
                     updated = true;
                 }
                 if (updated) saveConfig();
+            }
+
+            // Ensure LootTweaks defaults exist
+            if (!getConfig().contains("LootTweaks")) {
+                getConfig().set("LootTweaks.enabled", false);
+                getConfig().set("LootTweaks.item", "DIAMOND");
+                getConfig().set("LootTweaks.chance_multiplier", 1.0D);
+                getConfig().set("LootTweaks.quantity_multiplier", 1.0D);
+                getConfig().set("LootTweaks.min_stack", 1);
+                getConfig().set("LootTweaks.max_stack", 64);
+                getConfig().set("LootTweaks.apply_to", "ALL");
+                saveConfig();
             }
 
             if(!text.contains("timerSetError:")){
@@ -451,4 +481,13 @@ public class MainConfigManager {
     public boolean isCustomDarkWitherSummonEnabled() {
         return custom_dark_wither_summon_enabled;
     }
+
+    // LootTweaks getters
+    public boolean isLootTweaksEnabled() { return lootTweaksEnabled; }
+    public String getLootTweaksItem() { return lootTweaksItem; }
+    public double getLootTweaksChanceMultiplier() { return lootTweaksChanceMultiplier; }
+    public double getLootTweaksQuantityMultiplier() { return lootTweaksQuantityMultiplier; }
+    public int getLootTweaksMinStack() { return lootTweaksMinStack; }
+    public int getLootTweaksMaxStack() { return lootTweaksMaxStack; }
+    public String getLootTweaksApplyTo() { return lootTweaksApplyTo; }
 }

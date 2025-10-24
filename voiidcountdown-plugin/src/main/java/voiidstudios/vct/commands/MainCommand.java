@@ -92,6 +92,9 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         if (freezeManager != null) {
             freezeManager.reload();
         }
+        if (VoiidCountdownTimer.getLootModifierManager() != null) {
+            VoiidCountdownTimer.getLootModifierManager().reload();
+        }
         msgManager.sendConfigMessage(sender, "Messages.commandReload", true, null);
         Timer.refreshTimerText();
     }
