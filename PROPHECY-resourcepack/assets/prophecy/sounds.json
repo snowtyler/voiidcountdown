@@ -4,7 +4,7 @@
     "sounds": [
       {
         "name": "prophecy:events/ripple",
-        "stream": false,
+        "stream": true,
         "volume": 1.0,
         "pitch": 1.0
       }
@@ -48,7 +48,7 @@
     "sounds": [
       {
         "name": "prophecy:events/rain",
-        "stream": false,
+        "stream": true,
         "volume": 1.0,
         "pitch": 1.0
       }
@@ -81,7 +81,7 @@
     "sounds": [
       {
         "name": "prophecy:events/audio_darkness",
-        "stream": false,
+        "stream": true,
         "volume": 1.0,
         "pitch": 1.0
       }
@@ -92,6 +92,39 @@
     "sounds": [
       {
         "name": "prophecy:events/me",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "events.flip": {
+    "category": "music",
+    "sounds": [
+      {
+        "name": "prophecy:events/flip",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "events.sadchord": {
+    "category": "music",
+    "sounds": [
+      {
+        "name": "prophecy:events/sadchord",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "events.revival": {
+    "category": "music",
+    "sounds": [
+      {
+        "name": "prophecy:events/revival",
         "stream": false,
         "volume": 1.0,
         "pitch": 1.0

@@ -9,6 +9,16 @@
 		"chars": [
 		"\uE001"
 			]
+		},
+		{
+			"type": "bitmap",
+			"file": "minecraft:custom/fadew.png",
+			"ascent": 128,
+			"height": 1280,
+			"size": 10000.0,
+			"chars": [
+				"\uE002"
+			]
 		}
 	]
 }
