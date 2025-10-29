@@ -3,6 +3,7 @@ scoreboard objectives add witherCount dummy
 scoreboard players set witherCount witherCount 0
 scoreboard objectives add checkHealth dummy
 scoreboard objectives add witherCheck dummy
+scoreboard objectives add leashCooldown dummy
 scoreboard objectives add skullposX dummy
 scoreboard objectives add skullposY dummy
 scoreboard objectives add skullposZ dummy
@@ -12,9 +13,10 @@ scoreboard objectives add playerposZ dummy
 scoreboard objectives add skulllaunchmotX dummy
 scoreboard objectives add skulllaunchmotY dummy
 scoreboard objectives add skulllaunchmotZ dummy
-scoreboard objectives add finale_timer dummy
 scoreboard objectives add rules dummy
 scoreboard objectives add stages dummy
+scoreboard objectives add dw_music_p1_heard dummy
+scoreboard objectives add dw_music_p2_heard dummy
 function wither:wither/safemode
 
 execute if entity @e[type=minecraft:wither,tag=DarkWither] run tellraw @a ["",{"text":"[ᴡɪᴛʜᴇʀ'ꜱ ᴡʀᴀᴛʜ] ","bold":true,"color":"#322A32"},{"text":"ᴛʜᴇ ᴘᴀᴄᴋ ᴡᴀꜱ (ʀᴇ)ʟᴏᴀᴅᴇᴅ ᴡʜɪʟᴇ ᴀ ᴡɪᴛʜᴇʀ ᴡᴀꜱ ᴀʟɪᴠᴇ... ᴋɪʟʟɪɴɢ ɪᴛ!!!","bold":true,"color":"dark_red"}]

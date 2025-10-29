@@ -18,7 +18,14 @@ scoreboard players set enraged wenraged 0
 
 # MUSIC
     schedule clear wither:wither/musicphase2
+    schedule clear wither:wither/musicphase2_join
+    schedule clear wither:wither/musicphase1
+    schedule clear wither:wither/musicphase1_join
     execute as @a run stopsound @a record darkwither:events.phase2
+    execute as @a run stopsound @a record darkwither:events.phase1
+    tag @e[type=minecraft:wither,tag=DarkWither,limit=1] remove Phase2
+    scoreboard players set @a dw_music_p2_heard 0
+    scoreboard players set @a dw_music_p1_heard 0
     execute at @e[type=item,sort=nearest,tag=nether_star,limit=1] run playsound darkwither:events.death hostile @a ~ ~ ~ 1 1
     execute at @e[type=item,sort=nearest,tag=nether_star,limit=1] run playsound minecraft:ui.toast.challenge_complete player @a ~ ~ ~ 1 0.9
     execute at @e[type=item,sort=nearest,tag=nether_star,limit=1] run playsound minecraft:music.creative music @a

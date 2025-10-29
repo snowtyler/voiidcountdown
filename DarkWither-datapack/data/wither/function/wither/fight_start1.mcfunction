@@ -65,8 +65,17 @@ execute at @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] if data
 execute at @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] if data storage wither:options {toggleanimation:Default} if entity @e[type=player,distance=..30] as @s at @s run particle sculk_soul ~ ~1 ~ 0.5 .35 0.5 0.1 50 normal
 execute at @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] if data storage wither:options {toggleanimation:Default} run particle minecraft:sculk_soul ~ ~ ~ 15 0 15 0.000000000000000000001 1000 normal
 execute at @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] if data storage wither:options {toggleanimation:Default} run particle dust_color_transition{from_color:[0.169,0.169,0.169],scale:4,to_color:[0.941,0.941,0.902]} ~ ~.8 ~ 0.9 1.2 0.9 0.001 100 normal
-execute as @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] if data storage wither:options {toggleanimation:Default} unless block ^ ^ ^1 minecraft:bedrock unless block ^ ^ ^2 minecraft:bedrock unless block ^ ^ ^3 minecraft:bedrock unless block ~ ~-1 ~ minecraft:bedrock unless block ~ ~-2 ~ minecraft:bedrock unless block ~ ~1 ~ minecraft:bedrock unless block ~ ~2 ~ minecraft:bedrock unless block ~ ~3 ~ minecraft:bedrock unless block ~ ~4 ~ minecraft:bedrock unless block ~ ~5 ~ minecraft:bedrock run data merge entity @e[type=wither,tag=DarkWither,limit=1,sort=nearest] {active_effects:[{id:"minecraft:levitation",amplifier:3,duration:140,show_particles:0b},{id:"minecraft:slow_falling",amplifier:20,duration:400,show_particles:0b}]}
+execute as @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] if data storage wither:options {toggleanimation:Default} run data merge entity @e[type=wither,tag=DarkWither,limit=1,sort=nearest] {active_effects:[{id:"minecraft:levitation",amplifier:3,duration:140,show_particles:0b},{id:"minecraft:slow_falling",amplifier:20,duration:400,show_particles:0b}]}
 execute as @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] run team join Wither @s
+
+# Safety: re-check levitation shortly after to handle edge-case merges/order
+schedule function wither:wither/fight_start1_levi_check 2t replace
+
+# Store spawn position for leash system
+execute as @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] at @s store result storage wither:spawn_pos x int 1 run data get entity @s Pos[0]
+execute as @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] at @s store result storage wither:spawn_pos y int 1 run data get entity @s Pos[1]
+execute as @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] at @s store result storage wither:spawn_pos z int 1 run data get entity @s Pos[2]
+execute as @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] run scoreboard players set @s leashCooldown 0
 
 # MODIFICATIONS
 execute at @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] if data storage wither:options {toggleanimation:Default} run effect give @e[type=player,distance=..100] minecraft:darkness 8 1 true

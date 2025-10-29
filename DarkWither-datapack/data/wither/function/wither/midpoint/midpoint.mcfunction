@@ -39,7 +39,12 @@ execute if data storage wither:options {toggleanimation:Default} run schedule fu
 # SPECIAL FX
 execute if data storage wither:options {toggleanimation:Default} at @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] at @s run playsound minecraft:entity.wither.spawn hostile @a[distance=..30] ~ ~ ~ 2 .8
 schedule clear wither:wither/musicphase1
+schedule clear wither:wither/musicphase1_join
 execute as @a run stopsound @a record darkwither:events.phase1
+# Reset per-player Phase 2 heard flags so everyone can hear the new track immediately
+scoreboard players set @a dw_music_p2_heard 0
+# Mark phase state to prevent Phase 1 from retriggering after transition
+tag @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] add Phase2
 function wither:wither/musicphase2
 effect give @e[type=wither_skeleton,distance=..20] resistance 3 10
 execute if data storage wither:options {toggleanimation:Default} run data merge entity @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] {Invulnerable:1b,NoAI:1b,NoGravity:1b,active_effects:[{id:"minecraft:resistance",amplifier:255,duration:5}]}

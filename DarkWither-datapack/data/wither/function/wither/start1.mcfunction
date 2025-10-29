@@ -16,4 +16,14 @@ kill @e[type=armor_stand,tag=wither_spin,limit=1]
 schedule clear wither:wither/fight_start_bedrock1t
 schedule clear wither:wither/fight_startpart
 
-schedule function wither:wither/musicphase1 1t
+# Ensure clean phase state for new fights
+tag @e[type=minecraft:wither,tag=DarkWither,limit=1,sort=nearest] remove Phase2
+
+# Reset Phase 1 per-player heard flags before starting Phase 1 music
+scoreboard players set @a dw_music_p1_heard 0
+
+# Extra safety: clear any lingering Phase 2 music schedules from previous sessions
+schedule clear wither:wither/musicphase2
+schedule clear wither:wither/musicphase2_join
+
+schedule function wither:wither/musicphase1 1t replace
