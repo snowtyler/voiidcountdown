@@ -1,6 +1,6 @@
 {
   "events.ripple": {
-    "category": "music",
+    "category": "record",
     "sounds": [
       {
         "name": "prophecy:events/ripple",
@@ -11,7 +11,7 @@
     ]
   },
   "events.fountain_make": {
-    "category": "music",
+    "category": "record",
     "sounds": [
       {
         "name": "prophecy:events/fountain_make",
@@ -21,8 +21,19 @@
       }
     ]
   },
+  "events.mono_fountain_make": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "prophecy:events/mono_fountain_make",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
   "events.wind_highplace": {
-    "category": "music",
+    "category": "record",
     "sounds": [
       {
         "name": "prophecy:events/wind_highplace",
@@ -33,7 +44,7 @@
     ]
   },
   "events.wind": {
-    "category": "music",
+    "category": "record",
     "sounds": [
       {
         "name": "prophecy:events/wind",
@@ -44,7 +55,7 @@
     ]
   },
   "events.rain": {
-    "category": "music",
+    "category": "record",
     "sounds": [
       {
         "name": "prophecy:events/rain",
@@ -55,7 +66,7 @@
     ]
   },
   "events.pianpian": {
-    "category": "music",
+    "category": "record",
     "sounds": [
       {
         "name": "prophecy:events/pianpian",
@@ -66,7 +77,7 @@
     ]
   },
   "events.audio_drone": {
-    "category": "music",
+    "category": "record",
     "sounds": [
       {
         "name": "prophecy:events/audio_drone",
@@ -77,7 +88,7 @@
     ]
   },
   "events.audio_darkness": {
-    "category": "music",
+    "category": "record",
     "sounds": [
       {
         "name": "prophecy:events/audio_darkness",
@@ -88,7 +99,7 @@
     ]
   },
   "events.me": {
-    "category": "music",
+    "category": "record",
     "sounds": [
       {
         "name": "prophecy:events/me",
@@ -98,8 +109,19 @@
       }
     ]
   },
+  "events.mono_me": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "prophecy:events/mono_me",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
   "events.flip": {
-    "category": "music",
+    "category": "record",
     "sounds": [
       {
         "name": "prophecy:events/flip",
@@ -109,8 +131,19 @@
       }
     ]
   },
+  "events.mono_flip": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "prophecy:events/mono_flip",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
   "events.sadchord": {
-    "category": "music",
+    "category": "record",
     "sounds": [
       {
         "name": "prophecy:events/sadchord",
@@ -120,11 +153,55 @@
       }
     ]
   },
+  "events.mono_sadchord": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "prophecy:events/mono_sadchord",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
   "events.revival": {
-    "category": "music",
+    "category": "record",
     "sounds": [
       {
         "name": "prophecy:events/revival",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+  "events.oldest_point": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "prophecy:events/oldest_point",
+        "stream": true,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+"events.him_quick": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "prophecy:events/him_quick",
+        "stream": false,
+        "volume": 1.0,
+        "pitch": 1.0
+      }
+    ]
+  },
+"events.mono_him_quick": {
+    "category": "record",
+    "sounds": [
+      {
+        "name": "prophecy:events/mono_him_quick",
         "stream": false,
         "volume": 1.0,
         "pitch": 1.0
