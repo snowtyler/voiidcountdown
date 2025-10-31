@@ -59,6 +59,14 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     spawnTestPillar(sender, args);
                 } else if (args[0].equalsIgnoreCase("testpillarclear")) {
                     clearEndGatewayPillar(sender, args);
+                } else if (args[0].equalsIgnoreCase("itemsensor")) {
+                    handleItemSensor(sender, args);
+                } else if (args[0].equalsIgnoreCase("shrine")) {
+                    handleShrine(sender, args);
+                } else if (args[0].equalsIgnoreCase("book")) {
+                    handleBook(sender, args);
+                } else if (args[0].equalsIgnoreCase("lectern")) {
+                    handleLectern(sender, args);
                 }else{
                     help(sender);
                 }
@@ -74,24 +82,47 @@ public class MainCommand implements CommandExecutor, TabCompleter {
 
     public void reload(CommandSender sender, MessagesManager msgManager){
         VoiidCountdownTimer.getConfigsManager().reload();
+        // Re-apply prefix and use_prefix from updated config on reload
+        try {
+            var mcm = VoiidCountdownTimer.getConfigsManager().getMainConfigManager();
+            String cfgPrefix = mcm.getConfig().getString("Messages.prefix", VoiidCountdownTimer.prefix);
+            boolean usePref = mcm.isUsePrefix();
+            VoiidCountdownTimer.prefix = (usePref && cfgPrefix != null) ? cfgPrefix : "";
+            MessagesManager.setPrefix(VoiidCountdownTimer.prefix);
+        } catch (Throwable ignored) {}
         HalloweenModeManager halloweenManager = VoiidCountdownTimer.getHalloweenModeManager();
         if (halloweenManager != null) {
             halloweenManager.reload();
-        }
-        if (VoiidCountdownTimer.getSpawnBookManager() != null) {
-            VoiidCountdownTimer.getSpawnBookManager().reload();
         }
         if (VoiidCountdownTimer.getInteractionActionManager() != null) {
             VoiidCountdownTimer.getInteractionActionManager().reload();
         }
         if (VoiidCountdownTimer.getChallengeManager() != null) {
             VoiidCountdownTimer.getChallengeManager().reload();
-            VoiidCountdownTimer.getChallengeManager().refreshAllBooks();
+        }
+        // Reload lectern protection list
+        if (VoiidCountdownTimer.getLecternProtectionManager() != null) {
+            VoiidCountdownTimer.getLecternProtectionManager().reload();
         }
         FreezeManager freezeManager = VoiidCountdownTimer.getFreezeManager();
         if (freezeManager != null) {
             freezeManager.reload();
         }
+        // Reload spawn book templates and refresh existing copies
+        try {
+            var sbm = VoiidCountdownTimer.getSpawnBookManager();
+            if (sbm != null) {
+                sbm.reload();
+            }
+        } catch (Throwable ignored) {}
+        // Reload item frame sensor (recreate with fresh config)
+        try {
+            var existing = VoiidCountdownTimer.getItemFrameSensorManager();
+            if (existing != null) existing.shutdown();
+            var fresh = new voiidstudios.vct.managers.ItemFrameSensorManager(VoiidCountdownTimer.getInstance());
+            VoiidCountdownTimer.setItemFrameSensorManager(fresh);
+            fresh.startIfEnabled();
+        } catch (Throwable ignored) {}
         msgManager.sendConfigMessage(sender, "Messages.commandReload", true, null);
         Timer.refreshTimerText();
     }
@@ -488,9 +519,13 @@ public class MainCommand implements CommandExecutor, TabCompleter {
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween toggle &7- Toggle the Halloween mode override."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween force &7- Trigger the next pending threshold immediately."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct halloween reset &7- Revert to the previously completed threshold."));
-        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct freeze &e<on|off|toggle|status> [mobs|nomobs] &7- Control the global freeze state."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct freeze &e<success|fail|on|off|toggle|status> [mobs|nomobs] &7- Control the global freeze state with a variant."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct testpillar &7[world] - Spawn the configured pillar at the origin (use &f~ &7for your current world)."));
         sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct testpillarclear &7[world] - Restore blocks from the test pillar in a world."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct itemsensor status &7- Show ItemFrame sensor config and runtime status."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct shrine &e[world|~] [x y z] &7- Spawn an indestructible end crystal with an INTERACTION (tag &fshrine_interact&7)."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct book &7[player] - Give a live-updating prophecy book to yourself or a player."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&5> &6/vct lectern &e<add|remove> &7- Add/remove protection on the lectern you're looking at."));
     }
 
     public List<String> onTabComplete(CommandSender sender, @NotNull Command command, @NotNull String label, String[] args){
@@ -505,6 +540,10 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                 commands.add("freeze");
                 commands.add("testpillar");
                 commands.add("testpillarclear");
+                commands.add("itemsensor");
+                commands.add("shrine");
+                commands.add("book");
+                commands.add("lectern");
                 for(String c : commands) {
                     if(args[0].isEmpty() || c.startsWith(args[0].toLowerCase())) {
                         completions.add(c);
@@ -527,14 +566,31 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     subcommands.add("force");
                     subcommands.add("force-next");
                     subcommands.add("reset");
+                }else if(args[0].equalsIgnoreCase("lectern")){
+                    subcommands.add("add");
+                    subcommands.add("remove");
+                }else if(args[0].equalsIgnoreCase("book")){
+                    // Suggest online players
+                    for (Player p : Bukkit.getOnlinePlayers()) {
+                        subcommands.add(p.getName());
+                    }
+                }else if(args[0].equalsIgnoreCase("itemsensor")){
+                    subcommands.add("status");
                 }else if(args[0].equalsIgnoreCase("freeze")){
                     subcommands.add("on");
                     subcommands.add("off");
                     subcommands.add("toggle");
                     subcommands.add("status");
+                    subcommands.add("success");
+                    subcommands.add("fail");
                 }else if(args[0].equalsIgnoreCase("set")){
                     subcommands.add("<HHH:MM:SS>");
                 }else if(args[0].equalsIgnoreCase("testpillar") || args[0].equalsIgnoreCase("testpillarclear")) {
+                    subcommands.add("~");
+                    for (World world : Bukkit.getWorlds()) {
+                        subcommands.add(world.getName());
+                    }
+                } else if (args[0].equalsIgnoreCase("shrine")) {
                     subcommands.add("~");
                     for (World world : Bukkit.getWorlds()) {
                         subcommands.add(world.getName());
@@ -579,6 +635,12 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     subcommands.add("false");
                 } else if(args[0].equalsIgnoreCase("set")){
                     return getTimersCompletions(args, 2, true);
+                } else if (args[0].equalsIgnoreCase("shrine")) {
+                    subcommands.add("<x>");
+                    if (sender instanceof Player) {
+                        Location loc = ((Player) sender).getLocation();
+                        subcommands.add(String.valueOf(loc.getBlockX() + 0.5));
+                    }
                 }
 
                 for(String c : subcommands) {
@@ -587,10 +649,278 @@ public class MainCommand implements CommandExecutor, TabCompleter {
                     }
                 }
                 return subcompletions;
+            } else if (args.length == 4) {
+                if (args[0].equalsIgnoreCase("shrine")) {
+                    List<String> subcompletions = new ArrayList<>();
+                    List<String> subcommands = new ArrayList<>();
+                    subcommands.add("<y>");
+                    if (sender instanceof Player) {
+                        Location loc = ((Player) sender).getLocation();
+                        subcommands.add(String.valueOf(loc.getBlockY()));
+                    }
+                    for (String c : subcommands) {
+                        if (args[3].isEmpty() || c.startsWith(args[3].toLowerCase())) {
+                            subcompletions.add(c);
+                        }
+                    }
+                    return subcompletions;
+                }
+            } else if (args.length == 5) {
+                if (args[0].equalsIgnoreCase("shrine")) {
+                    List<String> subcompletions = new ArrayList<>();
+                    List<String> subcommands = new ArrayList<>();
+                    subcommands.add("<z>");
+                    if (sender instanceof Player) {
+                        Location loc = ((Player) sender).getLocation();
+                        subcommands.add(String.valueOf(loc.getBlockZ() + 0.5));
+                    }
+                    for (String c : subcommands) {
+                        if (args[4].isEmpty() || c.startsWith(args[4].toLowerCase())) {
+                            subcompletions.add(c);
+                        }
+                    }
+                    return subcompletions;
+                }
             }
         }
 
         return null;
+    }
+
+    private void handleShrine(CommandSender sender, String[] args) {
+        World world = null;
+        Double x = null, y = null, z = null;
+
+        // World resolution
+        if (args.length >= 2) {
+            String w = args[1];
+            if ("~".equals(w)) {
+                if (sender instanceof Player) {
+                    world = ((Player) sender).getWorld();
+                } else {
+                    sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cThe '~' shortcut can only be used by players."));
+                    return;
+                }
+            } else {
+                world = Bukkit.getWorld(w);
+                if (world == null) {
+                    for (World candidate : Bukkit.getWorlds()) {
+                        if (candidate.getName().equalsIgnoreCase(w)) { world = candidate; break; }
+                    }
+                }
+                if (world == null) {
+                    sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cWorld '&f" + w + "&c' was not found."));
+                    return;
+                }
+            }
+        } else if (sender instanceof Player) {
+            world = ((Player) sender).getWorld();
+        } else {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cUsage: &6/vct shrine &e[world|~] [x y z]"));
+            return;
+        }
+
+        // Coordinate resolution
+        if (args.length >= 5) {
+            if (!(sender instanceof Player) && ("~".equals(args[2]) || "~".equals(args[3]) || "~".equals(args[4]))) {
+                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cThe '~' coordinate shortcut can only be used by players."));
+                return;
+            }
+            Location base = sender instanceof Player ? ((Player) sender).getLocation() : new Location(world, 0, 0, 0);
+            x = parseCoord(args[2], base.getX());
+            y = parseCoord(args[3], base.getY());
+            z = parseCoord(args[4], base.getZ());
+            if (x == null || y == null || z == null) {
+                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cInvalid coordinates. Use numbers or '~' (for player position)."));
+                return;
+            }
+        } else if (sender instanceof Player) {
+            Location p = ((Player) sender).getLocation();
+            x = p.getX();
+            y = p.getY();
+            z = p.getZ();
+        } else {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cUsage: &6/vct shrine &e[world|~] [x y z]"));
+            return;
+        }
+
+        // Center on blocks for nicer placement
+        double cx = x;
+        double cy = y;
+        double cz = z;
+
+        org.bukkit.entity.EnderCrystal crystal = VCTActions.createIndestructibleEndCrystalWithInteraction(world.getName(), cx, cy, cz);
+        if (crystal == null) {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cFailed to create the shrine at &f" + world.getName() + " &c(" + cx + ", " + cy + ", " + cz + ")."));
+            return;
+        }
+        sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&aSpawned shrine in &f" + world.getName() + " &aat &f(" + formatCoord(cx) + ", " + formatCoord(cy) + ", " + formatCoord(cz) + ")&a."));
+        sender.sendMessage(MessagesManager.getColoredMessage("&7Click the shrine to trigger rules for tag &fshrine_interact&7 (configure in &finteractions.yml&7)."));
+    }
+
+    private Double parseCoord(String raw, double fallback) {
+        if (raw == null) return null;
+        raw = raw.trim();
+        if (raw.equals("~")) return fallback;
+        try { return Double.parseDouble(raw); } catch (NumberFormatException e) { return null; }
+    }
+
+    private String formatCoord(double v) {
+        return String.format(java.util.Locale.ROOT, "%.2f", v);
+    }
+
+    private void handleBook(CommandSender sender, String[] args) {
+        MessagesManager msg = VoiidCountdownTimer.getMessagesManager();
+        var sbm = VoiidCountdownTimer.getSpawnBookManager();
+        if (sbm == null) {
+            msg.sendConfigMessage(sender, "Messages.bookTemplateMissing", true, null);
+            return;
+        }
+
+        Player target = null;
+        if (args.length >= 2) {
+            target = Bukkit.getPlayerExact(args[1]);
+            if (target == null) {
+                Map<String, String> repl = new HashMap<>();
+                repl.put("%PLAYER%", args[1]);
+                msg.sendConfigMessage(sender, "Messages.bookPlayerNotFound", true, repl);
+                return;
+            }
+        } else {
+            if (!(sender instanceof Player)) {
+                msg.sendConfigMessage(sender, "Messages.bookOnlyPlayers", true, null);
+                return;
+            }
+            target = (Player) sender;
+        }
+
+        // Ensure a template exists
+        org.bukkit.inventory.ItemStack probe = null;
+        try { probe = sbm.buildCurrentProphecyBook(); } catch (Throwable ignored) {}
+        if (probe == null) {
+            msg.sendConfigMessage(sender, "Messages.bookTemplateMissing", true, null);
+            return;
+        }
+
+        sbm.giveBook(target);
+
+        if (sender.equals(target)) {
+            msg.sendConfigMessage(sender, "Messages.bookGaveSelf", true, null);
+        } else {
+            Map<String, String> repl = new HashMap<>();
+            repl.put("%PLAYER%", target.getName());
+            msg.sendConfigMessage(sender, "Messages.bookGaveOther", true, repl);
+        }
+    }
+
+    private void handleLectern(CommandSender sender, String[] args) {
+        MessagesManager msg = VoiidCountdownTimer.getMessagesManager();
+        if (!(sender instanceof Player)) {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cOnly players can run this command."));
+            return;
+        }
+        if (args.length < 2) {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cUse: &6/vct lectern &e<add|remove>"));
+            return;
+        }
+
+        String sub = args[1].toLowerCase(Locale.ROOT);
+        Player player = (Player) sender;
+        org.bukkit.block.Block target = null;
+        try {
+            // Preferred modern API
+            java.lang.reflect.Method m = Player.class.getMethod("getTargetBlockExact", int.class);
+            Object blk = m.invoke(player, 6);
+            if (blk instanceof org.bukkit.block.Block) target = (org.bukkit.block.Block) blk;
+        } catch (Exception ignored) {
+            try {
+                // Legacy/deprecated API fallback
+                org.bukkit.block.Block b = player.getTargetBlock((java.util.Set<Material>) null, 6);
+                target = b;
+            } catch (Throwable ignored2) {}
+        }
+
+        if (target == null || target.getType() != Material.LECTERN) {
+            msg.sendConfigMessage(sender, "Messages.lectern.mustLook", true, null);
+            return;
+        }
+
+        var mgr = VoiidCountdownTimer.getLecternProtectionManager();
+        if (mgr == null) {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cLectern protection manager is not available."));
+            return;
+        }
+
+        Map<String, String> repl = new HashMap<>();
+        repl.put("%WORLD%", target.getWorld().getName());
+        repl.put("%X%", String.valueOf(target.getX()));
+        repl.put("%Y%", String.valueOf(target.getY()));
+        repl.put("%Z%", String.valueOf(target.getZ()));
+
+        switch (sub) {
+            case "add": {
+                boolean added = mgr.protect(target.getWorld().getName(), target.getX(), target.getY(), target.getZ());
+                if (added) {
+                    msg.sendConfigMessage(sender, "Messages.lectern.protected", true, repl);
+                } else {
+                    msg.sendConfigMessage(sender, "Messages.lectern.alreadyProtected", true, repl);
+                }
+                break;
+            }
+            case "remove": {
+                boolean wasProtected = mgr.isProtected(target.getWorld().getName(), target.getX(), target.getY(), target.getZ());
+                if (!wasProtected) {
+                    msg.sendConfigMessage(sender, "Messages.lectern.notProtected", true, repl);
+                    return;
+                }
+                boolean removed = mgr.unprotect(target.getWorld().getName(), target.getX(), target.getY(), target.getZ());
+                if (removed) {
+                    msg.sendConfigMessage(sender, "Messages.lectern.unprotected", true, repl);
+                } else {
+                    msg.sendConfigMessage(sender, "Messages.lectern.notProtected", true, repl);
+                }
+                break;
+            }
+            default:
+                sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cUse: &6/vct lectern &e<add|remove>"));
+                break;
+        }
+    }
+
+    private void handleItemSensor(CommandSender sender, String[] args) {
+        var manager = VoiidCountdownTimer.getItemFrameSensorManager();
+        if (manager == null) {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&cItemFrame sensor manager is not available."));
+            return;
+        }
+
+        String sub = args.length >= 2 ? args[1].toLowerCase(Locale.ROOT) : "status";
+        if (!sub.equals("status") && !sub.equals("info") && !sub.equals("show")) {
+            sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&7Unknown itemsensor subcommand. Use &6/vct itemsensor status&7."));
+            return;
+        }
+
+        var cfg = VoiidCountdownTimer.getConfigsManager().getMainConfigManager();
+        var st = manager.getStatus();
+
+        sender.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + "&dItemFrame Sensor status"));
+        sender.sendMessage(MessagesManager.getColoredMessage("&7Enabled (config): &f" + (cfg.isItemFrameSensorEnabled() ? "Yes" : "No")));
+        sender.sendMessage(MessagesManager.getColoredMessage("&7World: &f" + st.worldName + " &7(found: &f" + (st.worldFound ? "Yes" : "No") + "&7)"));
+        sender.sendMessage(MessagesManager.getColoredMessage("&7Coords: &f(" + st.x + ", " + st.y + ", " + st.z + ")  &7Facing filter: &f" + (st.facingName == null || st.facingName.isEmpty() ? "(none)" : st.facingName)));
+        sender.sendMessage(MessagesManager.getColoredMessage("&7Target item: &f" + st.materialName + "  &7Check period: &f" + st.periodTicks + "t  &7Startup fire: &f" + (st.fireOnStartup ? "Yes" : "No")));
+        sender.sendMessage(MessagesManager.getColoredMessage("&7Permission: &f" + (st.permissionToGrant == null || st.permissionToGrant.isEmpty() ? "(none)" : st.permissionToGrant)));
+
+        sender.sendMessage(MessagesManager.getColoredMessage("&7Nearby frames: &f" + st.nearbyFrames + "  &7Matched: &f" + (st.matchedFrameFound ? "Yes" : "No")));
+        if (st.matchedFrameFound) {
+            String where = st.matchAnchorType != null ? st.matchAnchorType : "?";
+            String facing = st.matchedFacing != null ? st.matchedFacing : "?";
+            String item = st.displayedItem != null ? st.displayedItem : "AIR";
+            sender.sendMessage(MessagesManager.getColoredMessage("&7Match type: &f" + where + "  &7Facing: &f" + facing + "  &7Displayed: &f" + item));
+        }
+
+        String current = st.currentActiveState == null ? "Unknown" : (st.currentActiveState ? "Active" : "Inactive");
+        String expected = st.expectedActiveNow ? "Active" : "Inactive";
+        sender.sendMessage(MessagesManager.getColoredMessage("&7State (last): &f" + current + "  &7State (now): &f" + expected));
     }
 
     private void handleHalloween(CommandSender sender, String[] args) {
@@ -737,9 +1067,37 @@ public class MainCommand implements CommandExecutor, TabCompleter {
             }
         }
 
-        boolean targetMobFreeze = mobArg != null ? mobArg : freezeManager.getDefaultFreezeMobs();
+        boolean targetMobFreeze = mobArg != null ? mobArg : (freezeManager.isFrozen() ? freezeManager.isMobsFrozen() : false);
 
         switch (subcommand) {
+            case "success": {
+                boolean wasFrozen = freezeManager.isFrozen();
+                boolean previousMobState = freezeManager.isMobsFrozen();
+                freezeManager.freezeWithVariant(targetMobFreeze, FreezeManager.FreezeVariant.SUCCESS);
+
+                if (!wasFrozen) {
+                    msgManager.sendConfigMessage(sender, "Messages.freezeEnabled", true, buildFreezeReplacements(targetMobFreeze, true));
+                } else if (previousMobState != targetMobFreeze) {
+                    msgManager.sendConfigMessage(sender, "Messages.freezeUpdated", true, buildFreezeReplacements(targetMobFreeze, true));
+                } else {
+                    msgManager.sendConfigMessage(sender, "Messages.freezeAlreadyEnabled", true, buildFreezeReplacements(targetMobFreeze, true));
+                }
+                break;
+            }
+            case "fail": {
+                boolean wasFrozen = freezeManager.isFrozen();
+                boolean previousMobState = freezeManager.isMobsFrozen();
+                freezeManager.freezeWithVariant(targetMobFreeze, FreezeManager.FreezeVariant.FAIL);
+
+                if (!wasFrozen) {
+                    msgManager.sendConfigMessage(sender, "Messages.freezeEnabled", true, buildFreezeReplacements(targetMobFreeze, true));
+                } else if (previousMobState != targetMobFreeze) {
+                    msgManager.sendConfigMessage(sender, "Messages.freezeUpdated", true, buildFreezeReplacements(targetMobFreeze, true));
+                } else {
+                    msgManager.sendConfigMessage(sender, "Messages.freezeAlreadyEnabled", true, buildFreezeReplacements(targetMobFreeze, true));
+                }
+                break;
+            }
             case "on":
             case "enable":
             case "start": {

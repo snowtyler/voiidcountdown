@@ -9,13 +9,16 @@ import voiidstudios.vct.configs.ConfigsManager;
 import voiidstudios.vct.listeners.PlayerListener;
 import voiidstudios.vct.listeners.EnderDragonListener;
 import voiidstudios.vct.listeners.CustomSummonListener;
+import voiidstudios.vct.listeners.DarkWitherDeathListener;
+import voiidstudios.vct.listeners.DarkWitherSpawnListener;
+import voiidstudios.vct.listeners.SpawnBookInventoryListener;
 import voiidstudios.vct.managers.DependencyManager;
 import voiidstudios.vct.api.UpdateCheckerResult;
 import voiidstudios.vct.managers.DynamicsManager;
 import voiidstudios.vct.managers.MessagesManager;
 import voiidstudios.vct.managers.HalloweenModeManager;
 import voiidstudios.vct.managers.TimerStateManager;
-import voiidstudios.vct.managers.SpawnBookManager;
+ 
 import voiidstudios.vct.managers.VisualBlockManager;
 import voiidstudios.vct.managers.FreezeManager;
 import voiidstudios.vct.utils.ServerVersion;
@@ -40,23 +43,37 @@ public final class VoiidCountdownTimer extends JavaPlugin {
     private static TimerStateManager timerStateManager;
     private static DependencyManager dependencyManager;
     private static HalloweenModeManager halloweenModeManager;
-    private static SpawnBookManager spawnBookManager;
+    
+    // Lectern protection
+    private static voiidstudios.vct.managers.LecternProtectionManager lecternProtectionManager;
     private static ChallengeManager challengeManager;
     private static VisualBlockManager visualBlockManager;
     private static FreezeManager freezeManager;
     private static voiidstudios.vct.managers.InteractionActionManager interactionActionManager;
+    private static voiidstudios.vct.managers.ItemFrameSensorManager itemFrameSensorManager;
+    private static voiidstudios.vct.managers.SpawnBookManager spawnBookManager;
 
     public void onEnable() {
         instance = this;
         configsManager = new ConfigsManager(this);
         messagesManager = new MessagesManager(this);
         configsManager.configure();
+        // Load prefix (and use_prefix) from config
+        try {
+            String cfgPrefix = configsManager.getMainConfigManager().getConfig().getString("Messages.prefix", prefix);
+            boolean usePref = configsManager.getMainConfigManager().isUsePrefix();
+            prefix = (usePref && cfgPrefix != null) ? cfgPrefix : "";
+        } catch (Throwable ignored) {}
         halloweenModeManager = new HalloweenModeManager(this);
-        spawnBookManager = new SpawnBookManager(this);
+        // Initialize lectern protection manager
+        lecternProtectionManager = new voiidstudios.vct.managers.LecternProtectionManager(this);
         challengeManager = new ChallengeManager(this);
+        // Initialize spawn book manager for building/updating prophecy books (no auto-give)
+        spawnBookManager = new voiidstudios.vct.managers.SpawnBookManager(this);
         visualBlockManager = new VisualBlockManager(this);
         freezeManager = new FreezeManager(this);
         interactionActionManager = new voiidstudios.vct.managers.InteractionActionManager(this);
+        itemFrameSensorManager = new voiidstudios.vct.managers.ItemFrameSensorManager(this);
         setVersion();
         registerCommands();
         registerEvents();
@@ -84,11 +101,19 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         timerStateManager = new TimerStateManager(this);
         timerStateManager.loadState();
         halloweenModeManager.reload();
-        spawnBookManager.reload();
         challengeManager.reload();
+        // Load spawn book templates and trigger initial refresh
+        try { spawnBookManager.reload(); } catch (Throwable ignored) {}
+        // Load lectern protection config
+        lecternProtectionManager.reload();
         // Restore freeze state if it was active before shutdown
         try {
             freezeManager.loadAndApplyPersistentState();
+        } catch (Throwable ignored) {}
+
+        // Start the item frame sensor if enabled
+        try {
+            itemFrameSensorManager.startIfEnabled();
         } catch (Throwable ignored) {}
     }
 
@@ -108,6 +133,9 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         }
         if (timerStateManager != null && configsManager.getMainConfigManager().isSave_state_timers()) {
             timerStateManager.saveState();
+        }
+        if (itemFrameSensorManager != null) {
+            try { itemFrameSensorManager.shutdown(); } catch (Throwable ignored) {}
         }
 
         Bukkit.getConsoleSender().sendMessage(
@@ -160,6 +188,18 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         getServer().getPluginManager().registerEvents(new voiidstudios.vct.listeners.BreakingProtectionListener(visualBlockManager), this);
         getServer().getPluginManager().registerEvents(new FreezeListener(this), this);
         getServer().getPluginManager().registerEvents(new voiidstudios.vct.listeners.InteractionListener(this), this);
+        getServer().getPluginManager().registerEvents(new voiidstudios.vct.listeners.ItemFrameSensorListener(), this);
+        // Lectern listeners (copy and protection)
+        getServer().getPluginManager().registerEvents(new voiidstudios.vct.listeners.LecternProtectionListener(), this);
+        getServer().getPluginManager().registerEvents(new voiidstudios.vct.listeners.LecternCopyListener(), this);
+        getServer().getPluginManager().registerEvents(new SpawnBookInventoryListener(), this);
+        // Register protection for the sensor's anchor and frame when enabled in config
+        if (configsManager.getMainConfigManager().isItemFrameSensorEnabled() &&
+            (configsManager.getMainConfigManager().isItemFrameSensorProtectAnchor() || configsManager.getMainConfigManager().isItemFrameSensorProtectFrame())) {
+            getServer().getPluginManager().registerEvents(new voiidstudios.vct.listeners.ItemFrameProtectionListener(), this);
+        }
+        getServer().getPluginManager().registerEvents(new DarkWitherDeathListener(this), this);
+        getServer().getPluginManager().registerEvents(new DarkWitherSpawnListener(this), this);
         if (configsManager.getMainConfigManager().isCustomDarkWitherSummonEnabled()) {
             getServer().getPluginManager().registerEvents(new CustomSummonListener(), this);
             Bukkit.getConsoleSender().sendMessage(MessagesManager.getColoredMessage(prefix + "&aCustom Dark Wither summon listener enabled."));
@@ -213,9 +253,7 @@ public final class VoiidCountdownTimer extends JavaPlugin {
         return halloweenModeManager;
     }
 
-    public static SpawnBookManager getSpawnBookManager() {
-        return spawnBookManager;
-    }
+    public static voiidstudios.vct.managers.LecternProtectionManager getLecternProtectionManager() { return lecternProtectionManager; }
 
     public static ChallengeManager getChallengeManager() {
         return challengeManager;
@@ -231,5 +269,17 @@ public final class VoiidCountdownTimer extends JavaPlugin {
 
     public static voiidstudios.vct.managers.InteractionActionManager getInteractionActionManager() {
         return interactionActionManager;
+    }
+
+    public static voiidstudios.vct.managers.ItemFrameSensorManager getItemFrameSensorManager() {
+        return itemFrameSensorManager;
+    }
+
+    public static void setItemFrameSensorManager(voiidstudios.vct.managers.ItemFrameSensorManager mgr) {
+        itemFrameSensorManager = mgr;
+    }
+
+    public static voiidstudios.vct.managers.SpawnBookManager getSpawnBookManager() {
+        return spawnBookManager;
     }
 }

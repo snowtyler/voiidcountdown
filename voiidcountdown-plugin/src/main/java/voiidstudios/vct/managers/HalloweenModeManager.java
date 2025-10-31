@@ -470,7 +470,7 @@ public class HalloweenModeManager {
         }
 
         ZonedDateTime now = zoneId != null ? ZonedDateTime.now(zoneId) : ZonedDateTime.now();
-        if (start != null && now.isBefore(start)) {
+        if (start != null && now.isBefore(start) && !hasOutsideWindowThresholdDue(now)) {
             resetExecutionHistory("Halloween execution history cleared because the current time is before the configured start window.");
         }
 
@@ -587,6 +587,14 @@ public class HalloweenModeManager {
             webhookContent = ((String) fallbackContentObj).trim();
         }
 
+        boolean allowOutsideWindow = false;
+        Object allowOutsideObj = raw.get("allow_outside_window");
+        if (allowOutsideObj instanceof Boolean) {
+            allowOutsideWindow = (Boolean) allowOutsideObj;
+        } else if (allowOutsideObj != null) {
+            allowOutsideWindow = Boolean.parseBoolean(allowOutsideObj.toString());
+        }
+
         return new HalloweenThreshold(
                 id,
                 atTime,
@@ -597,7 +605,8 @@ public class HalloweenModeManager {
                 Optional.ofNullable(webhookOverrideUrl).filter(s -> !s.isEmpty()),
                 Optional.ofNullable(webhookOverrideUsername).filter(s -> !s.isEmpty()),
                 Optional.ofNullable(webhookOverrideAvatar).filter(s -> !s.isEmpty()),
-                Optional.ofNullable(webhookOverrideMentionEveryone)
+                Optional.ofNullable(webhookOverrideMentionEveryone),
+                allowOutsideWindow
         );
     }
 
@@ -798,31 +807,62 @@ public class HalloweenModeManager {
         return Optional.empty();
     }
 
+    private boolean hasOutsideWindowThresholds() {
+        return thresholds.stream().anyMatch(HalloweenThreshold::allowsOutsideWindow);
+    }
+
+    private boolean hasOutsideWindowThresholdDue(ZonedDateTime referenceTime) {
+        for (HalloweenThreshold threshold : thresholds) {
+            if (!threshold.allowsOutsideWindow()) {
+                continue;
+            }
+            ZonedDateTime activation = threshold.getActivationTime();
+            if (activation == null) {
+                continue;
+            }
+            if (!referenceTime.isBefore(activation)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private void tickWithZone(ZoneId zone) {
         ZonedDateTime now = ZonedDateTime.now(zone);
         manageTimer(now);
-        if (start != null && now.isBefore(start)) {
+        boolean beforeStart = start != null && now.isBefore(start);
+        boolean afterEnd = end != null && !now.isBefore(end);
+
+        if (beforeStart && !hasOutsideWindowThresholdDue(now)) {
             resetExecutionHistory(null);
-            return;
         }
+
         if (!isModeEnabled() || start == null || end == null) {
             return;
         }
 
-        if (!now.isBefore(end)) {
+        boolean insideWindow = !beforeStart && !afterEnd;
+        if (!insideWindow && !hasOutsideWindowThresholds()) {
             return;
         }
 
         for (HalloweenThreshold threshold : thresholds) {
-            if (threshold.getActivationTime() == null) {
+            ZonedDateTime activation = threshold.getActivationTime();
+            if (activation == null) {
                 continue;
             }
             if (executedThresholdIds.contains(threshold.getId())) {
                 continue;
             }
-            if (!now.isBefore(threshold.getActivationTime())) {
+
+            boolean allowOutsideWindow = threshold.allowsOutsideWindow();
+            if (!allowOutsideWindow && !insideWindow) {
+                continue;
+            }
+
+            if (!now.isBefore(activation)) {
                 executeThreshold(threshold, now);
-            } else {
+            } else if (allowOutsideWindow || insideWindow) {
                 break;
             }
         }
@@ -1062,6 +1102,7 @@ public class HalloweenModeManager {
         private final Optional<String> webhookOverrideUsername;
         private final Optional<String> webhookOverrideAvatar;
         private final Optional<Boolean> webhookOverrideMentionEveryone;
+        private final boolean allowOutsideWindow;
 
         public HalloweenThreshold(String id,
                                   ZonedDateTime activationTime,
@@ -1072,7 +1113,8 @@ public class HalloweenModeManager {
                                   Optional<String> webhookOverrideUrl,
                                   Optional<String> webhookOverrideUsername,
                                   Optional<String> webhookOverrideAvatar,
-                                  Optional<Boolean> webhookOverrideMentionEveryone) {
+                                  Optional<Boolean> webhookOverrideMentionEveryone,
+                                  boolean allowOutsideWindow) {
             this.id = id;
             this.activationTime = activationTime;
             this.commands = commands;
@@ -1083,6 +1125,7 @@ public class HalloweenModeManager {
             this.webhookOverrideUsername = webhookOverrideUsername;
             this.webhookOverrideAvatar = webhookOverrideAvatar;
             this.webhookOverrideMentionEveryone = webhookOverrideMentionEveryone;
+            this.allowOutsideWindow = allowOutsideWindow;
         }
 
         public String getId() {
@@ -1123,6 +1166,10 @@ public class HalloweenModeManager {
 
         public Optional<Boolean> getWebhookOverrideMentionEveryone() {
             return webhookOverrideMentionEveryone;
+        }
+
+        public boolean allowsOutsideWindow() {
+            return allowOutsideWindow;
         }
     }
 }

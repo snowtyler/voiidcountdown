@@ -13,10 +13,15 @@ import net.md_5.bungee.api.chat.TextComponent;
 import net.md_5.bungee.chat.ComponentSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Material;
+import org.bukkit.NamespacedKey;
+import org.bukkit.block.Lectern;
 import org.bukkit.entity.Player;
 import org.bukkit.inventory.ItemStack;
 import org.bukkit.inventory.PlayerInventory;
+import org.bukkit.inventory.LecternInventory;
 import org.bukkit.inventory.meta.BookMeta;
+import org.bukkit.inventory.meta.ItemMeta;
+import org.bukkit.persistence.PersistentDataType;
 import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.challenges.Challenge;
 import voiidstudios.vct.challenges.ChallengeManager;
@@ -35,6 +40,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Locale;
 import java.util.Map;
+import java.util.UUID;
 import java.util.logging.Level;
 
 public class SpawnBookManager {
@@ -46,6 +52,7 @@ public class SpawnBookManager {
     private static final String DEFAULT_BOOK_FILENAME = "spawn_book.json";
 
     private final VoiidCountdownTimer plugin;
+    private final NamespacedKey prophecyInstanceKey;
 
     /**
      * Template data holder for a spawn book variant.
@@ -64,14 +71,21 @@ public class SpawnBookManager {
         }
     }
 
+    private static final long TEMPLATE_CHECK_INTERVAL_MS = 1000L;
+
     private Template normalTemplate = new Template();
+    private File normalTemplateFile;
+    private long normalTemplateLastKnownModified = -1L;
+    private long normalTemplateNextCheckAt = 0L;
 
     public SpawnBookManager(VoiidCountdownTimer plugin) {
         this.plugin = plugin;
+        this.prophecyInstanceKey = new NamespacedKey(plugin, "prophecy_instance");
     }
 
     public void reload() {
         normalTemplate = new Template();
+        normalTemplateNextCheckAt = 0L;
         loadBooks();
 
         ChallengeManager challengeManager = VoiidCountdownTimer.getChallengeManager();
@@ -81,6 +95,7 @@ public class SpawnBookManager {
     }
 
     public void giveBook(Player player) {
+        ensureTemplateFresh();
         if (!hasTemplate() || player == null) {
             return;
         }
@@ -128,7 +143,8 @@ public class SpawnBookManager {
         if (!defaultFile.exists()) {
             try { plugin.saveResource(DEFAULT_BOOK_FILENAME, false); } catch (IllegalArgumentException ignored) {}
         }
-        normalTemplate = loadTemplateFromFile(defaultFile, DEFAULT_BOOK_FILENAME);
+        normalTemplateFile = defaultFile;
+        reloadTemplateFromDisk(false);
 
         // Frozen template (optional)
         // Frozen variant removed
@@ -432,6 +448,7 @@ public class SpawnBookManager {
     }
 
     public void updatePlayerBook(Player player) {
+        ensureTemplateFresh();
         if (!hasTemplate() || player == null) {
             return;
         }
@@ -443,31 +460,51 @@ public class SpawnBookManager {
 
         PlayerInventory inventory = player.getInventory();
         boolean replaced = false;
+        int extraSplitCount = 0;
 
         for (int slot = 0; slot < inventory.getSize(); slot++) {
             ItemStack current = inventory.getItem(slot);
             if (isSpawnBook(current)) {
+                int amount = Math.max(1, current.getAmount());
                 ItemStack clone = replacement.clone();
-                clone.setAmount(current.getAmount());
+                clone.setAmount(1);
+                stampUniqueInstance(clone);
                 inventory.setItem(slot, clone);
                 replaced = true;
+                if (amount > 1) {
+                    extraSplitCount += splitExtraBooks(player, inventory, replacement, amount - 1);
+                }
             }
         }
 
         ItemStack offHand = inventory.getItemInOffHand();
         if (isSpawnBook(offHand)) {
+            int amount = Math.max(1, offHand.getAmount());
             ItemStack clone = replacement.clone();
-            clone.setAmount(offHand.getAmount());
+            clone.setAmount(1);
+            stampUniqueInstance(clone);
             inventory.setItemInOffHand(clone);
             replaced = true;
+            if (amount > 1) {
+                extraSplitCount += splitExtraBooks(player, inventory, replacement, amount - 1);
+            }
         }
 
-        if (!replaced) {
-            // No existing copies to update; do not force-give another copy here.
+        if (replaced) {
+            if (extraSplitCount > 0) {
+                plugin.getLogger().info(String.format(Locale.ROOT,
+                        "Updated prophecy book for %s (split %d extra copies).",
+                        player.getName(), extraSplitCount));
+            } else {
+                plugin.getLogger().info(String.format(Locale.ROOT,
+                        "Updated prophecy book for %s.",
+                        player.getName()));
+            }
         }
     }
 
     private ItemStack createPersonalizedBook(Player player) {
+        ensureTemplateFresh();
         if (!hasTemplate()) {
             return null;
         }
@@ -517,8 +554,64 @@ public class SpawnBookManager {
             spigotMeta.setPage(baseCount + i + 1, challengePages.get(i));
         }
 
+        stampUniqueInstance(meta);
         item.setItemMeta(meta);
         return item;
+    }
+
+    /**
+     * Builds the current prophecy book using the active template and current challenge progress.
+     */
+    public ItemStack buildCurrentProphecyBook() {
+        return createPersonalizedBook(null);
+    }
+
+    private void ensureTemplateFresh() {
+        if (plugin == null) {
+            return;
+        }
+        if (normalTemplateFile == null) {
+            normalTemplateFile = new File(plugin.getDataFolder(), DEFAULT_BOOK_FILENAME);
+            normalTemplateLastKnownModified = normalTemplateFile.exists() ? normalTemplateFile.lastModified() : -1L;
+        }
+        long now = System.currentTimeMillis();
+        if (now < normalTemplateNextCheckAt) {
+            return;
+        }
+        normalTemplateNextCheckAt = now + TEMPLATE_CHECK_INTERVAL_MS;
+        long currentModified = (normalTemplateFile != null && normalTemplateFile.exists()) ? normalTemplateFile.lastModified() : -1L;
+        if (currentModified != normalTemplateLastKnownModified) {
+            reloadTemplateFromDisk(true);
+        }
+    }
+
+    private void reloadTemplateFromDisk(boolean triggerRefresh) {
+        if (normalTemplateFile == null) {
+            normalTemplate = new Template();
+            normalTemplateLastKnownModified = -1L;
+            normalTemplateNextCheckAt = System.currentTimeMillis() + TEMPLATE_CHECK_INTERVAL_MS;
+            return;
+        }
+
+        Template updated = loadTemplateFromFile(normalTemplateFile, DEFAULT_BOOK_FILENAME);
+        if (updated == null) {
+            updated = new Template();
+        }
+
+        normalTemplate = updated;
+        normalTemplateLastKnownModified = normalTemplateFile.exists() ? normalTemplateFile.lastModified() : -1L;
+        normalTemplateNextCheckAt = System.currentTimeMillis() + TEMPLATE_CHECK_INTERVAL_MS;
+
+        if (triggerRefresh) {
+            plugin.getLogger().info("Detected spawn_book.json change; refreshing prophecy books.");
+            ChallengeManager challengeManager = VoiidCountdownTimer.getChallengeManager();
+            if (challengeManager != null) {
+                try {
+                    challengeManager.refreshAllBooks();
+                } catch (Throwable ignored) {
+                }
+            }
+        }
     }
 
     private List<BaseComponent[]> buildChallengePages() {
@@ -801,6 +894,127 @@ public class SpawnBookManager {
     public void refreshAllPlayerBooks() {
         for (org.bukkit.entity.Player player : org.bukkit.Bukkit.getOnlinePlayers()) {
             updatePlayerBook(player);
+        }
+    }
+
+    public boolean refreshLecternBook(Lectern lectern) {
+        return refreshLecternBook(lectern, null);
+    }
+
+    public boolean refreshLecternBook(Lectern lectern, ItemStack latestTemplate) {
+        ensureTemplateFresh();
+        if (lectern == null || !hasTemplate()) {
+            return false;
+        }
+
+        ItemStack source = latestTemplate;
+        if (source == null) {
+            source = buildCurrentProphecyBook();
+        }
+        if (source == null) {
+            return false;
+        }
+
+        ItemStack clone = source.clone();
+        clone.setAmount(1);
+        stampUniqueInstance(clone);
+
+        boolean updated = false;
+
+        LecternInventory inventory = null;
+        try {
+            inventory = (LecternInventory) lectern.getInventory();
+        } catch (ClassCastException ignored) {
+        } catch (Throwable ignored) {
+        }
+        if (inventory != null) {
+            try {
+                ItemStack placed = clone.clone();
+                stampUniqueInstance(placed);
+                inventory.setItem(0, placed);
+                updated = true;
+            } catch (Throwable ignored) {
+            }
+        }
+
+        try {
+            LecternInventory snapshot = (LecternInventory) lectern.getSnapshotInventory();
+            if (snapshot != null) {
+                ItemStack placed = clone.clone();
+                stampUniqueInstance(placed);
+                snapshot.setItem(0, placed);
+                updated = true;
+            }
+        } catch (ClassCastException ignored) {
+        } catch (Throwable ignored) {
+        }
+
+        if (!updated) {
+            return false;
+        }
+
+        try {
+            lectern.update(true, true);
+        } catch (Throwable ignored) {
+        }
+
+        plugin.getLogger().info(String.format(Locale.ROOT,
+                "Updated prophecy book in lectern at %s (%d, %d, %d).",
+                lectern.getWorld() != null ? lectern.getWorld().getName() : "unknown",
+                lectern.getX(), lectern.getY(), lectern.getZ()));
+
+        return true;
+    }
+
+    private int splitExtraBooks(Player player, PlayerInventory inventory, ItemStack template, int extras) {
+        if (player == null || inventory == null || template == null || extras <= 0) {
+            return 0;
+        }
+        int processed = 0;
+        for (int i = 0; i < extras; i++) {
+            ItemStack extra = template.clone();
+            extra.setAmount(1);
+            stampUniqueInstance(extra);
+            Map<Integer, ItemStack> leftovers = inventory.addItem(extra);
+            if (!leftovers.isEmpty()) {
+                leftovers.values().forEach(leftover -> dropItem(player, leftover));
+            }
+            processed++;
+        }
+        return processed;
+    }
+
+    private void dropItem(Player player, ItemStack item) {
+        if (player == null || item == null || item.getType() == Material.AIR) {
+            return;
+        }
+        try {
+            if (player.getWorld() != null) {
+                player.getWorld().dropItemNaturally(player.getLocation(), item);
+            }
+        } catch (Throwable ignored) {
+        }
+    }
+
+    private void stampUniqueInstance(ItemStack item) {
+        if (item == null || item.getType() != Material.WRITTEN_BOOK) {
+            return;
+        }
+        ItemMeta meta = item.getItemMeta();
+        if (!(meta instanceof BookMeta)) {
+            return;
+        }
+        stampUniqueInstance((BookMeta) meta);
+        item.setItemMeta(meta);
+    }
+
+    private void stampUniqueInstance(BookMeta meta) {
+        if (meta == null) {
+            return;
+        }
+        try {
+            meta.getPersistentDataContainer().set(prophecyInstanceKey, PersistentDataType.STRING, UUID.randomUUID().toString());
+        } catch (Throwable ignored) {
         }
     }
 

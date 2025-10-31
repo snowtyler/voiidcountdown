@@ -14,15 +14,18 @@ import java.util.Map;
 public class ConfigsManager {
     private final MainConfigManager mainConfigManager;
     private final TimersFolderConfigManager timerFolderConfigManager;
+    private final FreezeConfigManager freezeConfigManager;
     private final Map<String, TimerConfig> timersConfigs = new LinkedHashMap<>();
 
     public ConfigsManager(VoiidCountdownTimer plugin){
         this.mainConfigManager = new MainConfigManager(plugin);
+        this.freezeConfigManager = new FreezeConfigManager(plugin, this.mainConfigManager);
         this.timerFolderConfigManager = new TimersFolderConfigManager(plugin, "timers");
     }
 
     public void configure(){
         mainConfigManager.configure();
+        freezeConfigManager.configure();
         timerFolderConfigManager.configure();
         configureTimers();
     }
@@ -30,6 +33,7 @@ public class ConfigsManager {
     public boolean reload(){
         try {
             mainConfigManager.reloadConfig();
+            freezeConfigManager.reloadConfig();
             configureTimers();
             return true;
         } catch (Exception e) {
@@ -148,5 +152,9 @@ public class ConfigsManager {
 
     public MainConfigManager getMainConfigManager() {
         return mainConfigManager;
+    }
+
+    public FreezeConfigManager getFreezeConfigManager() {
+        return freezeConfigManager;
     }
 }

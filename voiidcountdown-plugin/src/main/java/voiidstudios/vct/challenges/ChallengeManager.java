@@ -1,8 +1,8 @@
 package voiidstudios.vct.challenges;
 
 import com.google.gson.Gson;
-import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
+import org.bukkit.Material;
 import org.bukkit.configuration.file.YamlConfiguration;
 import org.bukkit.entity.EntityType;
 import org.bukkit.entity.Player;
@@ -13,7 +13,6 @@ import voiidstudios.vct.VoiidCountdownTimer;
 import voiidstudios.vct.challenges.Challenge.TriggerType;
 import voiidstudios.vct.listeners.challenge.ChallengeListener;
 import voiidstudios.vct.managers.MessagesManager;
-import voiidstudios.vct.managers.SpawnBookManager;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -37,9 +36,15 @@ public class ChallengeManager {
     private final ChallengeProgressStore progressStore;
     private final Map<String, Challenge> challenges = new LinkedHashMap<>();
     private final Map<EntityType, List<Challenge>> killChallengesByEntity = new EnumMap<>(EntityType.class);
+    private final Map<Material, List<Challenge>> acquireChallengesByMaterial = new EnumMap<>(Material.class);
     private Listener registeredListener;
     private List<String> defaultIncompleteBookComponents = DEFAULT_INCOMPLETE_BOOK_COMPONENTS;
     private List<String> defaultCompleteBookComponents = DEFAULT_COMPLETE_BOOK_COMPONENTS;
+    // Completion sound settings
+    private boolean completionSoundEnabled = true;
+    private String completionSoundName = "minecraft:ui.toast.challenge_complete";
+    private float completionSoundVolume = 1.0f;
+    private float completionSoundPitch = 1.0f;
 
     public ChallengeManager(VoiidCountdownTimer plugin) {
         this.plugin = plugin;
@@ -51,12 +56,7 @@ public class ChallengeManager {
         progressStore.load();
         progressStore.ensureChallengeKeys(challenges.keySet());
         registerListener();
-        SpawnBookManager spawnBookManager = VoiidCountdownTimer.getSpawnBookManager();
-        if (spawnBookManager != null) {
-            for (Player player : Bukkit.getOnlinePlayers()) {
-                spawnBookManager.updatePlayerBook(player);
-            }
-        }
+        // No per-player spawn book updates anymore
     }
 
     public void shutdown() {
@@ -70,6 +70,7 @@ public class ChallengeManager {
     private void loadChallenges() {
         challenges.clear();
         killChallengesByEntity.clear();
+        acquireChallengesByMaterial.clear();
 
         if (!plugin.getDataFolder().exists()) {
             plugin.getDataFolder().mkdirs();
@@ -83,6 +84,12 @@ public class ChallengeManager {
         YamlConfiguration config = YamlConfiguration.loadConfiguration(file);
         defaultIncompleteBookComponents = parseBookComponentSection(config.get("formatting.book.incomplete"), DEFAULT_INCOMPLETE_BOOK_COMPONENTS);
         defaultCompleteBookComponents = parseBookComponentSection(config.get("formatting.book.complete"), DEFAULT_COMPLETE_BOOK_COMPONENTS);
+        // Load completion sound settings (with sane defaults)
+        completionSoundEnabled = config.getBoolean("formatting.challenge_complete_sound.enabled", true);
+        String soundName = config.getString("formatting.challenge_complete_sound.sound", "minecraft:ui.toast.challenge_complete");
+        completionSoundName = trimToNull(soundName) != null ? soundName : "minecraft:ui.toast.challenge_complete";
+        completionSoundVolume = (float) config.getDouble("formatting.challenge_complete_sound.volume", 1.0D);
+        completionSoundPitch = (float) config.getDouble("formatting.challenge_complete_sound.pitch", 1.0D);
 
         List<Map<?, ?>> rawList = config.getMapList("challenges");
         if (rawList == null) {
@@ -99,6 +106,8 @@ public class ChallengeManager {
             challenges.put(challenge.getId(), challenge);
             if (challenge.getTriggerType() == TriggerType.ENTITY_KILL && challenge.getTargetEntity() != null) {
                 killChallengesByEntity.computeIfAbsent(challenge.getTargetEntity(), ignored -> new ArrayList<>()).add(challenge);
+            } else if (challenge.getTriggerType() == TriggerType.ITEM_ACQUIRE && challenge.getTargetMaterial() != null) {
+                acquireChallengesByMaterial.computeIfAbsent(challenge.getTargetMaterial(), ignored -> new ArrayList<>()).add(challenge);
             }
         }
     }
@@ -113,6 +122,10 @@ public class ChallengeManager {
         String description = trimToNull(asString(data.get("description")));
         String triggerRaw = trimToNull(asString(data.get("trigger")));
         String targetRaw = trimToNull(asString(data.get("target")));
+        String entityTag = trimToNull(asString(data.get("entity_tag")));
+        if (entityTag == null) {
+            entityTag = trimToNull(asString(data.get("tag")));
+        }
         int count = parseInt(data.get("count"), 1);
         boolean obfuscateUntilUnlock = parseBoolean(data.get("obfuscate_until_unlock"), false);
 
@@ -130,6 +143,7 @@ public class ChallengeManager {
         }
 
         EntityType entityType = null;
+        Material materialType = null;
         if (trigger == TriggerType.ENTITY_KILL) {
             if (targetRaw == null) {
                 plugin.getLogger().warning("Challenge " + id + " is missing target.");
@@ -139,6 +153,17 @@ public class ChallengeManager {
                 entityType = EntityType.valueOf(targetRaw.toUpperCase().replace('-', '_'));
             } catch (IllegalArgumentException ex) {
                 plugin.getLogger().warning("Unknown entity type for challenge " + id + ": " + targetRaw);
+                return null;
+            }
+        } else if (trigger == TriggerType.ITEM_ACQUIRE) {
+            if (targetRaw == null) {
+                plugin.getLogger().warning("Challenge " + id + " is missing target.");
+                return null;
+            }
+            try {
+                materialType = Material.valueOf(targetRaw.toUpperCase().replace('-', '_'));
+            } catch (IllegalArgumentException ex) {
+                plugin.getLogger().warning("Unknown material type for challenge " + id + ": " + targetRaw);
                 return null;
             }
         }
@@ -160,6 +185,8 @@ public class ChallengeManager {
             description == null ? "" : description,
             trigger,
             entityType,
+            materialType,
+            entityTag,
             count,
             bookIncompleteComponents,
             bookCompleteComponents,
@@ -243,7 +270,7 @@ public class ChallengeManager {
         }
 
         PluginManager pluginManager = plugin.getServer().getPluginManager();
-        ChallengeListener listener = new ChallengeListener(this);
+        ChallengeListener listener = new ChallengeListener(this, plugin);
         pluginManager.registerEvents(listener, plugin);
         registeredListener = listener;
     }
@@ -252,13 +279,17 @@ public class ChallengeManager {
         return Collections.unmodifiableCollection(challenges.values());
     }
 
-    public void handleEntityKill(EntityType entityType, Player killer) {
+    public void handleEntityKill(EntityType entityType, Set<String> entityTags, Player killer) {
         List<Challenge> relevant = killChallengesByEntity.get(entityType);
         if (relevant == null || relevant.isEmpty()) {
             return;
         }
         boolean updated = false;
         for (Challenge challenge : relevant) {
+            String requiredTag = challenge.getEntityTag();
+            if (requiredTag != null && (entityTags == null || !entityTags.contains(requiredTag))) {
+                continue;
+            }
             int before = progressStore.getProgress(challenge.getId());
             if (before >= challenge.getRequiredCount()) {
                 continue;
@@ -271,9 +302,54 @@ public class ChallengeManager {
 
             updated = true;
             if (after >= challenge.getRequiredCount()) {
-                killer.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + ChatColor.GOLD + "Challenge completed: " + ChatColor.LIGHT_PURPLE + challenge.getName()));
+                // Play completion sound instead of a message
+                if (killer != null && completionSoundEnabled && completionSoundName != null && !completionSoundName.trim().isEmpty()) {
+                    try {
+                        killer.playSound(killer.getLocation(), completionSoundName, Math.max(0.0f, completionSoundVolume), completionSoundPitch);
+                    } catch (Throwable ignored) { /* keep quiet if sound id invalid */ }
+                }
             } else {
-                killer.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + ChatColor.GRAY + "Progress: " + ChatColor.GOLD + challenge.getName() + ChatColor.GRAY + " (" + after + "/" + challenge.getRequiredCount() + ")"));
+                if (killer != null) {
+                    killer.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + ChatColor.GRAY + "Progress: " + ChatColor.GOLD + challenge.getName() + ChatColor.GRAY + " (" + after + "/" + challenge.getRequiredCount() + ")"));
+                }
+            }
+        }
+
+        if (updated) {
+            progressStore.save();
+            refreshAllBooks();
+        }
+    }
+
+    public void handleItemAcquire(Material material, Player player, int amount) {
+        List<Challenge> relevant = acquireChallengesByMaterial.get(material);
+        if (relevant == null || relevant.isEmpty()) {
+            return;
+        }
+        boolean updated = false;
+        for (Challenge challenge : relevant) {
+            int before = progressStore.getProgress(challenge.getId());
+            if (before >= challenge.getRequiredCount()) {
+                continue;
+            }
+
+            int after = progressStore.incrementProgress(challenge.getId(), Math.max(1, amount), challenge.getRequiredCount());
+            if (after <= before) {
+                continue;
+            }
+
+            updated = true;
+            if (after >= challenge.getRequiredCount()) {
+                // Play completion sound instead of a message
+                if (player != null && completionSoundEnabled && completionSoundName != null && !completionSoundName.trim().isEmpty()) {
+                    try {
+                        player.playSound(player.getLocation(), completionSoundName, Math.max(0.0f, completionSoundVolume), completionSoundPitch);
+                    } catch (Throwable ignored) { /* keep quiet if sound id invalid */ }
+                }
+            } else {
+                if (player != null) {
+                    player.sendMessage(MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix + ChatColor.GRAY + "Progress: " + ChatColor.GOLD + challenge.getName() + ChatColor.GRAY + " (" + after + "/" + challenge.getRequiredCount() + ")"));
+                }
             }
         }
 
@@ -297,13 +373,29 @@ public class ChallengeManager {
     }
 
     public void refreshAllBooks() {
-        SpawnBookManager spawnBookManager = VoiidCountdownTimer.getSpawnBookManager();
-        if (spawnBookManager == null) {
-            return;
+        // Update all online players' prophecy books
+        var sbm = VoiidCountdownTimer.getSpawnBookManager();
+        if (sbm != null) {
+            try { sbm.refreshAllPlayerBooks(); } catch (Throwable ignored) {}
         }
-        for (Player player : Bukkit.getOnlinePlayers()) {
-            spawnBookManager.updatePlayerBook(player);
-        }
+
+        // Update all protected lectern copies
+        var lpm = VoiidCountdownTimer.getLecternProtectionManager();
+        if (lpm == null || sbm == null) return;
+        try {
+            org.bukkit.inventory.ItemStack latest = sbm.buildCurrentProphecyBook();
+            if (latest == null) return;
+            for (org.bukkit.Location loc : lpm.getAllProtectedLocations()) {
+                try {
+                    if (loc.getWorld() == null) continue;
+                    org.bukkit.block.Block block = loc.getBlock();
+                    if (block == null || block.getType() != org.bukkit.Material.LECTERN) continue;
+                    org.bukkit.block.BlockState state = block.getState();
+                    if (!(state instanceof org.bukkit.block.Lectern)) continue;
+                    sbm.refreshLecternBook((org.bukkit.block.Lectern) state, latest);
+                } catch (Throwable ignoredEach) {}
+            }
+        } catch (Throwable ignored) {}
     }
 
     public Set<String> getChallengeIds() {

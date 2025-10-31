@@ -4,8 +4,11 @@ version: 2.0.2
 codename: astro
 authors: [Voiid Studios]
 api-version: 1.21
-depend: [FastAsyncWorldEdit]
-softdepend: [PlaceholderAPI]
+softdepend: [PlaceholderAPI, FastAsyncWorldEdit, WorldEdit]
+
+# Paper will auto-provide these libraries at runtime (Spigot ignores this key)
+libraries:
+  - net.kyori:adventure-text-serializer-gson:4.24.0
 
 commands:
   voiidcountdowntimer:

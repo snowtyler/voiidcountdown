@@ -23,6 +23,7 @@ halloween_mode:
     resync_tolerance_seconds: 10
 
   thresholds:
+    # Set allow_outside_window: true on a threshold to let it trigger before the start or after the end window.
     - id: kickoff
       at: 2025-10-25T00:00:00
       commands:

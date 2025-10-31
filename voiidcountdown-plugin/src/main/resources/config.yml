@@ -16,6 +16,47 @@ Config:
   # Enable the custom Dark Wither summon ritual
   enable_custom_dark_wither_summon: true
 
+# Monitors a specific item frame and toggles actions/permissions based on the displayed item
+ItemFrameSensor:
+  enabled: false
+  # The world and block coordinates of the block FACE the item frame is attached to (not the frame's own entity location)
+  world: world
+  x: 0
+  y: 64
+  z: 0
+  # Optional: restrict to a specific facing of the frame: NORTH|SOUTH|EAST|WEST|UP|DOWN. Leave blank to ignore.
+  facing: ''
+  # The item that must be displayed in the frame to activate
+  item_material: DIAMOND
+  # How often (in ticks) to check the frame state (lower = faster reaction; 5-20 is typical)
+  check_period_ticks: 10
+  # When true, will also run commands when the plugin first starts and the item is already present
+  fire_on_startup: false
+  # Permission to grant to all online players while the item is present (leave empty to disable permission granting)
+  permission_to_grant: ''
+  # Console commands to run exactly once when the item becomes present (transition inactive -> active)
+  commands_on_present: [ playsound minecraft:block.note_block.bell block @a ~ ~ ~ 1 1 ]
+  # Console commands to run exactly once when the item becomes absent (transition active -> inactive)
+  commands_on_absent: [ playsound minecraft:block.note_block.bass block @a ~ ~ ~ 1 1 ]
+  # Protection options: prevent breaking while still allowing right-click interactions with the frame
+  protect_anchor_block: true
+  protect_item_frame: true
+
+# Commands to run when a Wither with the scoreboard tag "DarkWither" dies.
+# Placeholders: %WORLD%, %X%, %Y%, %Z%, %KILLER%
+DarkWither:
+  on_kill_commands:
+    # You can mix commands and delay steps. Delays are in ticks (20 ticks = 1s).
+    # Supported forms:
+    # - "say text"                       -> runs immediately in sequence
+    # - "delay 40" or "wait 40"          -> waits 40 ticks before next step
+    # - { delay: 40 }                     -> waits 40 ticks before next step
+    # - { command: "say hi", delay: 20 }  -> waits 20 ticks, then runs command
+    - "say Dark Wither defeated!"
+    - "delay 40" # 2 seconds
+    - { command: "title @a subtitle {\"text\":\"Dark Wither has fallen\"}", delay: 20 }
+    - "say Location: %X% %Y% %Z% in %WORLD% | Killer: %KILLER%"
+
 # TestPillar - builds a configurable hollow pillar at the origin of a world
 TestPillar:
   # Prevent players, pistons, or explosions from modifying the pillar while it runs
@@ -39,38 +80,9 @@ TestPillar:
     volume: 1.0
     pitch: 1.0
 
-Freeze:
-  default_freeze_mobs: false
-  title:
-    text: '&cServer Frozen'
-    subtitle: '&7Please wait'
-    fade_in: 10
-    stay: 60
-    fade_out: 20
-    keepalive_ticks: 40
-  blindness:
-    enabled: true
-    amplifier: 0
-    ambient: false
-    particles: false
-  notifications:
-    cooldown_ms: 1500
-    # When true, suppresses all plugin notifications and public chat messages while frozen
-    silent: false
-  mobs:
-    prevent_spawn: true
-    kill_on_freeze: true
-  time:
-    lock_midnight: true
-    keepalive_ticks: 100
-  music:
-    enabled: false
-    sound: prophecy:events.audio_darkness
-    volume: 1.0
-    pitch: 1.0
-    loop_seconds: 20
-
 Messages:
+  # Prefix used by all plugin messages
+  prefix: '&5[&dVCT&5] '
   commandReload: '&aConfig Reloaded.'
   commandNoPermissions: '&cYou don''t have permissions to use this command.'
   timerSetError: '&cUse: /vct set <HHH:MM:SS>'
@@ -113,7 +125,7 @@ Messages:
   timerStop: '&6Timer stopped!'
   timerDontExists: '&cThe timer does not exist.'
   timerConfigNotFound: '&cThe timer configuration could not be found.'
-  freezeUsage: '&cUse: /vct freeze <on|off|toggle|status> [mobs|nomobs]'
+  freezeUsage: '&cUse: /vct freeze <success|fail|on|off|toggle|status> [mobs|nomobs]'
   freezeEnabled: '&cServer freeze enabled. &7Mob freeze: &f%MOBS%'
   freezeUpdated: '&aServer freeze updated. &7Mob freeze: &f%MOBS%'
   freezeAlreadyEnabled: '&eServer is already frozen. &7Mob freeze: &f%MOBS%'
@@ -124,6 +136,18 @@ Messages:
   freezeBlockedAction: '&cYou cannot do that while the server is frozen.'
   freezeBlockedInventory: '&cYou cannot access inventories while the server is frozen.'
   freezeBlockedChat: '&cYou cannot chat while the server is frozen.'
+
+  # Lectern/admin messages
+  lectern:
+    mustLook: '&cYou must look at a lectern within 6 blocks.'
+    protected: '&aProtected lectern at &f%WORLD% &7(%X%, %Y%, %Z%)'
+    alreadyProtected: '&eThat lectern is already protected.'
+    unprotected: '&aRemoved protection from lectern at &f%WORLD% &7(%X%, %Y%, %Z%)'
+    notProtected: '&eThat lectern is not protected.'
+    copy:
+      noQuill: '&eThis lectern is protected. Hold a &fBook and Quill &eto copy the prophecy.'
+      success: '&aCopied prophecy into your inventory.'
+      noBook: '&cNo written book found on the lectern to copy.'
 
 Timers:
   default:

@@ -20,6 +20,3 @@ execute if score #player_y_check witherCheck matches -59.. at @r run tp @s ~ ~10
 # Visual effects after teleport
 execute at @s run particle minecraft:portal ~ ~1 ~ 0.5 1 0.5 1 100 normal
 execute at @s run playsound minecraft:entity.enderman.teleport hostile @a ~ ~ ~ 2 1.2
-
-# Optional: Send message to nearby players
-execute at @s run title @a[distance=..100] actionbar {"text":"The Dark Wither has returned to the fight!","color":"dark_red","bold":true}

@@ -6,61 +6,77 @@ formatting:
       - '{ "text": "%description%", "color": "dark_gray", "italic": true }'
     complete:
       - '{ "text": "%description%", "color": "blue", "italic": true, "bold": true }'
+  # Sound played to the player when a challenge is completed.
+  # Use a namespaced ID for vanilla or resource-pack sounds, e.g. "minecraft:ui.toast.challenge_complete".
+  challenge_complete_sound:
+    enabled: true
+    sound: "minecraft:ui.toast.challenge_complete"
+    volume: 1.0
+    pitch: 1.0
 
 challenges:
-  - id: dragon_slayer
-    name: "Dragon Slayer"
-    description: "THE KEEPER OF END\nCLEAVED RED BY BLADE."
-    trigger: ENTITY_KILL
-    target: ZOMBIE
+  # Dragon Egg → acquire the item
+  - id: relic_dragon_egg
+    name: "Dragon Egg"
+    description: "WHEN THE SKY'S TYRANT FALLS, ITS SEED REMAINS."
+    trigger: ITEM_ACQUIRE
+    target: DRAGON_EGG
     count: 1
 
-  - id: skeleton_silencer
-    name: "Skeleton Silencer"
-    description: "THE WARDEN'S RAMPAGE\nMUST BE STOPPED."
-    trigger: ENTITY_KILL
-    target: SKELETON
+  # Conduit → acquire the item
+  - id: relic_conduit
+    name: "Conduit"
+    description: "THE OCEAN'S WATCHER MUST FALL FOR THE CURRENT TO BREATHE."
+    trigger: ITEM_ACQUIRE
+    target: CONDUIT
     count: 1
 
-  - id: creeper_control
-    name: "Creeper Control"
-    description: "TWO GREEN THUNDERS MUST BE UNMADE BEFORE THEIR HEARTS IGNITE."
-    trigger: ENTITY_KILL
-    target: CREEPER
+  # Totem of Undying → acquire the item
+  - id: relic_totem
+    name: "Totem of Undying"
+    description: "FROM AN EVOKER'S LAST BREATH, ETERNITY IS WRESTED."
+    trigger: ITEM_ACQUIRE
+    target: TOTEM_OF_UNDYING
     count: 1
 
-  - id: arachnid_assault
-    name: "Arachnid Assault"
-    description: "FOUR SILKEN HUNTERS SHALL FIND STILLNESS BENEATH THE HEROES' STEP."
-    trigger: ENTITY_KILL
-    target: SPIDER
+  # Elytra → acquire the item
+  - id: relic_elytra
+    name: "Elytra"
+    description: "WINGS CLAIMED FROM THE CITY OF SKY."
+    trigger: ITEM_ACQUIRE
+    target: ELYTRA
     count: 1
 
-  - id: enderman_encounter
-    name: "Enderman Encounter"
-    description: "ONE STAR-GAZER OF THE VOID MUST BOW BEFORE THE HEROES."
-    trigger: ENTITY_KILL
-    target: ENDERMAN
-    count: 1
-
-  - id: blaze_breaker
-    name: "Blaze Breaker"
-    description: "IN THE NETHER'S FURNACE, TWO BLAZES SHALL BE DROWNED OF FLAME."
-    trigger: ENTITY_KILL
-    target: BLAZE
-    count: 1
-
-  - id: wither_warrior
-    name: "Wither Warrior"
-    description: "THE OCEAN'S WATCHER WILL DIM WHEN A SINGLE GUARDIAN IS UNDONE."
-    trigger: ENTITY_KILL
-    target: WITHER
-    count: 1
-
-  - id: banish
-    name: "banish"
-    description: "THE ANGEL, BANISHED, WILL\nFINALLY MEET WITH ITS DESIRE."
-    trigger: ENTITY_KILL
-    target: GUARDIAN
+  # Music Disc 5 → acquire the item (requires 1.19.3+ server to be valid)
+  - id: relic_disc5
+    name: "Music Disc 5"
+    description: "A SONG FROM THE DEPTHS, UNEARTHED AND MADE YOURS."
+    trigger: ITEM_ACQUIRE
+    target: MUSIC_DISC_5
     count: 1
     obfuscate_until_unlock: true
+
+  # Beacon → acquire the item
+  - id: relic_beacon
+    name: "Beacon"
+    description: "THE STAR OF THE NETHER, SHAPED INTO A SIGNAL OF LIGHT."
+    trigger: ITEM_ACQUIRE
+    target: BEACON
+    count: 1
+
+  # Mace → acquire the item (requires 1.21+ server)
+  - id: relic_mace
+    name: "Mace"
+    description: "A HEAVY, DEVASTATING WEAPON, FORGED FOR A FINAL STRIKE."
+    trigger: ITEM_ACQUIRE
+    target: MACE
+    count: 1
+
+  # Dark Wither → defeat the tagged boss
+  - id: dark_wither
+    name: "Dark Wither"
+    description: "THE SHADOWED TITAN, CALLED BY PROPHECY, FALLS AT LAST."
+    trigger: ENTITY_KILL
+    target: WITHER
+    entity_tag: DarkWither
+    count: 1

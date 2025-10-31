@@ -1,0 +1,207 @@
+Freeze:
+  # Core freeze settings
+  core:
+    mobs:
+      kill_on_freeze: true
+      prevent_spawn: true
+    notifications:
+      mute_chat: false
+      silent: false
+      cooldown_ms: 1500
+    time:
+      lock_midnight: true
+
+  # Success state
+  success:
+    initial_sound:
+      enabled: false
+      sound: prophecy:events.revival
+      volume: 1.0
+      pitch: 1.0
+      sound_length: 8.0
+    music:
+      enabled: false
+      sound: prophecy:events.audio_drone
+      volume: 1.0
+      pitch: 1.0
+      loop_seconds: 9.0
+    sequence:
+      - title: '\uE002'
+        subtitle: '{"text":"","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 6.0
+        stay_seconds: 2.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"IT IS DONE.","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"THE WORLD — STABILIZED.","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"THE BALANCE — RETURNED.","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"YOU HAVE SAVED","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 4.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"EVERYTHING","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 3.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"THAT WAS MEANT TO BE SAVED.","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 8.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"AND YET.","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"BEYOND THE DEPTHS","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"SLOWLY","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 4.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"A HEART BEGINS TO BEAT.","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"ANOTHER REALM.","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 3.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"ANOTHER WORLD.","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"ALREADY BEGINS TO WAVER.","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"SOMETHING THERE","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"HAS LEARNED OF YOU.","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"REST NOW.","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 4.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"THE NEXT CONNECTION","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"BEGINS TO TAKE SHAPE.","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"WHEN IT DOES","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 5.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: ''
+        subtitle: '{"text":"WE WILL MEET AGAIN.","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 10.0
+        fade_out_seconds: 0.0
+        commands: []
+      - title: '\uE002'
+        subtitle: '{"text":"","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+        fade_in_seconds: 0.0
+        stay_seconds: 15.0
+        fade_out_seconds: 0.0
+        commands:
+          - 'stop'
+    post_sequence:
+      title: '\uE002'
+      subtitle: '{"text":"","color":"black","bold":true,"shadow_color":[0, 0, 0, 0]}'
+      music:
+        enabled: false
+        sound: prophecy:events.audio_post
+        volume: 1.0
+        pitch: 1.0
+        loop_seconds: 20.0
+
+  # Failure state
+  fail:
+    initial_sound:
+      enabled: false
+      sound: prophecy:events.audio_failure_intro
+      volume: 1.0
+      pitch: 1.0
+      sound_length: 2.0
+    music:
+      enabled: false
+      sound: prophecy:events.audio_failure
+      volume: 1.0
+      pitch: 1.0
+      loop_seconds: 20.0
+    sequence: []
+    post_sequence:
+      title: '&cFailed'
+      subtitle: '&7Try again'
+      music:
+        enabled: false
+        sound: prophecy:events.audio_post_fail
+        volume: 1.0
+        pitch: 1.0
+        loop_seconds: 20.0

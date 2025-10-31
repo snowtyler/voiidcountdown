@@ -1,9 +1,9 @@
 package voiidstudios.vct.managers;
 
 import com.sk89q.worldedit.EditSession;
-import com.sk89q.worldedit.WorldEditException;
 import com.sk89q.worldedit.WorldEdit;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
+import com.sk89q.worldedit.math.BlockVector3;
 import org.bukkit.Chunk;
 import org.bukkit.Location;
 import org.bukkit.Material;
@@ -345,18 +345,15 @@ public class VisualBlockManager {
 
                     try (EditSession editSession = WorldEdit.getInstance().newEditSessionBuilder()
                         .world(weWorld)
-                        .fastMode(true)
-                        .allowedRegionsEverywhere()
                         .build()) {
                 for (BlockPosition position : layer) {
                     Block block = world.getBlockAt(position.x, position.y, position.z);
                     String key = coordKey(position.x, position.y, position.z);
                     originalStates.computeIfAbsent(key, k -> block.getState());
                     touchedBlocks.add(key);
-                    editSession.setBlock(position.x, position.y, position.z, targetState);
+                    editSession.setBlock(BlockVector3.at(position.x, position.y, position.z), targetState);
                 }
-                editSession.flushQueue();
-            } catch (WorldEditException e) {
+            } catch (Exception e) {
                 VisualBlockManager.this.plugin.getLogger().log(Level.WARNING,
                         "Failed to queue pillar layer in world " + world.getName(), e);
                 return false;

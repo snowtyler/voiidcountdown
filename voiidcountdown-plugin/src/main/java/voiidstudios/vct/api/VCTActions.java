@@ -13,6 +13,120 @@ import voiidstudios.vct.managers.TimerManager;
 import voiidstudios.vct.utils.TimerDefaults;
 
 public class VCTActions {
+    /**
+     * Creates an indestructible End Crystal at the given world and coordinates and places an INTERACTION
+     * entity at the same spot with the scoreboard tag "shrine_interact". The interaction entity will have
+     * a width of 2 and height of 3 so players can click it easily. If the INTERACTION entity type is not
+     * available on the running server, only the End Crystal will be created.
+     *
+     * Inputs:
+     * - worldName: Exact name of the target world
+     * - x, y, z: Coordinates to spawn at (centered at the given location)
+     *
+     * Returns: The spawned EnderCrystal if successful, otherwise null.
+     */
+    public static org.bukkit.entity.EnderCrystal createIndestructibleEndCrystalWithInteraction(String worldName, double x, double y, double z) {
+        org.bukkit.World world = org.bukkit.Bukkit.getWorld(worldName);
+        if (world == null) {
+            VoiidCountdownTimer.getInstance().getLogger().warning("createIndestructibleEndCrystalWithInteraction: world not found: " + worldName);
+            return null;
+        }
+
+        // Ensure the target chunk is loaded to avoid spawn failures on some servers
+        try {
+            int cx = (int) Math.floor(x) >> 4;
+            int cz = (int) Math.floor(z) >> 4;
+            if (!world.isChunkLoaded(cx, cz)) {
+                try { world.loadChunk(cx, cz, false); } catch (Throwable ignored) { world.loadChunk(cx, cz); }
+            }
+        } catch (Throwable ignored) {}
+
+        org.bukkit.Location loc = new org.bukkit.Location(world, x, y, z);
+
+        // Spawn End Crystal
+        org.bukkit.entity.EnderCrystal crystal;
+        try {
+            crystal = world.spawn(loc, org.bukkit.entity.EnderCrystal.class, c -> {
+                // Prefer API methods when available; fall back to reflection where needed
+                try { c.setShowingBottom(false); } catch (Throwable ignored) {}
+                // Mark as invulnerable when supported (modern servers)
+                try { c.setInvulnerable(true); } catch (Throwable ignored) {
+                    // Fallback via reflection for older APIs
+                    try {
+                        java.lang.reflect.Method m = c.getClass().getMethod("setInvulnerable", boolean.class);
+                        m.invoke(c, true);
+                    } catch (Throwable ignored2) {}
+                }
+                // Attempt to mark as persistent (method may not exist on this type; use reflection)
+                try {
+                    java.lang.reflect.Method m = c.getClass().getMethod("setRemoveWhenFarAway", boolean.class);
+                    m.invoke(c, false);
+                } catch (Throwable ignored) {}
+                try { c.addScoreboardTag("shrine_crystal"); } catch (Throwable ignored) {}
+            });
+        } catch (Throwable t) {
+            VoiidCountdownTimer.getInstance().getLogger().warning("Failed spawning End Crystal: " + t.getMessage());
+            return null;
+        }
+
+        // Attempt to spawn the INTERACTION entity (available on modern Paper/Spigot)
+        try {
+            org.bukkit.entity.Entity interaction = null;
+            org.bukkit.entity.EntityType type = null;
+            try {
+                type = org.bukkit.entity.EntityType.valueOf("INTERACTION");
+            } catch (IllegalArgumentException iae) {
+                type = null; // Not supported on this server
+            }
+
+            if (type != null) {
+                interaction = world.spawnEntity(loc, type);
+                if (interaction != null) {
+                    // Tag it for InteractionActionManager rules
+                    try { interaction.addScoreboardTag("shrine_interact"); } catch (Throwable ignored) {}
+
+                    // Make it invulnerable if API supports it
+                    try { interaction.setInvulnerable(true); } catch (Throwable ignored) {
+                        try {
+                            java.lang.reflect.Method m = interaction.getClass().getMethod("setInvulnerable", boolean.class);
+                            m.invoke(interaction, true);
+                        } catch (Throwable ignored2) {}
+                    }
+
+                    // Configure size: width=3, height=3 (method names vary across API variants)
+                    final float width = 3.0f;
+                    final float height = 3.0f;
+                    boolean sized = false;
+                    try {
+                        java.lang.reflect.Method mw = interaction.getClass().getMethod("setInteractionWidth", float.class);
+                        java.lang.reflect.Method mh = interaction.getClass().getMethod("setInteractionHeight", float.class);
+                        mw.invoke(interaction, width);
+                        mh.invoke(interaction, height);
+                        sized = true;
+                    } catch (Throwable ignored) {}
+                    if (!sized) {
+                        try {
+                            java.lang.reflect.Method mw = interaction.getClass().getMethod("setWidth", float.class);
+                            java.lang.reflect.Method mh = interaction.getClass().getMethod("setHeight", float.class);
+                            mw.invoke(interaction, width);
+                            mh.invoke(interaction, height);
+                            sized = true;
+                        } catch (Throwable ignored) {}
+                    }
+
+                    // Attempt to disable gravity/visibility if present (purely cosmetic/UX)
+                    try { interaction.setGravity(false); } catch (Throwable ignored) {}
+                    try { interaction.setSilent(true); } catch (Throwable ignored) {}
+                }
+            } else {
+                VoiidCountdownTimer.getInstance().getLogger().info("INTERACTION entity type not available on this server; spawned only the End Crystal.");
+            }
+        } catch (Throwable t) {
+            VoiidCountdownTimer.getInstance().getLogger().warning("Failed spawning INTERACTION entity: " + t.getMessage());
+        }
+
+        return crystal;
+    }
     public static Timer createTimer(String timeHHMMSS, @Nullable String timerId, @Nullable CommandSender sender) {
         int totalSeconds = helper_parseTimeToSeconds(timeHHMMSS);
         if (totalSeconds <= 0) return null;

@@ -29,17 +29,17 @@ public class MessagesManager {
 		prefix = setprefix;
 	}
 
-	public void sendMessage(CommandSender sender, String message, boolean prefix){
-		if(!message.isEmpty()){
-			if(prefix){
-				sender.sendMessage(getColoredMessage(prefix + message));
-			}else{
-				sender.sendMessage(getColoredMessage(message));
-			}
+	public void sendMessage(CommandSender sender, String message, boolean withPrefix){
+		if(message == null || message.isEmpty()) return;
+		boolean allowPrefix = withPrefix && mainConfigManager != null && mainConfigManager.isUsePrefix();
+		if(allowPrefix){
+			sender.sendMessage(getColoredMessage(VoiidCountdownTimer.prefix + message));
+		}else{
+			sender.sendMessage(getColoredMessage(message));
 		}
 	}
 
-	public void sendConfigMessage(CommandSender sender, String path, boolean prefix, Map<String, String> replacements) {
+	public void sendConfigMessage(CommandSender sender, String path, boolean withPrefix, Map<String, String> replacements) {
 		FileConfiguration config = mainConfigManager.getConfig();
 
 		String message = config.getString(path);
@@ -51,7 +51,8 @@ public class MessagesManager {
 				}
 			}
 
-			if (prefix) {
+			boolean allowPrefix = withPrefix && mainConfigManager != null && mainConfigManager.isUsePrefix();
+			if (allowPrefix) {
 				sender.sendMessage(getColoredMessage(VoiidCountdownTimer.prefix + message));
 			} else {
 				sender.sendMessage(getColoredMessage(message));

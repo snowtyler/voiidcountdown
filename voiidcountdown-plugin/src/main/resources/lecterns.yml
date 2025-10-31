@@ -1,0 +1,3 @@
+# Protected lecterns configuration
+# Entries are of the form: world;x;y;z
+protected: []

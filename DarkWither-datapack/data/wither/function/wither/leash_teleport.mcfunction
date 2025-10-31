@@ -19,6 +19,3 @@ execute positioned 0.0 0.0 0.0 run function wither:wither/leash_restore_pos
 # Visual effects after teleport
 execute at @s run particle minecraft:portal ~ ~1 ~ 0.5 1 0.5 1 100 normal
 execute at @s run playsound minecraft:entity.enderman.teleport hostile @a ~ ~ ~ 2 1.2
-
-# Optional: Send message to nearby players
-execute at @s run title @a[distance=..100] actionbar {"text":"The Dark Wither has returned to the arena!","color":"dark_red","bold":true}

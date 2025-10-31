@@ -110,33 +110,39 @@ public enum Formatter {
 
                     Object component = legacyCls.getMethod("deserialize", String.class).invoke(hexSerializer, legacySerialized);
 
-                    Class<?> miniCls = Class.forName("net.kyori.adventure.text.minimessage.MiniMessage");
-                    Object mini = miniCls.getMethod("miniMessage").invoke(null);
-
-                    String miniSerialized = (String) miniCls
-                            .getMethod("serialize", Class.forName("net.kyori.adventure.text.Component"))
-                            .invoke(mini, component);
-
-                    String cleaned = miniSerialized.replace("\\<", "<").replace("\\\\", "");
-
+                    // Try MiniMessage round-trip; if it fails for this frame, gracefully return the legacy component
                     try {
-                        return miniCls.getMethod("deserialize", String.class).invoke(mini, cleaned);
-                    } catch (NoSuchMethodException ignored) {}
+                        Class<?> miniCls = Class.forName("net.kyori.adventure.text.minimessage.MiniMessage");
+                        Object mini = miniCls.getMethod("miniMessage").invoke(null);
 
-                    try {
-                        return miniCls.getMethod("deserialize", CharSequence.class).invoke(mini, cleaned);
-                    } catch (NoSuchMethodException ignored) {}
+                        String miniSerialized = (String) miniCls
+                                .getMethod("serialize", Class.forName("net.kyori.adventure.text.Component"))
+                                .invoke(mini, component);
 
-                    try {
-                        Class<?> tagResolverClass = Class.forName("net.kyori.adventure.text.minimessage.tag.resolver.TagResolver");
-                        Object emptyResolvers = java.lang.reflect.Array.newInstance(tagResolverClass, 0);
-                        return miniCls.getMethod("deserialize", String.class, emptyResolvers.getClass()).invoke(mini, cleaned, emptyResolvers);
-                    } catch (NoSuchMethodException | ClassNotFoundException ignored) {}
+                        // Clean a couple of common escape artifacts when converting between serializers
+                        String cleaned = miniSerialized.replace("\\<", "<").replace("\\\\", "");
+
+                        try {
+                            return miniCls.getMethod("deserialize", String.class).invoke(mini, cleaned);
+                        } catch (NoSuchMethodException ignored) {}
+
+                        try {
+                            return miniCls.getMethod("deserialize", CharSequence.class).invoke(mini, cleaned);
+                        } catch (NoSuchMethodException ignored) {}
+
+                        try {
+                            Class<?> tagResolverClass = Class.forName("net.kyori.adventure.text.minimessage.tag.resolver.TagResolver");
+                            Object emptyResolvers = java.lang.reflect.Array.newInstance(tagResolverClass, 0);
+                            return miniCls.getMethod("deserialize", String.class, emptyResolvers.getClass()).invoke(mini, cleaned, emptyResolvers);
+                        } catch (NoSuchMethodException | ClassNotFoundException ignored) {}
+                    } catch (Exception miniEx) {
+                        // If MiniMessage chokes on this specific frame, just return the already-built legacy component.
+                        return component;
+                    }
 
                 } catch (Exception e) {
-                    Bukkit.getConsoleSender().sendMessage(
-                            MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix+"&cUniversal unavailable: " + e.getClass().getName() + ": " + e.getMessage())
-                    );
+                    // Throttle noisy logs: only emit the first occurrence, then fall back silently
+                    universalLogOnce(e);
                 }
 
                 // fallback
@@ -145,6 +151,17 @@ public enum Formatter {
             "Universal"
     );
 
+    private static void universalLogOnce(Exception e) {
+        if (UniversalOnceHolder.LOGGED.compareAndSet(false, true)) {
+            Bukkit.getConsoleSender().sendMessage(
+                    MessagesManager.getColoredMessage(VoiidCountdownTimer.prefix+"&cUniversal unavailable: " + e.getClass().getName() + ": " + e.getMessage())
+            );
+        }
+    }
+
+    private static final class UniversalOnceHolder {
+        private static final java.util.concurrent.atomic.AtomicBoolean LOGGED = new java.util.concurrent.atomic.AtomicBoolean(false);
+    }
     private static Boolean HAS_LEGACY_SERIALIZER = null;
     private static Boolean HAS_MINI_MESSAGE = null;
 

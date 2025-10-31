@@ -45,6 +45,10 @@ This repo ships three deliverables plus docs. Keep them separate when editing:
 - Tick flow: `internal/api/tick.mcfunction` updates bossbar max/value, decrements seconds, calls style manager, normalizes, and triggers finish.
 - Command tab-complete: extend builders at bottom of `commands/MainCommand.java` (`onTabComplete`).
 
+# Deletions
+
+- If we request to clean up or remove a feature, ensure to delete all related code in both the plugin and/or datapack (e.g., styles, commands, config entries). Files can be removed from the respective directories as needed using PowerShell or command line.
+
 ## Gotchas
 - Do not remove `custom/styles_manager.mcfunction`; the tick loop depends on it every tick.
 - Keep namespaced function paths stable when referenced from `data/minecraft/tags/**` or `schedule function` calls.

@@ -20,6 +20,20 @@ public class MainConfigManager {
     private int refresh_ticks;
     private boolean save_state_timers;
     private boolean custom_dark_wither_summon_enabled;
+    private boolean use_prefix;
+    // ItemFrameSensor configuration
+    private boolean itemFrameSensorEnabled;
+    private String itemFrameSensorWorld;
+    private int itemFrameSensorX;
+    private int itemFrameSensorY;
+    private int itemFrameSensorZ;
+    private String itemFrameSensorFacing;
+    private String itemFrameSensorMaterial;
+    private int itemFrameSensorCheckPeriod;
+    private boolean itemFrameSensorFireOnStartup;
+    private String itemFrameSensorPermission;
+    private boolean itemFrameSensorProtectAnchor;
+    private boolean itemFrameSensorProtectFrame;
     // Test pillar configuration
     private boolean testpillar_unbreakable;
     private double testpillar_radius;
@@ -48,6 +62,21 @@ public class MainConfigManager {
         refresh_ticks = config.getInt("Config.refresh_ticks");
         save_state_timers = config.getBoolean("Config.save_state_timers");
         custom_dark_wither_summon_enabled = config.getBoolean("Config.enable_custom_dark_wither_summon", false);
+        use_prefix = config.getBoolean("Config.use_prefix", true);
+
+        // ItemFrameSensor
+        itemFrameSensorEnabled = config.getBoolean("ItemFrameSensor.enabled", false);
+        itemFrameSensorWorld = config.getString("ItemFrameSensor.world", "world");
+        itemFrameSensorX = config.getInt("ItemFrameSensor.x", 0);
+        itemFrameSensorY = config.getInt("ItemFrameSensor.y", 64);
+        itemFrameSensorZ = config.getInt("ItemFrameSensor.z", 0);
+        itemFrameSensorFacing = config.getString("ItemFrameSensor.facing", "");
+        itemFrameSensorMaterial = config.getString("ItemFrameSensor.item_material", "DIAMOND");
+        itemFrameSensorCheckPeriod = Math.max(1, config.getInt("ItemFrameSensor.check_period_ticks", 10));
+        itemFrameSensorFireOnStartup = config.getBoolean("ItemFrameSensor.fire_on_startup", false);
+        itemFrameSensorPermission = config.getString("ItemFrameSensor.permission_to_grant", "");
+        itemFrameSensorProtectAnchor = config.getBoolean("ItemFrameSensor.protect_anchor_block", true);
+        itemFrameSensorProtectFrame = config.getBoolean("ItemFrameSensor.protect_item_frame", true);
 
         // Test pillar defaults
         testpillar_unbreakable = config.getBoolean("TestPillar.unbreakable", true);
@@ -117,6 +146,25 @@ public class MainConfigManager {
             if(!text.contains("enable_custom_dark_wither_summon:")){
                 getConfig().set("Config.enable_custom_dark_wither_summon", false);
                 saveConfig();
+            }
+            if(!text.contains("use_prefix:")){
+                getConfig().set("Config.use_prefix", true);
+                saveConfig();
+            }
+
+            // Ensure DarkWither kill command defaults exist
+            if(!text.contains("DarkWither:")){
+                java.util.List<String> cmds = new java.util.ArrayList<>();
+                cmds.add("say Dark Wither has been slain at %X% %Y% %Z% in %WORLD% by %KILLER%");
+                getConfig().set("DarkWither.on_kill_commands", cmds);
+                saveConfig();
+            } else {
+                if (!getConfig().contains("DarkWither.on_kill_commands")) {
+                    java.util.List<String> cmds = new java.util.ArrayList<>();
+                    cmds.add("say Dark Wither has been slain at %X% %Y% %Z% in %WORLD% by %KILLER%!");
+                    getConfig().set("DarkWither.on_kill_commands", cmds);
+                    saveConfig();
+                }
             }
 
             if(!text.contains("TestPillar:")){
@@ -192,46 +240,38 @@ public class MainConfigManager {
                 }
             }
 
-            // Ensure Freeze defaults exist
-            if(!text.contains("Freeze:")){
-                getConfig().set("Freeze.default_freeze_mobs", false);
-                getConfig().set("Freeze.title.text", "&cServer Frozen");
-                getConfig().set("Freeze.title.subtitle", "&7Please wait");
-                getConfig().set("Freeze.title.fade_in", 10);
-                getConfig().set("Freeze.title.stay", 60);
-                getConfig().set("Freeze.title.fade_out", 20);
-                getConfig().set("Freeze.blindness.enabled", true);
-                getConfig().set("Freeze.blindness.amplifier", 0);
-                getConfig().set("Freeze.blindness.ambient", false);
-                getConfig().set("Freeze.blindness.particles", false);
-                getConfig().set("Freeze.notifications.cooldown_ms", 1500L);
-                getConfig().set("Freeze.notifications.silent", false);
-                getConfig().set("Freeze.title.keepalive_ticks", 40);
-                getConfig().set("Freeze.mobs.prevent_spawn", true);
-                getConfig().set("Freeze.mobs.kill_on_freeze", true);
-                getConfig().set("Freeze.time.lock_midnight", true);
-                getConfig().set("Freeze.time.keepalive_ticks", 100);
-                getConfig().set("Freeze.music.enabled", false);
-                getConfig().set("Freeze.music.sound", "minecraft:music.menu");
-                getConfig().set("Freeze.music.volume", 1.0D);
-                getConfig().set("Freeze.music.pitch", 1.0D);
-                getConfig().set("Freeze.music.loop_seconds", 20D);
+            // Ensure ItemFrameSensor defaults exist
+            if (!getConfig().contains("ItemFrameSensor")) {
+                getConfig().set("ItemFrameSensor.enabled", false);
+                getConfig().set("ItemFrameSensor.world", "world");
+                getConfig().set("ItemFrameSensor.x", 0);
+                getConfig().set("ItemFrameSensor.y", 64);
+                getConfig().set("ItemFrameSensor.z", 0);
+                getConfig().set("ItemFrameSensor.facing", "");
+                getConfig().set("ItemFrameSensor.item_material", "DIAMOND");
+                getConfig().set("ItemFrameSensor.check_period_ticks", 10);
+                getConfig().set("ItemFrameSensor.fire_on_startup", false);
+                getConfig().set("ItemFrameSensor.permission_to_grant", "");
+                getConfig().set("ItemFrameSensor.commands_on_present", new java.util.ArrayList<String>());
+                getConfig().set("ItemFrameSensor.commands_on_absent", new java.util.ArrayList<String>());
                 saveConfig();
-            }
-            else {
-                boolean updated = false;
-                // Use config.contains() for nested keys instead of raw text search to avoid false negatives
-                if (!getConfig().contains("Freeze.notifications.silent")) {
-                    getConfig().set("Freeze.notifications.silent", false);
-                    updated = true;
-                }
-                if (!getConfig().contains("Freeze.music.loop_seconds")) {
-                    int legacyTicks = getConfig().getInt("Freeze.music.loop_ticks", 400);
-                    double secs = Math.max(1D, legacyTicks / 20D);
-                    getConfig().set("Freeze.music.loop_seconds", secs);
-                    updated = true;
-                }
-                if (updated) saveConfig();
+            } else {
+                boolean updatedIFS = false;
+                if (!getConfig().contains("ItemFrameSensor.enabled")) { getConfig().set("ItemFrameSensor.enabled", false); updatedIFS = true; }
+                if (!getConfig().contains("ItemFrameSensor.world")) { getConfig().set("ItemFrameSensor.world", "world"); updatedIFS = true; }
+                if (!getConfig().contains("ItemFrameSensor.x")) { getConfig().set("ItemFrameSensor.x", 0); updatedIFS = true; }
+                if (!getConfig().contains("ItemFrameSensor.y")) { getConfig().set("ItemFrameSensor.y", 64); updatedIFS = true; }
+                if (!getConfig().contains("ItemFrameSensor.z")) { getConfig().set("ItemFrameSensor.z", 0); updatedIFS = true; }
+                if (!getConfig().contains("ItemFrameSensor.facing")) { getConfig().set("ItemFrameSensor.facing", ""); updatedIFS = true; }
+                if (!getConfig().contains("ItemFrameSensor.item_material")) { getConfig().set("ItemFrameSensor.item_material", "DIAMOND"); updatedIFS = true; }
+                if (!getConfig().contains("ItemFrameSensor.check_period_ticks")) { getConfig().set("ItemFrameSensor.check_period_ticks", 10); updatedIFS = true; }
+                if (!getConfig().contains("ItemFrameSensor.fire_on_startup")) { getConfig().set("ItemFrameSensor.fire_on_startup", false); updatedIFS = true; }
+                if (!getConfig().contains("ItemFrameSensor.permission_to_grant")) { getConfig().set("ItemFrameSensor.permission_to_grant", ""); updatedIFS = true; }
+                if (!getConfig().contains("ItemFrameSensor.commands_on_present")) { getConfig().set("ItemFrameSensor.commands_on_present", new java.util.ArrayList<String>()); updatedIFS = true; }
+                if (!getConfig().contains("ItemFrameSensor.commands_on_absent")) { getConfig().set("ItemFrameSensor.commands_on_absent", new java.util.ArrayList<String>()); updatedIFS = true; }
+                if (!getConfig().contains("ItemFrameSensor.protect_anchor_block")) { getConfig().set("ItemFrameSensor.protect_anchor_block", true); updatedIFS = true; }
+                if (!getConfig().contains("ItemFrameSensor.protect_item_frame")) { getConfig().set("ItemFrameSensor.protect_item_frame", true); updatedIFS = true; }
+                if (updatedIFS) saveConfig();
             }
 
             if(!text.contains("timerSetError:")){
@@ -239,6 +279,43 @@ public class MainConfigManager {
                 getConfig().set("Messages.timerSetFormatIncorrect", "&cIncorrect format. Please use HH:MM:SS");
                 getConfig().set("Messages.timerSetFormatInvalid", "&cThe format does not contain a valid number.");
                 getConfig().set("Messages.timerSetFormatOutRange", "&cThe timer must be greater than 0 seconds.");
+                saveConfig();
+            }
+            // Ensure Messages.prefix and lectern-related messages exist
+            if (!getConfig().contains("Messages.prefix")) {
+                getConfig().set("Messages.prefix", "&5[&dVCT&5] ");
+                saveConfig();
+            }
+            if (!getConfig().contains("Messages.lectern.mustLook")) {
+                getConfig().set("Messages.lectern.mustLook", "&cYou must look at a lectern within 6 blocks.");
+                saveConfig();
+            }
+            if (!getConfig().contains("Messages.lectern.protected")) {
+                getConfig().set("Messages.lectern.protected", "&aProtected lectern at &f%WORLD% &7(%X%, %Y%, %Z%)");
+                saveConfig();
+            }
+            if (!getConfig().contains("Messages.lectern.alreadyProtected")) {
+                getConfig().set("Messages.lectern.alreadyProtected", "&eThat lectern is already protected.");
+                saveConfig();
+            }
+            if (!getConfig().contains("Messages.lectern.unprotected")) {
+                getConfig().set("Messages.lectern.unprotected", "&aRemoved protection from lectern at &f%WORLD% &7(%X%, %Y%, %Z%)");
+                saveConfig();
+            }
+            if (!getConfig().contains("Messages.lectern.notProtected")) {
+                getConfig().set("Messages.lectern.notProtected", "&eThat lectern is not protected.");
+                saveConfig();
+            }
+            if (!getConfig().contains("Messages.lectern.copy.noQuill")) {
+                getConfig().set("Messages.lectern.copy.noQuill", "&eThis lectern is protected. Hold a &fBook and Quill &eto copy the prophecy.");
+                saveConfig();
+            }
+            if (!getConfig().contains("Messages.lectern.copy.success")) {
+                getConfig().set("Messages.lectern.copy.success", "&aCopied prophecy into your inventory.");
+                saveConfig();
+            }
+            if (!getConfig().contains("Messages.lectern.copy.noBook")) {
+                getConfig().set("Messages.lectern.copy.noBook", "&cNo written book found on the lectern to copy.");
                 saveConfig();
             }
             if(!text.contains("timerModifyInvalid:")){
@@ -331,7 +408,7 @@ public class MainConfigManager {
 
             // Ensure Freeze messages exist
             if(!text.contains("freezeUsage:")){
-                getConfig().set("Messages.freezeUsage", "&cUse: /vct freeze <on|off|toggle|status> [mobs|nomobs]");
+                getConfig().set("Messages.freezeUsage", "&cUse: /vct freeze <success|fail|on|off|toggle|status> [mobs|nomobs]");
                 saveConfig();
             }
             if(!text.contains("freezeEnabled:")){
@@ -372,6 +449,28 @@ public class MainConfigManager {
             }
             if(!text.contains("freezeBlockedChat:")){
                 getConfig().set("Messages.freezeBlockedChat", "&cYou cannot chat while the server is frozen.");
+                saveConfig();
+            }
+
+            // Book give command messages
+            if (!getConfig().contains("Messages.bookGaveSelf")) {
+                getConfig().set("Messages.bookGaveSelf", "&aYou received the prophecy book.");
+                saveConfig();
+            }
+            if (!getConfig().contains("Messages.bookGaveOther")) {
+                getConfig().set("Messages.bookGaveOther", "&aGave the prophecy book to &f%PLAYER%&a.");
+                saveConfig();
+            }
+            if (!getConfig().contains("Messages.bookOnlyPlayers")) {
+                getConfig().set("Messages.bookOnlyPlayers", "&cOnly players can use this command.");
+                saveConfig();
+            }
+            if (!getConfig().contains("Messages.bookPlayerNotFound")) {
+                getConfig().set("Messages.bookPlayerNotFound", "&cPlayer '&f%PLAYER%&c' not found.");
+                saveConfig();
+            }
+            if (!getConfig().contains("Messages.bookTemplateMissing")) {
+                getConfig().set("Messages.bookTemplateMissing", "&cThe prophecy book template is not available.");
                 saveConfig();
             }
 
@@ -435,6 +534,10 @@ public class MainConfigManager {
         return refresh_ticks;
     }
 
+    public boolean isUsePrefix() {
+        return use_prefix;
+    }
+
     // Test pillar getters
     public boolean isTestPillarUnbreakable() { return testpillar_unbreakable; }
     public double getTestPillarRadius() { return testpillar_radius; }
@@ -451,4 +554,18 @@ public class MainConfigManager {
     public boolean isCustomDarkWitherSummonEnabled() {
         return custom_dark_wither_summon_enabled;
     }
+
+    // ItemFrameSensor getters
+    public boolean isItemFrameSensorEnabled() { return itemFrameSensorEnabled; }
+    public String getItemFrameSensorWorld() { return itemFrameSensorWorld; }
+    public int getItemFrameSensorX() { return itemFrameSensorX; }
+    public int getItemFrameSensorY() { return itemFrameSensorY; }
+    public int getItemFrameSensorZ() { return itemFrameSensorZ; }
+    public String getItemFrameSensorFacing() { return itemFrameSensorFacing; }
+    public String getItemFrameSensorMaterial() { return itemFrameSensorMaterial; }
+    public int getItemFrameSensorCheckPeriod() { return itemFrameSensorCheckPeriod; }
+    public boolean isItemFrameSensorFireOnStartup() { return itemFrameSensorFireOnStartup; }
+    public String getItemFrameSensorPermission() { return itemFrameSensorPermission; }
+    public boolean isItemFrameSensorProtectAnchor() { return itemFrameSensorProtectAnchor; }
+    public boolean isItemFrameSensorProtectFrame() { return itemFrameSensorProtectFrame; }
 }
